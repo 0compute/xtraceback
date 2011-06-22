@@ -5,14 +5,16 @@ import os
 import sys
 import traceback
 
-from pygments import highlight
+from nose.plugins import Plugin
+
+import pygments
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import bygroups, using
 from pygments.lexers.agile import PythonLexer, PythonTracebackLexer
 from pygments.token import Text, Comment, Operator, Name, Number, Generic, Other
 
 
-class StackReference(object):
+class Reference(object):
     
     def __init__(self, index, path, lineno, varname):
         self.index = index
@@ -21,10 +23,10 @@ class StackReference(object):
         self.varname = varname
 
     def marker(self, index):
-        return StackReferenceMarker(self, index)
+        return ReferenceMarker(self, index)
 
 
-class StackReferenceMarker(object):
+class ReferenceMarker(object):
     
     def __init__(self, ref, index):
         self.ref = ref
@@ -32,11 +34,11 @@ class StackReferenceMarker(object):
         self.offset = self.ref.index - self.index
         
     def __repr__(self):
-        return "<stackref pos=%d loc=%s:%s name=%s>" \
+        return "<ref pos=%d loc=%s:%s name=%s>" \
             % (self.offset, self.ref.path, self.ref.lineno, self.ref.varname)
 
 
-class StackFrame(object):
+class Frame(object):
     
     EXCLUDE = ("__builtins__",)
     
@@ -83,7 +85,7 @@ class StackFrame(object):
             elif isinstance(value, dict):
                 if self.compact:
                     # if we are being compact then replace dictionary references
-                    # from further up the stack with a StackReferenceMarker
+                    # from further up the stack with a ReferenceMarker
                     oid = id(value)
                     stack_ref = self.seen.get(oid)
                     if stack_ref is not None:
@@ -91,11 +93,11 @@ class StackFrame(object):
                         if marker.offset != 0:
                             value = marker
                     else:
-                        self.seen[oid] = StackReference(self.index,
+                        self.seen[oid] = Reference(self.index,
                                                         self.path,
                                                         self.lineno,
                                                         key)
-                if not isinstance(value, StackReferenceMarker):
+                if not isinstance(value, ReferenceMarker):
                     value = self._filter(value)
                 fdict[key] = value                                        
         return fdict
@@ -180,17 +182,21 @@ class PythonXTracebackLexer(PythonTracebackLexer):
 
     tokens = {
         "root": [
-            (r"^Traceback \(most recent call last\):\n", Generic.Error, "intb"),
+            # first line
+            (r"^Traceback \(most recent call last\):\n", Generic.Error),
             # SyntaxError starts with this.
-            (r'^(?=  File "[^"]+", line \d+)', Generic.Error, "intb"),
-            (r"^.*\n", Other),
-        ],
-        "intb": [
-            # file with optional func name
+            (r'^(?=  File "[^"]+", line \d+)', Generic.Error),
+            # File ..., in ...
             (r'^(  File )("[^"]+")(, in )(.+)(\n)',
-             bygroups(Generic.Error, Name.Builtin, Text, Name.Function, Text)),
+             bygroups(Generic.Error, Name.Builtin, Text, Name.Function, Text), "intb"),
+            # File ...
             (r'^(  File )("[^"]+")(\n)',
-             bygroups(Text, Name.Builtin, Text)),
+             bygroups(Text, Name.Builtin, Text), "intb"),
+            # exception
+            (r"^(.+)(:)(.+\n)", bygroups(Generic.Error, Text, Name.Exception)),
+            (r"^.*\n", Other),
+            ],
+        "intb": [
             # error line
             (r"^([-]+>[ ]+\d+)(.+)(\n)",
              bygroups(Generic.Error, using(PythonLexer), Text)),
@@ -212,51 +218,35 @@ class PythonXTracebackLexer(PythonTracebackLexer):
             # doctests
             (r"^([ \t]*)(...)(\n)",
              bygroups(Text, Comment, Text)),
-            # exception with message
-            (r"^(.+)(: )(.+)(\n)",
-             bygroups(Generic.Error, Text, Name.Exception, Text), "#pop"),
-            # exception no message
-            (r"^([a-zA-Z_][a-zA-Z0-9_]*)(:?\n)",
-             bygroups(Generic.Error, Text), "#pop")
-        ],
-    }
+            ],
+        }
 
 
 class XTraceback(object):
     """
-    An extended traceback formatter
-    
-    Inspired by the ultraTB module from IPython
+    An extended traceback formatter intended to be compatible with the stdlib's
+    traceback module.
     """
     
     _lexer_class = PythonXTracebackLexer
     _formatter_class = TerminalFormatter
     
-    def __init__(self, offset=0, context=5, compact=True, color=None):
+    def __init__(self, offset=0, context=5, color=None, compact=True):
         
         self.offset = offset
         self.context = context
-        self.compact = compact
         self.color = color
+        self.compact = compact
+        
         self.lexer = self._lexer_class()
         self.formatter = self._formatter_class()
         
         self._entered = False 
         self._patch_stack = []
     
-    def _patch_target(self, target, member, patch):
-        if isinstance(target, dict):
-            target[member] = patch
-        else:
-            setattr(target, member, patch)
-            
     def _patch(self, target, member, patch):
-        if isinstance(target, dict):
-            current = target[member]
-        else:
-            current = getattr(target, member)
-        self._patch_stack.append((target, member, current))
-        self._patch_target(target, member, patch)
+        self._patch_stack.append((target, member, getattr(target, member)))
+        setattr(target, member, patch)
     
     def __enter__(self):
         
@@ -265,7 +255,7 @@ class XTraceback(object):
         self._entered = True
         
         # patch traceback module
-        for func in ("print_tb", "format_tb"):
+        for func in ("print_tb", "format_tb", "format_exception"):
             self._patch(traceback,
                         func,
                         functools.partial(getattr(self.__class__, func), self))
@@ -287,7 +277,7 @@ class XTraceback(object):
         
         while self._patch_stack:
             target, member, patch = self._patch_stack.pop()
-            self._patch_target(target, member, patch)
+            setattr(target, member, patch)
     
     def pop(self, *exc_info):
         self.__exit__(*exc_info)
@@ -295,8 +285,10 @@ class XTraceback(object):
     def __getattr__(self, key):
         return getattr(traceback, key)
     
-    def highlight_exc_str(self, exc_str):    
-        return highlight(exc_str, self.lexer, self.formatter)
+    def highlight(self, string):
+        if self.color:  
+            return pygments.highlight(string, self.lexer, self.formatter)
+        return string
     
     def print_tb(self, tb, limit=None, file=None):
         if file is None:
@@ -304,7 +296,7 @@ class XTraceback(object):
         if limit is None:
             if hasattr(sys, "tracebacklimit"):
                 limit = sys.tracebacklimit
-        file.write(self.format_tb(tb, limit))
+        file.write("".join(self.format_tb(tb, limit)))
         
     def format_tb(self, tb, limit = None):
         
@@ -319,13 +311,44 @@ class XTraceback(object):
         seen = {} 
         lines = []
         for index, args in enumerate(frames):
-            frame = StackFrame(seen, number_padding, index, self.compact, *args)
-            lines.append(frame.format())
+            frame = Frame(seen, number_padding, index, self.compact, *args)
+            lines.append(self.highlight(frame.format()))
         
         return lines
     
+    def format_exception(self, etype, value, tb, limit=None):
+        lines = []
+        if tb:
+            lines.append(self.highlight("Traceback (most recent call last):\n"))
+            lines.extend(self.format_tb(tb, limit))
+        lines.append(self.highlight("".join(self.format_exception_only(etype, value))))
+        return lines
+
     def __call__(self, etype, value, tb, limit=None):
-        exc_str = "".join(self.format_exception(etype, value, tb, limit=None))
-        if self.color:
-            exc_str = self.highlight_exc_str(exc_str)
-        return exc_str
+        return "".join(self.format_exception(etype, value, tb, limit=limit))
+
+
+class NoseXTraceback(Plugin):
+    
+    score = 600 # before capture
+    env_opt = "NOSE_XTRACEBACK"
+    
+    def options(self, parser, env):
+        """Register commmandline options.
+        """
+        parser.add_option(
+            "", "--with-xtraceback",
+            action="store_true",
+            default=env.get("NOSE_XTRACEBACK"),
+            dest="xtraceback", help="Enable XTraceback plugin [NOSE_XTRACEBACK]")
+
+    def configure(self, options, conf):
+        """Configure plugin.
+        """
+        if not self.can_configure:
+            return
+        self.enabled = options.xtraceback
+        if self.enabled:
+            traceback = XTraceback()
+            traceback.push()
+        self.conf = conf

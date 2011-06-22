@@ -9,5 +9,7 @@ setup(name="xtraceback",
       author_email="support@ischium.net",
       url="http://www.ischium.net/",
       install_requires=("pygments",),
+      entry_points={
+          "nose.plugins" : ("xtraceback=xtraceback:NoseXTraceback",),
+          },
       )
-
