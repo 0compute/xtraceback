@@ -224,22 +224,19 @@ class PythonXTracebackLexer(PythonTracebackLexer):
 
 class XTraceback(object):
     """
-    An extended traceback formatter intended to be compatible with the stdlib's
-    traceback module.
+    An extended traceback formatter
     """
     
-    _lexer_class = PythonXTracebackLexer
-    _formatter_class = TerminalFormatter
-    
-    def __init__(self, offset=0, context=5, color=None, compact=True):
+    def __init__(self, offset=0, context=5, color=None, compact=True,
+                 lexer=None, formatter=None):
         
         self.offset = offset
         self.context = context
         self.color = color
         self.compact = compact
         
-        self.lexer = self._lexer_class()
-        self.formatter = self._formatter_class()
+        self.lexer = lexer or PythonXTracebackLexer()
+        self.formatter = formatter or TerminalFormatter()
         
         self._entered = False 
         self._patch_stack = []
@@ -334,8 +331,6 @@ class NoseXTraceback(Plugin):
     env_opt = "NOSE_XTRACEBACK"
     
     def options(self, parser, env):
-        """Register commmandline options.
-        """
         parser.add_option(
             "", "--with-xtraceback",
             action="store_true",
@@ -343,8 +338,6 @@ class NoseXTraceback(Plugin):
             dest="xtraceback", help="Enable XTraceback plugin [NOSE_XTRACEBACK]")
 
     def configure(self, options, conf):
-        """Configure plugin.
-        """
         if not self.can_configure:
             return
         self.enabled = options.xtraceback
