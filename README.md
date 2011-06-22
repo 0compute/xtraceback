@@ -1,7 +1,7 @@
 XTraceback
 ==========
 
-Extended traceback formatter with support for local variable expansion and
+Extended Python traceback formatter with support for local variable expansion and
 syntax highlighting.
 
 The formatter monkey patches the stdlib's traceback module replacing `print_tb`,
