@@ -1,4 +1,3 @@
-import functools
 import pprint
 import inspect
 import os
@@ -9,7 +8,7 @@ import pygments
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import bygroups, using
 from pygments.lexers.agile import PythonLexer, PythonTracebackLexer
-from pygments.token import Text, Comment, Operator, Name, Number, Generic, Other
+from pygments.token import Text, Comment, Operator, Name, Number, Generic
 
 
 class Reference(object):
@@ -191,8 +190,8 @@ class PythonXTracebackLexer(PythonTracebackLexer):
             (r'^(  File )("[^"]+")(\n)',
              bygroups(Text, Name.Builtin, Text), "intb"),
             # exception
-            (r"^(.+)(:)(.+\n)", bygroups(Generic.Error, Text, Name.Exception)),
-            (r"^.*\n", Other),
+            (r"^(.+)(: )(.+\n)", bygroups(Generic.Error, Text, Name.Exception)),
+            (r"^.*\n", Generic.Error),
             ],
         "intb": [
             # error line
@@ -250,10 +249,8 @@ class XTraceback(object):
         self._entered = True
         
         # patch traceback module
-        for func in ("print_tb", "format_tb", "format_exception"):
-            self._patch(traceback,
-                        func,
-                        functools.partial(getattr(self.__class__, func), self))
+        for func in ("format_tb", "format_exception", "print_tb", "print_exception"):
+            self._patch(traceback, func, getattr(self, func))
         
         # auto set color if it is None
         if self.color is None:
@@ -262,7 +259,12 @@ class XTraceback(object):
         
         return self
     
-    push = __enter__
+    def push(self):
+        self.__enter__()
+        # patch sys.excepthook - this won't work in the context manager as the
+        # manager will __exit__ before reaching the excepthook which removes the
+        # patch
+        self._patch(sys, "excepthook", self.print_exception)
 
     def __exit__(self, etype, value, tb):
         
@@ -270,20 +272,41 @@ class XTraceback(object):
             raise RuntimeError("Cannot exit %r without entering first" % self)
         self._entered = False
         
+        # restore patched objects
         while self._patch_stack:
             target, member, patch = self._patch_stack.pop()
             setattr(target, member, patch)
     
-    def pop(self, *exc_info):
-        self.__exit__(*exc_info)
-
-    def __getattr__(self, key):
-        return getattr(traceback, key)
+    def pop(self):
+        self.__exit__(None, None, None)
     
     def highlight(self, string):
         if self.color:  
             return pygments.highlight(string, self.lexer, self.formatter)
         return string
+    
+    def format_tb(self, tb, limit = None):
+        frames = inspect.getinnerframes(tb, self.context)[self.offset:limit]
+        number_padding = 0
+        for frame in frames:
+            number_padding = max(len(str(frame[2])), number_padding)
+        seen = {} 
+        lines = []
+        for index, args in enumerate(frames):
+            frame = Frame(seen, number_padding, index, self.compact, *args)
+            lines.append(self.highlight(frame.format()))
+        return lines
+    
+    def format_exception(self, etype, value, tb, limit=None):
+        lines = []
+        if tb:
+            lines.append(self.highlight("Traceback (most recent call last):\n"))
+            lines.extend(self.format_tb(tb, limit))
+        lines.append(self.highlight("".join(traceback.format_exception_only(etype, value))))
+        return lines
+    
+    def __call__(self, etype, value, tb, limit=None):
+        return "".join(self.format_exception(etype, value, tb, limit=limit))
     
     def print_tb(self, tb, limit=None, file=None):
         if file is None:
@@ -293,34 +316,10 @@ class XTraceback(object):
                 limit = sys.tracebacklimit
         file.write("".join(self.format_tb(tb, limit)))
         
-    def format_tb(self, tb, limit = None):
-        
-        frames = inspect.getinnerframes(tb, self.context)[self.offset:limit]
-        
-        # work out how much we need to pad line numbers
-        number_padding = 0
-        for frame in frames:
-            number_padding = max(len(str(frame[2])), number_padding)
-        
-        # loop through each frame building the traceback
-        seen = {} 
-        lines = []
-        for index, args in enumerate(frames):
-            frame = Frame(seen, number_padding, index, self.compact, *args)
-            lines.append(self.highlight(frame.format()))
-        
-        return lines
-    
-    def format_exception(self, etype, value, tb, limit=None):
-        lines = []
-        if tb:
-            lines.append(self.highlight("Traceback (most recent call last):\n"))
-            lines.extend(self.format_tb(tb, limit))
-        lines.append(self.highlight("".join(self.format_exception_only(etype, value))))
-        return lines
-
-    def __call__(self, etype, value, tb, limit=None):
-        return "".join(self.format_exception(etype, value, tb, limit=limit))
+    def print_exception(self, etype, value, tb, limit=None, file=None):
+        if file is None:
+            file = sys.stderr
+        file.write(self(etype, value, tb, limit))    
 
 
 try:

@@ -10,15 +10,19 @@ signature. It is intended that these methods are 100% compatible with the functi
 they replace.
 
     from xtraceback import XTraceback
+
+    # process-wide
+    xtraceback.push()
+    raise Exception()
+    xtraceback.pop()
     
     # as a context manager
     xtraceback = XTraceback()
     with xtraceback:
         raise Exception()
-
-    # process-wide
-    xtraceback.push()
-    raise Exception()
+        
+The difference between `push`/`pop` and the context manager is that `push` sets
+sys.excepthook to use `print_exception`. 
 
 ## Installation
     
