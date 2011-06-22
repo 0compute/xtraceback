@@ -5,8 +5,6 @@ import os
 import sys
 import traceback
 
-from nose.plugins import Plugin
-
 import pygments
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import bygroups, using
@@ -325,23 +323,29 @@ class XTraceback(object):
         return "".join(self.format_exception(etype, value, tb, limit=limit))
 
 
-class NoseXTraceback(Plugin):
+try:
+    from nose.plugins import Plugin
+except ImportError:
+    pass
+else:
     
-    score = 600 # before capture
-    env_opt = "NOSE_XTRACEBACK"
+    class NoseXTraceback(Plugin):
+        
+        score = 600 # before capture
+        env_opt = "NOSE_XTRACEBACK"
+        
+        def options(self, parser, env):
+            parser.add_option(
+                "", "--with-xtraceback",
+                action="store_true",
+                default=env.get("NOSE_XTRACEBACK"),
+                dest="xtraceback", help="Enable XTraceback plugin [NOSE_XTRACEBACK]")
     
-    def options(self, parser, env):
-        parser.add_option(
-            "", "--with-xtraceback",
-            action="store_true",
-            default=env.get("NOSE_XTRACEBACK"),
-            dest="xtraceback", help="Enable XTraceback plugin [NOSE_XTRACEBACK]")
-
-    def configure(self, options, conf):
-        if not self.can_configure:
-            return
-        self.enabled = options.xtraceback
-        if self.enabled:
-            traceback = XTraceback()
-            traceback.push()
-        self.conf = conf
+        def configure(self, options, conf):
+            if not self.can_configure:
+                return
+            self.enabled = options.xtraceback
+            if self.enabled:
+                traceback = XTraceback()
+                traceback.push()
+            self.conf = conf
