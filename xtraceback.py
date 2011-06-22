@@ -277,6 +277,8 @@ class XTraceback(object):
         
         return self
     
+    push = __enter__
+
     def __exit__(self, etype, value, tb):
         
         if not self._entered:
@@ -286,7 +288,10 @@ class XTraceback(object):
         while self._patch_stack:
             target, member, patch = self._patch_stack.pop()
             self._patch_target(target, member, patch)
-        
+    
+    def pop(self, *exc_info):
+        self.__exit__(*exc_info)
+
     def __getattr__(self, key):
         return getattr(traceback, key)
     
