@@ -1,28 +1,24 @@
 XTraceback
 ==========
 
-Extended Python traceback formatter with support for local variable expansion and
+Extended Python traceback formatter with support for variable expansion and
 syntax highlighting.
 
-The formatter monkey patches the stdlib's traceback module replacing `print_tb`,
-`format_tb`, and `format_exception` with XTraceback methods of the same name and
-signature. It is intended that these methods are 100% compatible with the functions
-they replace.
+The formatter monkey patches the stdlib's traceback module replacing some 
+functions with XTraceback methods of the same name and signature. It is intended
+that these methods are compatible with the existing interfaces so this package 
+can work as a drop-in replacement.
 
     from xtraceback import XTraceback
 
     # process-wide
-    xtraceback.push()
+    xtraceback.activate()
     raise Exception()
-    xtraceback.pop()
+    xtraceback.deactivate()
     
     # as a context manager
-    xtraceback = XTraceback()
-    with xtraceback:
+    with XTraceback():
         raise Exception()
-        
-The difference between `push`/`pop` and the context manager is that `push` sets
-sys.excepthook to use `print_exception`. 
 
 ## Installation
     
@@ -30,4 +26,6 @@ sys.excepthook to use `print_exception`.
 
 ## Nose plugin
 
-The nose plugin is enabled using `--with-xtraceback`.
+The nose plugin is enabled with the `--with-xtraceback` flag.
+
+[highlight.js]: http://softwaremaniacs.org/soft/highlight/en/
