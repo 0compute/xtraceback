@@ -13,21 +13,31 @@ As a context manager - the stdlib traceback module is monkey patched::
     >>> import traceback
     >>> import xtraceback
     >>> 
+    >>> def some_func():
+    ...     some_var = 2*2
+    ...     raise Exception("exc")
+    >>> 
     >>> with xtraceback:
     ...     try:
-    ...         raise Exception("exc")
+    ...         some_func()
     ...     except:
     ...         traceback.print_exc(file=sys.stdout) #doctest: +ELLIPSIS
     Traceback (most recent call last):
       File "<doctest README.rst[...]>", line 3, in <module>
         1 with xtraceback:
         2     try:
-    --> 3         raise Exception("exc")
+    --> 3         some_func()
+                  g:some_func = <function some_func at 0x...>
                   g:sys = <module 'sys' (built-in)>
                   g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
                   g:xtraceback = <package 'xtraceback' from='xtraceback'>
         4     except:
         5         traceback.print_exc(file=sys.stdout) #doctest: +ELLIPSIS
+      File "<doctest README.rst[...]>", line 3, in some_func
+        1 def some_func():
+        2     some_var = 2*2
+    --> 3     raise Exception("exc")
+              some_var = 4
     Exception: exc
 
 As a sys.excepthook::
@@ -55,6 +65,7 @@ By itself::
       File "<doctest README.rst[...]>", line 2, in <module>
         1 try:
     --> 2     raise Exception("exc")
+              g:some_func = <function some_func at 0x...>
               g:sys = <module 'sys' (built-in)>
               g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
               g:xtraceback = <package 'xtraceback' from='xtraceback'>
