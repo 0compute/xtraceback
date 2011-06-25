@@ -6,3 +6,4 @@ htmlcov/
 .project
 .pydevproject
 reports/
+*.swp
