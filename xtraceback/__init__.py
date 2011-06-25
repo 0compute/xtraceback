@@ -1,2 +1,2 @@
-from .compat import install, uninstall
+from .tracebackcompat import TracebackCompat
 from .xtraceback import XTraceback

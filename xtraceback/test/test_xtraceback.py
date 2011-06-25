@@ -1,4 +1,5 @@
 import re
+from StringIO import StringIO
 
 from xtraceback import XTraceback
 
@@ -28,6 +29,10 @@ something = Something()
 something.one()
 """
 
+SYNTAX_TEST = \
+"""if:
+"""
+
 SIMPLE_TRACEBACK = \
 """Traceback (most recent call last):
   File "<string>", line 8, in <module>
@@ -45,6 +50,21 @@ SIMPLE_TRACEBACK = \
 SIMPLE_EXCEPTION = \
 """%sException: exc
 """ % SIMPLE_TRACEBACK
+
+SIMPLE_EXCEPTION_COLOR = \
+"""[31;01mTraceback (most recent call last):[39;49;00m
+[31;01m  File [39;49;00m[36m"<string>"[39;49;00m[31;01m, line [39;49;00m[34m8[39;49;00m[31;01m, in [39;49;00m[32m<module>[39;49;00m
+    [39;49;00m[36mg:[39;49;00m[31mraise_exception[39;49;00m = [39;49;00m<[39;49;00mfunction[39;49;00m [39;49;00mraise_exception[39;49;00m [39;49;00mat[39;49;00m [39;49;00m[34m%(address)s[39;49;00m>[39;49;00m
+[31;01m  File [39;49;00m[36m"<string>"[39;49;00m[31;01m, line [39;49;00m[34m4[39;49;00m[31;01m, in [39;49;00m[32mraise_exception[39;49;00m
+    [39;49;00m[31mrecursion_level[39;49;00m = [39;49;00m[34m2[39;49;00m
+    [39;49;00m[31mdummy[39;49;00m = [39;49;00m[34m2[39;49;00m
+[31;01m  File [39;49;00m[36m"<string>"[39;49;00m[31;01m, line [39;49;00m[34m4[39;49;00m[31;01m, in [39;49;00m[32mraise_exception[39;49;00m
+    [39;49;00m[31mrecursion_level[39;49;00m = [39;49;00m[34m1[39;49;00m
+    [39;49;00m[31mdummy[39;49;00m = [39;49;00m[34m1[39;49;00m
+[31;01m  File [39;49;00m[36m"<string>"[39;49;00m[31;01m, line [39;49;00m[34m6[39;49;00m[31;01m, in [39;49;00m[32mraise_exception[39;49;00m
+    [39;49;00m[31mrecursion_level[39;49;00m = [39;49;00m[34m0[39;49;00m
+[31;01mException:[39;49;00m[33m exc[39;49;00m
+""" % TB_DEFAULTS
 
 SIMPLE_EXCEPTION_NO_TB = \
 """Exception: exc
@@ -171,20 +191,32 @@ EXTENDED_EXCEPTION = \
 Exception: exc
 """
 
+SYNTAX_EXCEPTION = \
+"""SyntaxError: invalid syntax
+  File "<string>", line 1
+    if:
+      ^
+"""
+
 class TestXTraceback(XTracebackTestCase):
             
     def test_simple(self):
         self._check_tb_str(BASIC_TEST, SIMPLE_EXCEPTION)
-            
+        
+    def test_simple_str(self):
+        exc_info = self._get_exc_info(BASIC_TEST)
+        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION)
+    
+    def test_simple_str_color(self):
+        exc_info = self._get_exc_info(BASIC_TEST)
+        xtb = XTraceback(color=True, *exc_info, **self.XTB_DEFAULTS)
+        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_COLOR)
+        
     def test_simple_no_tb(self):
         etype, value = self._get_exc_info(BASIC_TEST)[:-1]
         xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
         self._assert_tb_str(xtb.formatted_exception_string, SIMPLE_EXCEPTION_NO_TB)
-        
-    def test_simple_no_tb_str(self):
-        etype, value = self._get_exc_info(BASIC_TEST)[:-1]
-        xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
-        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_NO_TB)
         
     def test_with_globals(self):
         self._check_tb_str(BASIC_TEST, WITH_GLOBALS_EXCEPTION, one=1)
@@ -198,3 +230,27 @@ class TestXTraceback(XTracebackTestCase):
         exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
         xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
         self._assert_tb_str(xtb.formatted_exception_string, EXTENDED_EXCEPTION)
+    
+    def test_syntax(self):
+        self._check_tb_str(SYNTAX_TEST, SYNTAX_EXCEPTION)
+        
+    def test_print_tb(self):
+        stream = StringIO()
+        exc_info = self._get_exc_info(BASIC_TEST)
+        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        xtb.print_tb(stream)
+        self._assert_tb_str(stream.getvalue(), SIMPLE_TRACEBACK)
+        
+    def test_print_exception(self):
+        stream = StringIO()
+        exc_info = self._get_exc_info(BASIC_TEST)
+        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        xtb.print_exception(stream)
+        self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
+        
+    def test_print_color(self):
+        stream = StringIO()
+        exc_info = self._get_exc_info(BASIC_TEST)
+        xtb = XTraceback(color=True, *exc_info, **self.XTB_DEFAULTS)
+        xtb.print_exception(stream)
+        self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION_COLOR)
