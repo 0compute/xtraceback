@@ -21,6 +21,7 @@ class TracebackCompat(object):
     _traceback_patch_functions = []
 
     def __init__(self,  **defaults):
+        self.color = defaults.pop("color", False)
         self.defaults = defaults
     
     def _patch(self,  target, member, patch):
@@ -41,9 +42,6 @@ class TracebackCompat(object):
             target, member, patch = self._patch_stack.pop()
             setattr(target, member, patch)
     
-    def _with_newlines(self,  lines):
-        return [l + "\n" for l in lines]
-    
     def _get_options(self, override, limit=None):
         options = self.defaults.copy()
         options.update(override)
@@ -52,32 +50,47 @@ class TracebackCompat(object):
         return options
     
     def format_tb(self, tb, limit=None, **options):
+        color = options.pop("color", self.color)
         options = self._get_options(options, limit)
         xtb = XTraceback(None, None, tb, **options)
-        return self._with_newlines(xtb.formatted_tb)
-    
-    def print_tb(self, tb, limit=None, file=None, **options):
-        options = self._get_options(options, limit)
-        xtb = XTraceback(None, None, tb, **options)
-        xtb.print_tb(file)
+        return xtb.format_tb(color)
     
     def format_exception_only(self, etype, value, **options):
+        color = options.pop("color", self.color)
         options = self._get_options(options)
         xtb = XTraceback(etype, value, None, **options)
-        return self._with_newlines(xtb.formatted_exception_only)
+        return xtb.format_exception_only(color)
     
     def format_exception(self, etype, value, tb, limit=None, **options):
+        color = options.pop("color", self.color)
         options = self._get_options(options, limit)
         xtb = XTraceback(etype, value, tb, **options)
-        return self._with_newlines(xtb.formatted_exception)
-    
-    def print_exception(self, etype, value, tb, limit=None, file=None, **options):
-        options = self._get_options(options, limit)
-        xtb = XTraceback(etype, value, tb, **options)
-        xtb.print_exception(file)
+        return xtb.format_exception(color)
     
     def format_exc(self, limit=None, **options):
         return self.format_exception(*sys.exc_info(), limit=limit, **options)
+    
+    def _get_print_options(self, stream, color):
+        if stream is None:
+            stream = sys.stderr
+        if color is None:
+            color = hasattr(stream, "isatty") and stream.isatty()
+        return stream, color
+        
+    def print_tb(self, tb, limit=None, file=None, **options):
+        # intentionally not falling back to self.color if color is not in 
+        # options because None here means that we decide based on whether
+        # the stream is a tty or not
+        stream, color = self._get_print_options(file, options.pop("color", None))
+        options = self._get_options(options, limit)
+        xtb = XTraceback(None, None, tb, **options)
+        stream.write("".join(xtb.format_tb(color)))
+        
+    def print_exception(self, etype, value, tb, limit=None, file=None, **options):
+        stream, color = self._get_print_options(file, options.pop("color", None))
+        options = self._get_options(options, limit)
+        xtb = XTraceback(etype, value, tb, **options)
+        stream.write("".join(xtb.format_exception(color)))
     
     def print_exc(self, limit=None, file=None, **options):
         self.print_exception(*sys.exc_info(), limit=limit, file=file, **options)

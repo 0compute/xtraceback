@@ -1,5 +1,4 @@
 import re
-from StringIO import StringIO
 
 from xtraceback import XTraceback
 
@@ -111,12 +110,12 @@ Exception: exc
 EXTENDED_EXCEPTION = \
 """Traceback (most recent call last):
   File "<string>", line 3, in <module>
-    g:Something = <class xtraceback.test.something.Something>
+    g:Something = <class 'xtraceback.test.something.Something'>
     g:something = <xtraceback.test.something.Something object at 0x123456789>
   File "xtraceback/test/something.py", line 12, in Something.one
     self = <xtraceback.test.something.Something object at 0x123456789>
-    g:Something = <class xtraceback.test.something.Something>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:Something = <class 'xtraceback.test.something.Something'>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
     g:logging = <package 'logging' from='<stdlib>/logging'>
     g:os = <module 'os' from='<stdlib>/os.pyc'>
     g:sys = <module 'sys' (built-in)>
@@ -129,8 +128,8 @@ EXTENDED_EXCEPTION = \
   File "xtraceback/test/something.py", line 17, in Something.two
     self = <xtraceback.test.something.Something object at 0x123456789>
     sugar = 2
-    g:Something = <class xtraceback.test.something.Something>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:Something = <class 'xtraceback.test.something.Something'>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
     g:logging = <package 'logging' from='<stdlib>/logging'>
     g:os = <module 'os' from='<stdlib>/os.pyc'>
     g:sys = <module 'sys' (built-in)>
@@ -144,7 +143,7 @@ EXTENDED_EXCEPTION = \
   File "xtraceback/test/somethingelse.py", line 7, in SomethingElse.one
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     long = <ref offset=-1>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
      5     number = 1
      6     result = number * 10 #@UnusedVariable
 ---> 7     self.b(number, long)
@@ -156,7 +155,7 @@ EXTENDED_EXCEPTION = \
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     number = 1
     long = <ref offset=-2>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
      8 
      9 def b(self, number, long):
 --> 10     self.c("arg1", "arg2", a_kw_arg=1)
@@ -166,7 +165,7 @@ EXTENDED_EXCEPTION = \
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     *args = ('arg1', 'arg2')
     **kwargs = {'a_kw_arg': 1}
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
     11 
     12 def c(self, *args, **kwargs):
 --> 13     self.d()
@@ -174,7 +173,7 @@ EXTENDED_EXCEPTION = \
     15 def d(self):
   File "xtraceback/test/somethingelse.py", line 16, in SomethingElse.d
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
     14 
     15 def d(self):
 --> 16     self.e()
@@ -182,7 +181,7 @@ EXTENDED_EXCEPTION = \
     18 def e(self):
   File "xtraceback/test/somethingelse.py", line 19, in SomethingElse.e
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
     15 def d(self):
     16     self.e()
     17 
@@ -210,13 +209,13 @@ class TestXTraceback(XTracebackTestCase):
     
     def test_simple_str_color(self):
         exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(color=True, *exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_COLOR)
+        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        self._assert_tb_str("".join(xtb.format_exception(True)), SIMPLE_EXCEPTION_COLOR)
         
     def test_simple_no_tb(self):
         etype, value = self._get_exc_info(BASIC_TEST)[:-1]
         xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
-        self._assert_tb_str(xtb.formatted_exception_string, SIMPLE_EXCEPTION_NO_TB)
+        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_NO_TB)
         
     def test_with_globals(self):
         self._check_tb_str(BASIC_TEST, WITH_GLOBALS_EXCEPTION, one=1)
@@ -224,33 +223,12 @@ class TestXTraceback(XTracebackTestCase):
     def test_with_show_globals(self):
         exc_info = self._get_exc_info(BASIC_TEST, one=1)
         xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str(xtb.formatted_exception_string, WITH_SHOW_GLOBALS_EXCEPTION)
+        self._assert_tb_str(str(xtb), WITH_SHOW_GLOBALS_EXCEPTION)
     
     def test_extended(self):
         exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
         xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str(xtb.formatted_exception_string, EXTENDED_EXCEPTION)
+        self._assert_tb_str(str(xtb), EXTENDED_EXCEPTION)
     
     def test_syntax(self):
         self._check_tb_str(SYNTAX_TEST, SYNTAX_EXCEPTION)
-        
-    def test_print_tb(self):
-        stream = StringIO()
-        exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
-        xtb.print_tb(stream)
-        self._assert_tb_str(stream.getvalue(), SIMPLE_TRACEBACK)
-        
-    def test_print_exception(self):
-        stream = StringIO()
-        exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
-        xtb.print_exception(stream)
-        self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
-        
-    def test_print_color(self):
-        stream = StringIO()
-        exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(color=True, *exc_info, **self.XTB_DEFAULTS)
-        xtb.print_exception(stream)
-        self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION_COLOR)

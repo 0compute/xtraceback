@@ -10,7 +10,6 @@ except ImportError:
     pygments = None
     
 from .xtracebackframe import XTracebackFrame
-from .util import cachedproperty
     
     
 class XTraceback(object):
@@ -32,48 +31,44 @@ class XTraceback(object):
     
     if pygments is not None:
         from pygments.formatters.terminal import TerminalFormatter
-        _formatter = TerminalFormatter()
         from .lexer import PythonXTracebackLexer
+        _formatter = TerminalFormatter()
         _lexer = PythonXTracebackLexer()
     
     def __init__(self, etype, value, tb, **options):
         
         self.etype = etype
         self.value = value
-        self.tb = tb
         
+        # set options
         self.offset = options.pop("offset", 0)
         self.limit = options.pop(
             "limit",
             hasattr(sys, "tracebacklimit") and sys.tracebacklimit or None,
             )
         self.context = options.pop("context", 5)
-        
-        # XXX: to split out
-        self.compact = options.pop("compact", True)
-        
         self.show_args = options.pop("show_args", True)
         self.show_locals = options.pop("show_locals", True)
         self.show_globals = options.pop("show_globals", False)
-        
         self.qualify_method_names = options.pop("qualify_method_names", True)
         self.shorten_filenames = options.pop("shorten_filenames", True)
-        
         self.globals_module_include = options.pop("globals_module_include", None)
-        
-        # set color option - None means auto
-        self.color = options.pop("color", None)
-        if pygments is None:
-            if self.color:
-                warnings.warn("Color not supported - no pygments found.")
-            self.color = False
-            
         assert not options, "Unsupported options: %r" % options
         
-        # set when frames property is resolved
-        self.number_padding = 0
-        
+        # keep track of objects we've seen
         self.seen = {}
+        
+        # get the traceback frames and work out number padding
+        self.tb_frames = []
+        self.number_padding = 0
+        i = 0
+        while tb is not None and (self.limit is None or i < self.limit):
+            if i >= self.offset:
+                frame_info = inspect.getframeinfo(tb, self.context)
+                self.tb_frames.append(XTracebackFrame(self, tb.tb_frame, frame_info, i))
+                self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
+            tb = tb.tb_next
+            i += 1
     
     def _format_filename(self, filename):
         if self.shorten_filenames:
@@ -99,38 +94,27 @@ class XTraceback(object):
         return "".join((" " * indent, prefix, key, separator, pvalue))
     
     def highlight(self, string):
-        try:
-            return pygments.highlight(string, self._lexer, self._formatter)
-        except KeyboardInterrupt:
-            # let the user abort
-            return string
+        if pygments is None:
+            warnings.warn("highlighting disabled - pygments is not available")
+        else:
+            try:
+                return pygments.highlight(string, self._lexer, self._formatter)
+            except KeyboardInterrupt:
+                # let the user abort a long-running highlight
+                return string
     
-    @cachedproperty
-    def tb_frames(self):
-        tb_frames = []
-        i = 0
-        tb = self.tb
-        while tb is not None and (self.limit is None or i < self.limit):
-            if i >= self.offset:
-                frame_info = inspect.getframeinfo(tb, self.context)
-                tb_frames.append(XTracebackFrame(self, tb.tb_frame, frame_info, i))
-                self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
-            tb = tb.tb_next
-            i += 1
-        return tb_frames
+    def format_tb(self, color=False):
+        lines = []
+        for frame in self.tb_frames:
+            frame_str = str(frame)
+            if color:
+                frame_str = self.highlight(frame_str)
+            lines.append(frame_str + "\n")
+        return lines
     
-    @cachedproperty
-    def formatted_tb(self):
-        return map(str, self.tb_frames)
-    
-    @cachedproperty
-    def formatted_tb_string(self):
-        return "\n".join(self.formatted_tb) + "\n"
-    
-    @cachedproperty
-    def formatted_exception_only(self):
+    def format_exception_only(self, color=False):
 
-        lines = [isinstance(self.etype, type) and self.etype.__name__ or str(self.etype)]
+        lines = []
         
         try:
             value_str = str(self.value)
@@ -138,63 +122,45 @@ class XTraceback(object):
             value_str = "<unprintable %s object>" % type(self.value).__name__
     
         if isinstance(self.value, SyntaxError):
-            # It was a syntax error; show exactly where the problem was found.
-            
             try:
                 msg, (filename, lineno, offset, badline) = self.value.args
             except Exception:
                 pass
             else:
+                # taken from traceback.format_exception_only
                 filename = filename and self._format_filename(filename) or "<string>"
-                lines.append('  File "%s", line %d' % (filename, lineno))
+                filename = filename or "<string>"
+                lines.append('  File "%s", line %d\n' % (filename, lineno))
                 if badline is not None:
-                    badline = badline.strip()
-                    lines.append('    %s' % badline)
+                    lines.append('    %s\n' % badline.strip())
                     if offset is not None:
-                        caretspace = badline[:offset]
+                        caretspace = badline[:offset].lstrip()
                         # non-space whitespace (likes tabs) must be kept for alignment
                         caretspace = ((c.isspace() and c or ' ') for c in caretspace)
                         # only three spaces to account for offset1 == pos 0
-                        lines.append('   %s^' % ''.join(caretspace))
+                        lines.append('   %s^\n' % ''.join(caretspace))
                     value_str = msg
         
+        exc_line = isinstance(self.etype, type) and self.etype.__name__ or str(self.etype)
         if value_str:
-            lines[0] += ": %s" % value_str
+            exc_line += ": %s" % value_str
+        lines.insert(0, exc_line + "\n")
         
+        if color:
+            for i, line in enumerate(lines):
+                lines[i] = self.highlight(line)
+                
         return lines
     
-    @cachedproperty
-    def formatted_exception(self):
-        lines = self.formatted_tb[:]
+    def format_exception(self, color=False):
+        lines = self.format_tb()
         if lines:
-            lines.insert(0, "Traceback (most recent call last):")
-        lines.extend(self.formatted_exception_only)
+            lines.insert(0, "Traceback (most recent call last):\n")
+        lines.extend(self.format_exception_only())
+        if color:
+            for i, line in enumerate(lines):
+                lines[i] = self.highlight(line)
         return lines
-    
-    @cachedproperty
-    def formatted_exception_string(self):
-        return "\n".join(self.formatted_exception) + "\n"
     
     def __str__(self):
-        if self.color:
-            return self.highlight(self.formatted_exception_string)
-        return self.formatted_exception_string
-    
-    def _print(self, stream, value):
-        if stream is None:
-            stream = sys.stderr
-        color = self.color
-        if color is None:
-            color = hasattr(stream, "isatty") and stream.isatty()
-        if color:
-            value = self.highlight(value)
-        stream.write(value)
-        
-    def print_tb(self, stream=None):
-        self._print(stream, self.formatted_tb_string)
-    
-    def print_exception(self, stream=None):
-        self._print(stream, self.formatted_exception_string)
-    
-    # }
-    
+        return "".join(self.format_exception())

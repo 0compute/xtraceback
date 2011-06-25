@@ -25,7 +25,7 @@ class XTracebackTestCase(unittest.TestCase):
         
     def _assert_tb_str(self, exc_str, expect_exc_str):
         exc_str = ID_PATTERN.sub(TB_DEFAULTS["address"], exc_str)
-        if exc_str != expect_exc_str:
+        if exc_str != expect_exc_str: # pragma: no cover for obvious reasons
             diff = difflib.ndiff(expect_exc_str.splitlines(True), exc_str.splitlines(True))
             print expect_exc_str
             print exc_str
@@ -40,5 +40,5 @@ class XTracebackTestCase(unittest.TestCase):
     def _check_tb_str(self, exec_str, expect_exc_str, **namespace):
         exc_info = self._get_exc_info(exec_str, **namespace)
         xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str(xtb.formatted_exception_string, expect_exc_str)
+        self._assert_tb_str(str(xtb), expect_exc_str)
     

@@ -5,6 +5,8 @@ This module is placed outside of the xtraceback package because we don't want
 nose to import the xtraceback package until it has started the coverage plugin.
 """
 
+import sys
+
 try:
     from nose.plugins import Plugin
 except ImportError:
@@ -16,10 +18,13 @@ else:
         
         name = "xtraceback"
         
+        # must be before capture otherwise we don't see the real sys.stdout
+        score = 600
+        
         _options = (
-            ("color", "Show color tracebacks [%s]", "store_true"),
             ("globals", "Include globals in tracebacks [%s]", "store_true"),
-            ("globals_include", "Include only globals in this namespace [%s]", "store")
+            ("globals_include", "Include only globals in this namespace [%s]", "store"),
+            ("color", "Show color tracebacks - one of on,off,auto (default=auto) [%s]", "store"),
             )
         
         def options(self, parser, env):
@@ -35,15 +40,20 @@ else:
         
         def configure(self, options, conf):
             super(NoseXTraceback, self).configure(options, conf)
-            for name, help, action in self._options:
+            for name, help, dummy in self._options:
                 name = "xtraceback_%s" % name
                 setattr(self, name, getattr(options, name))
                 
         def begin(self):
             from xtraceback import TracebackCompat
+            color = self.xtraceback_color !="off" \
+                and (self.xtraceback_color == "on" \
+                     or (self.xtraceback_color in ("auto", None) \
+                         and hasattr(sys.stderr, "isatty") \
+                         and sys.stderr.isatty()))
             options = dict(show_globals=self.xtraceback_globals,
                            globals_module_include=self.xtraceback_globals_include,
-                           color=self.xtraceback_color,)
+                           color=color)
             self._xtraceback_compat = TracebackCompat(**options)
             self._xtraceback_compat.__enter__()
             
