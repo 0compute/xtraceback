@@ -12,6 +12,8 @@ class XTracebackFrame(object):
     FILTER = ("__builtins__", "__all__", "__doc__", "__file__", "__name__",
               "__package__", "__path__", "__loader__")
     
+    FUNCTION_EXCLUDE = ("GeneratorContextManager.__exit__",)
+    
     GLOBALS_PREFIX = "g:"
     
     def __init__(self, xtb, frame, frame_info, tb_index):
@@ -54,11 +56,20 @@ class XTracebackFrame(object):
             if not isinstance(cls, type):
                 cls = cls.__class__
             method = getattr(cls, self.function, None)
-            if method is not None \
+            if hasattr(method, "__get__") and hasattr(method, "fget"):
+                method = method.fget
+            if method is not None and hasattr(method, "im_class") \
                 and method.im_class in (cls, getattr(cls, "__metaclass__", None)):
-                    self.function = cls.__name__ + "." + self.function
+                for base in inspect.getmro(cls):
+                    if self.function in base.__dict__:
+                        self.function = base.__name__ + "." + self.function
+                        break
         
         self._formatted = None
+    
+    @property
+    def exclude(self):
+        return self.function in self.FUNCTION_EXCLUDE
         
     def _filter(self, fdict):
         fdict = fdict.copy()

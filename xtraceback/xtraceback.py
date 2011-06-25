@@ -65,8 +65,10 @@ class XTraceback(object):
         while tb is not None and (self.limit is None or i < self.limit):
             if i >= self.offset:
                 frame_info = inspect.getframeinfo(tb, self.context)
-                self.tb_frames.append(XTracebackFrame(self, tb.tb_frame, frame_info, i))
-                self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
+                frame = XTracebackFrame(self, tb.tb_frame, frame_info, i)
+                if not frame.exclude:
+                    self.tb_frames.append(frame)
+                    self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
             tb = tb.tb_next
             i += 1
     
