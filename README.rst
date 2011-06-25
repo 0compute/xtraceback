@@ -17,9 +17,9 @@ As a context manager - the stdlib traceback module is monkey patched::
     ...     try:
     ...         raise Exception("exc")
     ...     except:
-    ...         traceback.print_exc(file=sys.stdout)
+    ...         traceback.print_exc(file=sys.stdout) #doctest: +ELLIPSIS
     Traceback (most recent call last):
-      File "<doctest README.rst[3]>", line 3, in <module>
+      File "<doctest README.rst[...]>", line 3, in <module>
         1 with xtraceback:
         2     try:
     --> 3         raise Exception("exc")
@@ -27,7 +27,7 @@ As a context manager - the stdlib traceback module is monkey patched::
                   g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
                   g:xtraceback = <package 'xtraceback' from='xtraceback'>
         4     except:
-        5         traceback.print_exc(file=sys.stdout)
+        5         traceback.print_exc(file=sys.stdout) #doctest: +ELLIPSIS
     Exception: exc
 
 As a sys.excepthook::
@@ -35,12 +35,12 @@ As a sys.excepthook::
     >>> xtraceback.compat.install_excepthook()
     >>> print sys.excepthook #doctest: +ELLIPSIS
     <bound method TracebackCompat.print_exception of <xtraceback.tracebackcompat.TracebackCompat object at 0x...>>
-    >>> raise Exception("exc")
+    >>> raise Exception("exc") #doctest: +ELLIPSIS
     Traceback (most recent call last):
       File "<stdlib>/doctest.py", line 1231, in __run
         compileflags, 1) in test.globs
-      File "<doctest README.rst[6]>", line 1, in <module>
-        raise Exception("exc")
+      File "<doctest README.rst[...]>", line 1, in <module>
+        raise Exception("exc") #doctest: +ELLIPSIS
     Exception: exc
     
 By itself::
@@ -50,9 +50,9 @@ By itself::
     ...     raise Exception("exc")
     ... except:
     ...     xtb = xtraceback.XTraceback(*sys.exc_info())
-    ...     print "".join(xtb.format_exception())
+    ...     print "".join(xtb.format_exception()) #doctest: +ELLIPSIS
     Traceback (most recent call last):
-      File "<doctest README.rst[7]>", line 2, in <module>
+      File "<doctest README.rst[...]>", line 2, in <module>
         1 try:
     --> 2     raise Exception("exc")
               g:sys = <module 'sys' (built-in)>
@@ -60,7 +60,7 @@ By itself::
               g:xtraceback = <package 'xtraceback' from='xtraceback'>
         3 except:
         4     xtb = xtraceback.XTraceback(*sys.exc_info())
-        5     print "".join(xtb.format_exception())
+        5     print "".join(xtb.format_exception()) #doctest: +ELLIPSIS
     Exception: exc
     <BLANKLINE>
     
