@@ -2,28 +2,67 @@ XTraceback
 ==========
 
 Extended Python traceback formatter with support for variable expansion and
-syntax highlighting::
-    
-    import sys
-    import traceback
-    import xtraceback
+syntax highlighting.
 
-    # inline
-    try:
-        raise Exception()
-    except:
-        xtb = xtraceback.XTraceback(*sys.exc_info())
-        xtb.print_exception()
-
-    # as a context manager - the stdlib traceback module is monkey patched
-    with xtraceback:
-        try:
-            raise Exception()
-        except:
-            traceback.print_exc()
+Examples
+--------
     
-    # as a sys.excepthook
-    xtraceback.compat.install_excepthook()
+As a context manager - the stdlib traceback module is monkey patched::
+
+    >>> import sys
+    >>> import traceback
+    >>> import xtraceback
+    >>> 
+    >>> with xtraceback:
+    ...     try:
+    ...         raise Exception("exc")
+    ...     except:
+    ...         traceback.print_exc(file=sys.stdout)
+    Traceback (most recent call last):
+      File "<doctest README.rst[3]>", line 3, in <module>
+        1 with xtraceback:
+        2     try:
+    --> 3         raise Exception("exc")
+                  g:sys = <module 'sys' (built-in)>
+                  g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
+                  g:xtraceback = <package 'xtraceback' from='xtraceback'>
+        4     except:
+        5         traceback.print_exc(file=sys.stdout)
+    Exception: exc
+
+As a sys.excepthook::
+
+    >>> xtraceback.compat.install_excepthook()
+    >>> print sys.excepthook #doctest: +ELLIPSIS
+    <bound method TracebackCompat.print_exception of <xtraceback.tracebackcompat.TracebackCompat object at 0x...>>
+    >>> raise Exception("exc")
+    Traceback (most recent call last):
+      File "<stdlib>/doctest.py", line 1231, in __run
+        compileflags, 1) in test.globs
+      File "<doctest README.rst[6]>", line 1, in <module>
+        raise Exception("exc")
+    Exception: exc
+    
+By itself::
+
+    >>> 
+    >>> try:
+    ...     raise Exception("exc")
+    ... except:
+    ...     xtb = xtraceback.XTraceback(*sys.exc_info())
+    ...     print "".join(xtb.format_exception())
+    Traceback (most recent call last):
+      File "<doctest README.rst[7]>", line 2, in <module>
+        1 try:
+    --> 2     raise Exception("exc")
+              g:sys = <module 'sys' (built-in)>
+              g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
+              g:xtraceback = <package 'xtraceback' from='xtraceback'>
+        3 except:
+        4     xtb = xtraceback.XTraceback(*sys.exc_info())
+        5     print "".join(xtb.format_exception())
+    Exception: exc
+    <BLANKLINE>
     
 In a python startup file::
 
@@ -36,7 +75,7 @@ Then tell python to use the startup file::
     export PYTHONSTARTUP=/path/to/startup.py
 
 Configuration
-=============
+-------------
 
 Options are passed as keyword arguments to the XTraceback constructor.
  
@@ -51,14 +90,14 @@ Options are passed as keyword arguments to the XTraceback constructor.
  - color=None - Whether to use color output
  
 Installation
-============
+------------
 
-Using pip::
+The package is on PyPI::
     
     pip install xtraceback
 
 Nose plugin
-===========
+-----------
 
 The nose plugin is enabled with the `--with-xtraceback` flag. See `nose --help`
 for other options.
