@@ -106,64 +106,66 @@ class XTracebackFrame(object):
         for key in sorted(odict.keys()):
             self._format_variable(lines, key, odict[key], indent)
         return lines
+    
+    def _format_frame(self):
+        
+        lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno, self.function)]
+        
+        # push frame args
+        if self.xtb.show_args:
+            for arg in self.args:
+                self._format_variable(lines, arg, self.locals[arg])
+            if self.varargs:
+                self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
+            if self.varkw:
+                self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
+        
+        # push globals
+        if self.xtb.show_globals:
+            lines.extend(self._format_dict(self.globals))
+        
+        # push context lines
+        if self.code_context is not None:
 
+            lineno = self.lineno - self.index
+            
+            for line in textwrap.dedent("".join(self.code_context)).splitlines():
+                
+                numbered_line = "    %s" % "%*s %s" % (self.xtb.number_padding,
+                                                       lineno,
+                                                       line)
+                
+                if lineno == self.lineno:
+                    
+                    if self.xtb.context > 1:
+                        # push the numbered line with a marker
+                        dedented_line = numbered_line.lstrip()
+                        marker_padding = len(numbered_line) - len(dedented_line) - 2
+                        lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
+                    else:
+                        # push the line only
+                        lines.append("    " + line)
+                    
+                    # push locals below lined up with the start of code
+                    if self.xtb.show_locals:
+                        indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
+                        lines.extend(self._format_dict(self.locals, indent))
+                    
+                else:
+                    
+                    # push the numbered line
+                    lines.append(numbered_line)
+                    
+                lineno += 1
+        
+        elif self.xtb.show_locals:
+            # no context so we are execing
+            lines.extend(self._format_dict(self.locals))
+            
+        return "\n".join(lines)
+            
     def __str__(self):
         if self._formatted is None:
-            
-            lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno, self.function)]
-        
-            # push frame args
-            if self.xtb.show_args:
-                for arg in self.args:
-                    self._format_variable(lines, arg, self.locals[arg])
-                if self.varargs:
-                    self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
-                if self.varkw:
-                    self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
-            
-            # push globals
-            if self.xtb.show_globals:
-                lines.extend(self._format_dict(self.globals))
-            
-            # push context lines
-            if self.code_context is not None:
-    
-                lineno = self.lineno - self.index
-                
-                for line in textwrap.dedent("".join(self.code_context)).splitlines():
-                    
-                    numbered_line = "    %s" % "%*s %s" % (self.xtb.number_padding,
-                                                           lineno,
-                                                           line)
-                    
-                    if lineno == self.lineno:
-                        
-                        if self.xtb.context > 1:
-                            # push the numbered line with a marker
-                            dedented_line = numbered_line.lstrip()
-                            marker_padding = len(numbered_line) - len(dedented_line) - 2
-                            lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
-                        else:
-                            # push the line only
-                            lines.append("    " + line)
-                        
-                        # push locals below lined up with the start of code
-                        if self.xtb.show_locals:
-                            indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
-                            lines.extend(self._format_dict(self.locals, indent))
-                        
-                    else:
-                        
-                        # push the numbered line
-                        lines.append(numbered_line)
-                        
-                    lineno += 1
-            
-            elif self.xtb.show_locals:
-                # no context so we are execing
-                lines.extend(self._format_dict(self.locals))
-                
-            self._formatted = "\n".join(lines)
-            
+            self._formatted = self._format_frame()
         return self._formatted
     
