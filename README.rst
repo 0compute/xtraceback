@@ -12,23 +12,21 @@ syntax highlighting::
     try:
         raise Exception()
     except:
-        xtb = xtraceback.XTraceback(-sys.exc_info())
+        xtb = xtraceback.XTraceback(*sys.exc_info())
         xtb.print_exception()
 
     # as a context manager - the stdlib traceback module is monkey patched
-    with xtraceback.TracebackCompat():
+    with xtraceback:
         try:
             raise Exception()
         except:
             traceback.print_exc()
     
     # as a sys.excepthook
-    xtb = xtraceback.TracebackCompat()
-    xtb.install_excepthook()
+    xtraceback.compat.install_excepthook()
 
-Options can be passed as keyword arguments to both XTraceback and
-TracebackCompat. The available options are listed below with their default
-values:
+Options are passed as keyword arguments to the XTraceback constructor. The available
+options are listed below with their default values:
  
  - offset=0 - Traceback offset
  - limit=None - Traceback limit  
@@ -39,6 +37,8 @@ values:
  - qualify_method_names=True - Qualify method names with the name of the owning class
  - shorten_filenames=True - Shorten filenames where possible
  - color=None - Whether to use color output
+
+The xtracetraceback.compat options can be changed with its update_defaults method.
  
 Installation
 ------------
