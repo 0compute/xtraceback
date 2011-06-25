@@ -22,6 +22,12 @@
         </exec>
     </target>
     
+    <target name="sdist">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="sdist" />
+        </exec>
+    </target>
+    
     <target name="init">
         <mkdir dir="reports" />
     </target>
