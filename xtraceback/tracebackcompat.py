@@ -23,6 +23,12 @@ class TracebackCompat(object):
     def __init__(self,  **defaults):
         self.color = defaults.pop("color", False)
         self.defaults = defaults
+        
+    def update_defaults(self,  **defaults):
+        color = defaults.pop("color", None)
+        if color is not None:
+            self.color = color
+        self.defaults.update(defaults)
     
     def _patch(self,  target, member, patch):
         current = getattr(target, member)

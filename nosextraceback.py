@@ -45,7 +45,7 @@ else:
                 setattr(self, name, getattr(options, name))
                 
         def begin(self):
-            from xtraceback import TracebackCompat
+            import xtraceback
             color = self.xtraceback_color !="off" \
                 and (self.xtraceback_color == "on" \
                      or (self.xtraceback_color in ("auto", None) \
@@ -54,8 +54,9 @@ else:
             options = dict(show_globals=self.xtraceback_globals,
                            globals_module_include=self.xtraceback_globals_include,
                            color=color)
-            self._xtraceback_compat = TracebackCompat(**options)
-            self._xtraceback_compat.__enter__()
+            xtraceback.compat.update_defaults(**options)
+            xtraceback.compat.__enter__()
             
         def finalize(self, result):
-            self._xtraceback_compat.__exit__(None, None, None)
+            import xtraceback
+            xtraceback.compat.__exit__(None, None, None)
