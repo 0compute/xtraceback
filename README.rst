@@ -1,8 +1,8 @@
 XTraceback
-==========
+----------
 
 Extended Python traceback formatter with support for variable expansion and
-syntax highlighting.
+syntax highlighting::
     
     import sys
     import traceback
@@ -40,11 +40,15 @@ values:
  * shorten_filenames=True - Shorten filenames where possible
  * color=None - Whether to use color output
  
-## Installation
+Installation
+------------
+
+Using pip::
     
     pip install xtraceback
 
-## Nose plugin
+Nose plugin
+-----------
 
 The nose plugin is enabled with the `--with-xtraceback` flag. See `nose --help`
 for other options.
