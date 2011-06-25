@@ -1,0 +1,69 @@
+<project name="xtraceback" default="test">
+
+    <target name="clean">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="clean" />
+        </exec>
+        <delete dir="dist" />
+        <delete dir="reports" />
+        <delete file=".profile.out" />
+        <delete>
+            <fileset dir="." includes="**/*.pyc"/>
+        </delete>
+    </target>
+    
+    <target name="develop">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="develop" />
+        </exec>
+    </target>
+    
+    <target name="init">
+        <mkdir dir="reports" />
+    </target>
+
+    <target name="test" depends="clean,init">
+        <exec executable="nosetests" failonerror="true">
+            <arg value="--verbose" />
+            <arg value="--with-xunit" />
+        	<arg value="--xunit-file=reports/nosetests.xml" />
+            <arg value="--with-coverage" />
+            <!--<arg value="- -with-profile"/> <arg value="- -profile-stats-file=.profile.out"/> -->
+        </exec>
+    </target>
+
+    <target name="coveragexml" depends="test">
+        <exec executable="coverage" failonerror="true">
+            <arg value="xml" />
+            <arg value="-oreports/coverage.xml" />
+        </exec>
+    </target>
+        
+    <target name="coveragehtml" depends="test">
+        <exec executable="coverage" failonerror="true">
+            <arg value="html" />
+        </exec>
+    </target>
+
+    <target name="pylint" depends="init">
+        <exec executable="pylint">
+            <arg value="-f" />
+            <arg value="parseable" />
+            <arg value="${ant.project.name}" />
+            <redirector output="reports/pylint" />
+        </exec>
+        <replace file="reports/pylint" token="arm/" value="core/arm/" />
+    </target>
+
+    <target name="clonedigger" depends="init">
+        <mkdir dir="reports/clonedigger" />
+        <exec executable="clonedigger">
+            <arg value="-o" />
+            <arg value="reports/clonedigger/index.html" />
+            <arg value="${ant.project.name}" />
+        </exec>
+    </target>
+    
+    <target name="metrics" depends="coveragexml,coveragehtml,pylint,clonedigger" />
+
+</project>

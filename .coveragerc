@@ -7,3 +7,6 @@ exclude_lines =
     raise NotImplementedError
     self.fail\("Should have raised exception"\)
 include = *xtraceback*
+
+[html]
+directory = reports/htmlcov

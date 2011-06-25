@@ -5,3 +5,4 @@ dist/
 htmlcov/
 .project
 .pydevproject
+reports/
