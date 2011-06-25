@@ -24,6 +24,16 @@ syntax highlighting::
     
     # as a sys.excepthook
     xtraceback.compat.install_excepthook()
+    
+In a python startup file::
+
+    if __name__ == "__main__":
+        import xtraceback
+        xtraceback.compat.install_excepthook()
+    
+Then tell python to use the startup file::
+
+    export PYTHONSTARTUP=/path/to/startup.py
 
 Configuration
 =============
