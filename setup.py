@@ -4,7 +4,7 @@ import os
 
 from setuptools import setup
 
-README = open(os.path.join(os.path.dirname(__file__), "README.md")).read()
+README = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
 setup(name="xtraceback",
       version="0.1",
@@ -16,11 +16,11 @@ setup(name="xtraceback",
       author_email="support@ischium.net",
       url="https://github.com/ischium/xtraceback",
       packages=("xtraceback",),
-      py_modules=("nose_xtraceback",),
+      py_modules=("nosextraceback",),
       install_requires=("pygments",),
       tests_require=("nose",),
       test_suite="nose.collector",
       entry_points={
-          "nose.plugins" : ("xtraceback=nose_xtraceback:nose_xtraceback",),
+          "nose.plugins" : ("xtraceback=nosextraceback:NoseXTraceback",),
           },
       )

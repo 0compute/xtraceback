@@ -4,16 +4,15 @@ nose plugin for XTraceback
 This module is placed outside of the xtraceback package because we don't want
 nose to import the xtraceback package until it has started the coverage plugin.
 """
-import sys
 
 try:
     from nose.plugins import Plugin
 except ImportError:
-    nose_xtraceback = None
+    NoseXTraceback = None
 else:
     
-    class nose_xtraceback(Plugin):
-        """Extended traceback for error output"""
+    class NoseXTraceback(Plugin):
+        """Extended traceback for error output."""
         
         name = "xtraceback"
         
@@ -24,7 +23,7 @@ else:
             )
         
         def options(self, parser, env):
-            super(nose_xtraceback, self).options(parser, env)
+            super(NoseXTraceback, self).options(parser, env)
             for name, help, action in self._options:
                 env_opt = "NOSE_XTRACEBACK_%s" % name.upper()
                 parser.add_option("--xtraceback-%s" % name.replace("_", "-"),
@@ -35,7 +34,7 @@ else:
             
         
         def configure(self, options, conf):
-            super(nose_xtraceback, self).configure(options, conf)
+            super(NoseXTraceback, self).configure(options, conf)
             for name, help, action in self._options:
                 name = "xtraceback_%s" % name
                 setattr(self, name, getattr(options, name))

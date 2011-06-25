@@ -6,4 +6,4 @@ exclude_lines =
     pragma: no cover
     raise NotImplementedError
     self.fail\("Should have raised exception"\)
-include = xtraceback/*
+include = *xtraceback*
