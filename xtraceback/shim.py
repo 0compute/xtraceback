@@ -20,12 +20,6 @@ class Shim(object):
         return cls._instances[oid]
 
 
-class ClassShim(Shim):
-    
-    def __repr__(self):
-        return "<class %s.%s>" % (self.target.__module__, self.target.__name__)
-    
-
 class ModuleShim(Shim):
     
     def __init__(self, target, xtb):

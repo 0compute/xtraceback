@@ -4,7 +4,7 @@ import textwrap
 import types
 
 from .reference import Reference
-from .shim import ClassShim, ModuleShim
+from .shim import ModuleShim
 
 
 class XTracebackFrame(object):
@@ -69,8 +69,6 @@ class XTracebackFrame(object):
                 # replace some values with shim types
                 if isinstance(value, types.ModuleType):
                     value = ModuleShim.get_instance(value, self.xtb)
-                elif isinstance(value, type):
-                    value = ClassShim.get_instance(value, self.xtb)
                 # replace objects from further up the stack with a Marker
                 oid = id(value)
                 stack_ref = self.xtb.seen.get(oid)
