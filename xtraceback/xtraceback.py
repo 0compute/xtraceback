@@ -118,30 +118,23 @@ class XTraceback(object):
 
         lines = []
         
-        try:
-            value_str = str(self.value)
-        except:
-            value_str = "<unprintable %s object>" % type(self.value).__name__
-    
+        value_str = str(self.value)
+        
         if isinstance(self.value, SyntaxError):
-            try:
-                msg, (filename, lineno, offset, badline) = self.value.args
-            except Exception:
-                pass
-            else:
-                # taken from traceback.format_exception_only
-                filename = filename and self._format_filename(filename) or "<string>"
-                filename = filename or "<string>"
-                lines.append('  File "%s", line %d\n' % (filename, lineno))
-                if badline is not None:
-                    lines.append('    %s\n' % badline.strip())
-                    if offset is not None:
-                        caretspace = badline[:offset].lstrip()
-                        # non-space whitespace (likes tabs) must be kept for alignment
-                        caretspace = ((c.isspace() and c or ' ') for c in caretspace)
-                        # only three spaces to account for offset1 == pos 0
-                        lines.append('   %s^\n' % ''.join(caretspace))
-                    value_str = msg
+            msg, (filename, lineno, offset, badline) = self.value.args
+            # taken from traceback.format_exception_only
+            filename = filename and self._format_filename(filename) or "<string>"
+            filename = filename or "<string>"
+            lines.append('  File "%s", line %d\n' % (filename, lineno))
+            if badline is not None:
+                lines.append('    %s\n' % badline.strip())
+                if offset is not None:
+                    caretspace = badline[:offset].lstrip()
+                    # non-space whitespace (likes tabs) must be kept for alignment
+                    caretspace = ((c.isspace() and c or ' ') for c in caretspace)
+                    # only three spaces to account for offset1 == pos 0
+                    lines.append('   %s^\n' % ''.join(caretspace))
+                value_str = msg
         
         exc_line = isinstance(self.etype, type) and self.etype.__name__ or str(self.etype)
         if value_str:

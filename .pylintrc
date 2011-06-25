@@ -12,9 +12,7 @@ profile=no
 
 # Add <file or directory> to the black list. It should be a base name, not a
 # path. You may set this option multiple times.
-ignore=CVS
-ignore=something.py
-ignore=somethingelse.py
+ignore=something.py,somethingelse.py
 
 # Pickle collected data for later comparisons.
 persistent=yes
@@ -43,7 +41,8 @@ load-plugins=
 # R0901-4: Min/max stuff
 # W0212: Access to a protected member
 # W0122: Use of the exec statement
-disable=C0301,C0111,C0103,W0142,R0901,R0902,R0903,R0904,W0212,W0122
+# W0702: No exception type(s) specified
+disable=R,C0301,C0111,C0103,W0142,W0212,W0122,W0702
 
 
 [REPORTS]
