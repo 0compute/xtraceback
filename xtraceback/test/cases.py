@@ -1,3 +1,4 @@
+import difflib
 import re
 import sys
 import unittest
@@ -24,14 +25,17 @@ class XTracebackTestCase(unittest.TestCase):
         
     def _assert_tb_str(self, exc_str, expect_exc_str):
         exc_str = ID_PATTERN.sub(TB_DEFAULTS["address"], exc_str)
-        print "want:\n%s" % expect_exc_str
-        print "-" * 80
-        print "got:\n%s" % exc_str
-        print "-" * 80
-        self.assertEqual(exc_str, expect_exc_str)
+        if exc_str != expect_exc_str:
+            diff = difflib.ndiff(expect_exc_str.splitlines(True), exc_str.splitlines(True))
+            print expect_exc_str
+            print exc_str
+            print "".join(diff)
+            self.fail("different")
     
-    def _assert_tb_lines(self, exc_lines, expect_exc_str):
-        self._assert_tb_str("".join(exc_lines), expect_exc_str)
+    def _assert_tb_lines(self, exc_lines, expect_lines):
+        if isinstance(expect_lines, str):
+            expect_lines = expect_lines.splitlines(True)
+        self._assert_tb_str("".join(exc_lines), "".join(expect_lines))
         
     def _check_tb_str(self, exec_str, expect_exc_str, **namespace):
         exc_info = self._get_exc_info(exec_str, **namespace)

@@ -34,8 +34,7 @@ SYNTAX_TEST = \
 """
 
 SIMPLE_TRACEBACK = \
-"""Traceback (most recent call last):
-  File "<string>", line 8, in <module>
+"""  File "<string>", line 8, in <module>
     g:raise_exception = <function raise_exception at %(address)s>
   File "<string>", line 4, in raise_exception
     recursion_level = 2
@@ -48,7 +47,8 @@ SIMPLE_TRACEBACK = \
 """ % TB_DEFAULTS
 
 SIMPLE_EXCEPTION = \
-"""%sException: exc
+"""Traceback (most recent call last):
+%sException: exc
 """ % SIMPLE_TRACEBACK
 
 SIMPLE_EXCEPTION_COLOR = \

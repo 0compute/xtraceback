@@ -50,7 +50,7 @@ class XTracebackFrame(object):
             self.filename = self.xtb._format_filename(os.path.abspath(self.filename))
         
         # qualify method name with class name
-        if self.args:
+        if self.xtb.qualify_method_names and self.args:
             cls = self.frame.f_locals[self.args[0]]
             if not isinstance(cls, type):
                 cls = cls.__class__
@@ -105,12 +105,13 @@ class XTracebackFrame(object):
         lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno, self.function)]
         
         # push frame args
-        for arg in self.args:
-            self._format_variable(lines, arg, self.locals[arg])
-        if self.varargs:
-            self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
-        if self.varkw:
-            self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
+        if self.xtb.show_args:
+            for arg in self.args:
+                self._format_variable(lines, arg, self.locals[arg])
+            if self.varargs:
+                self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
+            if self.varkw:
+                self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
         
         # push globals
         if self.xtb.show_globals:
@@ -129,14 +130,19 @@ class XTracebackFrame(object):
                 
                 if lineno == self.lineno:
                     
-                    # push the numbered line with a marker
-                    dedented_line = numbered_line.lstrip()
-                    marker_padding = len(numbered_line) - len(dedented_line) - 2
-                    lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
+                    if self.xtb.context > 1:
+                        # push the numbered line with a marker
+                        dedented_line = numbered_line.lstrip()
+                        marker_padding = len(numbered_line) - len(dedented_line) - 2
+                        lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
+                    else:
+                        # push the line only
+                        lines.append("    " + line)
                     
                     # push locals below lined up with the start of code
-                    indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
-                    lines.extend(self._format_dict(self.locals, indent))
+                    if self.xtb.show_locals:
+                        indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
+                        lines.extend(self._format_dict(self.locals, indent))
                     
                 else:
                     
@@ -145,7 +151,7 @@ class XTracebackFrame(object):
                     
                 lineno += 1
         
-        else:#if not self.xtb.show_globals:
+        elif self.xtb.show_locals:
             # no context so we are execing
             lines.extend(self._format_dict(self.locals))
             

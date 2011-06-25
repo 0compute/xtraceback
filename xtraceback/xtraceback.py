@@ -48,8 +48,17 @@ class XTraceback(object):
             hasattr(sys, "tracebacklimit") and sys.tracebacklimit or None,
             )
         self.context = options.pop("context", 5)
+        
+        # XXX: to split out
         self.compact = options.pop("compact", True)
+        
+        self.show_args = options.pop("show_args", True)
+        self.show_locals = options.pop("show_locals", True)
         self.show_globals = options.pop("show_globals", False)
+        
+        self.qualify_method_names = options.pop("qualify_method_names", True)
+        self.shorten_filenames = options.pop("shorten_filenames", True)
+        
         self.globals_module_include = options.pop("globals_module_include", None)
         
         # set color option - None means auto
@@ -67,7 +76,7 @@ class XTraceback(object):
         self.seen = {}
     
     def _format_filename(self, filename):
-        if self.compact:
+        if self.shorten_filenames:
             if filename.startswith(self.stdlib_path):
                 filename = filename.replace(self.stdlib_path, "<stdlib>")
             else:
@@ -112,10 +121,7 @@ class XTraceback(object):
     
     @cachedproperty
     def formatted_tb(self):
-        lines = map(str, self.tb_frames)
-        if lines:
-            lines.insert(0, "Traceback (most recent call last):")
-        return lines 
+        return map(str, self.tb_frames)
     
     @cachedproperty
     def formatted_tb_string(self):
@@ -160,6 +166,8 @@ class XTraceback(object):
     @cachedproperty
     def formatted_exception(self):
         lines = self.formatted_tb[:]
+        if lines:
+            lines.insert(0, "Traceback (most recent call last):")
         lines.extend(self.formatted_exception_only)
         return lines
     
