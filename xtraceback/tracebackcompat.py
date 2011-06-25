@@ -6,11 +6,11 @@ from .xtraceback import XTraceback
 
 class TracebackCompatMeta(type):
 
-    def __init__(self, name, bases, dict_):
+    def __init__(mcs, name, bases, dict_):
         for key in dict_.keys():
             if hasattr(traceback, key):
-                self._traceback_patch_functions.append(key)
-        super(TracebackCompatMeta, self).__init__(name, bases, dict_)
+                mcs._traceback_patch_functions.append(key)
+        super(TracebackCompatMeta, mcs).__init__(name, bases, dict_)
 
 
 class TracebackCompat(object):

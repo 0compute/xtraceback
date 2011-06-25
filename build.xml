@@ -1,5 +1,9 @@
 <project name="xtraceback" default="test">
-
+    
+    <!--
+    This requires nose, coverage, pylint, and  clonedigger
+    -->
+    
     <target name="clean">
         <exec executable="${basedir}/setup.py" failonerror="true">
             <arg value="clean" />
@@ -47,6 +51,7 @@
 
     <target name="pylint" depends="init">
         <exec executable="pylint">
+            <arg value="--rcfile=.pylintrc" />
             <arg value="-f" />
             <arg value="parseable" />
             <arg value="${ant.project.name}" />
