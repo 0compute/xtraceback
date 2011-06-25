@@ -36,16 +36,10 @@
         </exec>
     </target>
 
-    <target name="coveragexml" depends="test">
+    <target name="coverage" depends="test">
         <exec executable="coverage" failonerror="true">
             <arg value="xml" />
             <arg value="-oreports/coverage.xml" />
-        </exec>
-    </target>
-        
-    <target name="coveragehtml" depends="test">
-        <exec executable="coverage" failonerror="true">
-            <arg value="html" />
         </exec>
     </target>
 
@@ -69,6 +63,6 @@
         </exec>
     </target>
     
-    <target name="metrics" depends="coveragexml,coveragehtml,pylint,clonedigger" />
+    <target name="metrics" depends="coverage,pylint,clonedigger" />
 
 </project>
