@@ -3,24 +3,23 @@ import os
 import textwrap
 import types
 
-from xtraceback.reference import Reference
-from xtraceback.shim import ClassShim, ModuleShim
+from .reference import Reference
+from .shim import ClassShim, ModuleShim
+from .util import cachedproperty
 
 
-class Frame(object):
+class XTracebackFrame(object):
     
     FILTER = ("__builtins__", "__all__", "__doc__", "__file__", "__name__",
               "__package__", "__path__", "__loader__")
     
     GLOBALS_PREFIX = "g:"
     
-    def __init__(self, xtb, frame, frame_info, seen, number_padding, tb_index):
+    def __init__(self, xtb, frame, frame_info, tb_index):
         
         self.xtb = xtb
         self.frame = frame
         self.frame_info = frame_info
-        self.seen = seen
-        self.number_padding = number_padding
         self.tb_index = tb_index
          
         self.filename, self.lineno, self.function, self.code_context, self.index = self.frame_info
@@ -48,7 +47,7 @@ class Frame(object):
             
         # if path is a real path then try to shorten it
         if os.path.exists(self.filename):
-            self.filename = self.xtb.format_filename(os.path.abspath(self.filename))
+            self.filename = self.xtb._format_filename(os.path.abspath(self.filename))
         
         # qualify method name with class name
         if self.args:
@@ -59,7 +58,9 @@ class Frame(object):
             if method is not None \
                 and method.im_class in (cls, getattr(cls, "__metaclass__", None)):
                     self.function = cls.__name__ + "." + self.function
-
+        
+        self._formatted = None
+        
     def _filter(self, fdict):
         fdict = fdict.copy()
         for key, value in fdict.items():
@@ -73,42 +74,43 @@ class Frame(object):
                     value = ClassShim.get_instance(value, self.xtb)
                 # replace objects from further up the stack with a Marker
                 oid = id(value)
-                stack_ref = self.seen.get(oid)
+                stack_ref = self.xtb.seen.get(oid)
                 if stack_ref is not None:
                     marker = stack_ref.marker(self.xtb, self.tb_index, key)
                     if marker.tb_offset != 0:
                         value = marker
                 else:
-                    self.seen[oid] = Reference(self.tb_index, key, value)
+                    self.xtb.seen[oid] = Reference(self.tb_index, key, value)
                 if isinstance(value, dict):
                     value = self._filter(value)
                 fdict[key] = value                                        
         return fdict
     
-    def format_variable(self, lines, key, value, indent=4, prefix=""):
+    def _format_variable(self, lines, key, value, indent=4, prefix=""):
         if value is not self.formatted_vars.get(key):
             self.formatted_vars[key] = value
             if self.globals.get(key) == value:
                 prefix = self.GLOBALS_PREFIX + prefix
-            lines.append(self.xtb.format_variable(key, value, indent, prefix))
+            lines.append(self.xtb._format_variable(key, value, indent, prefix))
     
     def _format_dict(self, odict, indent=4):
         lines = []
         for key in sorted(odict.keys()):
-            self.format_variable(lines, key, odict[key], indent)
+            self._format_variable(lines, key, odict[key], indent)
         return lines
     
-    def format(self):
-                
+    @cachedproperty
+    def formatted_frame(self):
+            
         lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno, self.function)]
         
         # push frame args
         for arg in self.args:
-            self.format_variable(lines, arg, self.locals[arg])
+            self._format_variable(lines, arg, self.locals[arg])
         if self.varargs:
-            self.format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
+            self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
         if self.varkw:
-            self.format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
+            self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
         
         # push globals
         if self.xtb.show_globals:
@@ -121,7 +123,7 @@ class Frame(object):
             
             for line in textwrap.dedent("".join(self.code_context)).splitlines():
                 
-                numbered_line = "    %s" % "%*s %s" % (self.number_padding,
+                numbered_line = "    %s" % "%*s %s" % (self.xtb.number_padding,
                                                        lineno,
                                                        line)
                 
@@ -133,7 +135,7 @@ class Frame(object):
                     lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
                     
                     # push locals below lined up with the start of code
-                    indent = self.number_padding + len(line) - len(line.lstrip()) + 5
+                    indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
                     lines.extend(self._format_dict(self.locals, indent))
                     
                 else:
@@ -147,4 +149,8 @@ class Frame(object):
             # no context so we are execing
             lines.extend(self._format_dict(self.locals))
             
-        return "\n".join(lines) + "\n"
+        return "\n".join(lines)
+    
+    def __str__(self):
+        return self.formatted_frame
+    

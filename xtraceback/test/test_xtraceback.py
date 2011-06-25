@@ -1,0 +1,200 @@
+import re
+
+from xtraceback import XTraceback
+
+from . import something
+from .cases import XTracebackTestCase
+
+ID_PATTERN = re.compile(" at 0[xX][a-fA-F0-9]+")
+TB_DEFAULTS = dict(address="0x123456789")
+
+TEST_FUNCTION = \
+"""def raise_exception(recursion_level=2):
+    if recursion_level:
+        dummy = recursion_level
+        raise_exception(recursion_level-1)
+    else:
+        raise Exception("exc")
+"""
+
+BASIC_TEST = \
+"""%s
+raise_exception()
+""" % TEST_FUNCTION
+
+EXTENDED_TEST = \
+"""
+something = Something()
+something.one()
+"""
+
+SIMPLE_TRACEBACK = \
+"""Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    g:raise_exception = <function raise_exception at %(address)s>
+  File "<string>", line 4, in raise_exception
+    recursion_level = 2
+    dummy = 2
+  File "<string>", line 4, in raise_exception
+    recursion_level = 1
+    dummy = 1
+  File "<string>", line 6, in raise_exception
+    recursion_level = 0
+""" % TB_DEFAULTS
+
+SIMPLE_EXCEPTION = \
+"""%sException: exc
+""" % SIMPLE_TRACEBACK
+
+SIMPLE_EXCEPTION_NO_TB = \
+"""Exception: exc
+"""
+
+WITH_GLOBALS_EXCEPTION = \
+"""Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    g:one = 1
+    g:raise_exception = <function raise_exception at %(address)s>
+  File "<string>", line 4, in raise_exception
+    recursion_level = 2
+    dummy = 2
+  File "<string>", line 4, in raise_exception
+    recursion_level = 1
+    dummy = 1
+  File "<string>", line 6, in raise_exception
+    recursion_level = 0
+Exception: exc
+""" % TB_DEFAULTS
+
+WITH_SHOW_GLOBALS_EXCEPTION = \
+"""Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+    g:one = 1
+    g:raise_exception = <function raise_exception at 0x123456789>
+  File "<string>", line 4, in raise_exception
+    recursion_level = 2
+    g:one = 1
+    g:raise_exception = <function raise_exception at 0x123456789>
+    dummy = 2
+  File "<string>", line 4, in raise_exception
+    recursion_level = 1
+    g:one = 1
+    g:raise_exception = <function raise_exception at 0x123456789>
+    dummy = 1
+  File "<string>", line 6, in raise_exception
+    recursion_level = 0
+    g:one = 1
+    g:raise_exception = <function raise_exception at 0x123456789>
+Exception: exc
+"""
+
+EXTENDED_EXCEPTION = \
+"""Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    g:Something = <class xtraceback.test.something.Something>
+    g:something = <xtraceback.test.something.Something object at 0x123456789>
+  File "xtraceback/test/something.py", line 12, in Something.one
+    self = <xtraceback.test.something.Something object at 0x123456789>
+    g:Something = <class xtraceback.test.something.Something>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:logging = <package 'logging' from='<stdlib>/logging'>
+    g:os = <module 'os' from='<stdlib>/os.pyc'>
+    g:sys = <module 'sys' (built-in)>
+    10 def one(self):
+    11     sugar = max(1, 2)
+--> 12     self.two(sugar)
+           sugar = 2
+    13 
+    14 def two(self, sugar):
+  File "xtraceback/test/something.py", line 17, in Something.two
+    self = <xtraceback.test.something.Something object at 0x123456789>
+    sugar = 2
+    g:Something = <class xtraceback.test.something.Something>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    g:logging = <package 'logging' from='<stdlib>/logging'>
+    g:os = <module 'os' from='<stdlib>/os.pyc'>
+    g:sys = <module 'sys' (built-in)>
+    13 
+    14 def two(self, sugar):
+    15     long = "y" * 67
+    16     obj = SomethingElse()
+--> 17     obj.one(long)
+           long = 'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+           obj = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+  File "xtraceback/test/somethingelse.py", line 7, in SomethingElse.one
+    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+    long = <ref offset=-1>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+     5     number = 1
+     6     result = number * 10 #@UnusedVariable
+---> 7     self.b(number, long)
+           number = 1
+           result = 10
+     8 
+     9 def b(self, number, long):
+  File "xtraceback/test/somethingelse.py", line 10, in SomethingElse.b
+    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+    number = 1
+    long = <ref offset=-2>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+     8 
+     9 def b(self, number, long):
+--> 10     self.c("arg1", "arg2", a_kw_arg=1)
+    11 
+    12 def c(self, *args, **kwargs):
+  File "xtraceback/test/somethingelse.py", line 13, in SomethingElse.c
+    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+    *args = ('arg1', 'arg2')
+    **kwargs = {'a_kw_arg': 1}
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    11 
+    12 def c(self, *args, **kwargs):
+--> 13     self.d()
+    14 
+    15 def d(self):
+  File "xtraceback/test/somethingelse.py", line 16, in SomethingElse.d
+    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    14 
+    15 def d(self):
+--> 16     self.e()
+    17 
+    18 def e(self):
+  File "xtraceback/test/somethingelse.py", line 19, in SomethingElse.e
+    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+    g:SomethingElse = <class xtraceback.test.somethingelse.SomethingElse>
+    15 def d(self):
+    16     self.e()
+    17 
+    18 def e(self):
+--> 19     raise Exception("exc")
+Exception: exc
+"""
+
+class TestXTraceback(XTracebackTestCase):
+            
+    def test_simple(self):
+        self._check_tb_str(BASIC_TEST, SIMPLE_EXCEPTION)
+            
+    def test_simple_no_tb(self):
+        etype, value = self._get_exc_info(BASIC_TEST)[:-1]
+        xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
+        self._assert_tb_str(xtb.formatted_exception_string, SIMPLE_EXCEPTION_NO_TB)
+        
+    def test_simple_no_tb_str(self):
+        etype, value = self._get_exc_info(BASIC_TEST)[:-1]
+        xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
+        self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_NO_TB)
+        
+    def test_with_globals(self):
+        self._check_tb_str(BASIC_TEST, WITH_GLOBALS_EXCEPTION, one=1)
+        
+    def test_with_show_globals(self):
+        exc_info = self._get_exc_info(BASIC_TEST, one=1)
+        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        self._assert_tb_str(xtb.formatted_exception_string, WITH_SHOW_GLOBALS_EXCEPTION)
+    
+    def test_extended(self):
+        exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
+        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        self._assert_tb_str(xtb.formatted_exception_string, EXTENDED_EXCEPTION)

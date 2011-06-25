@@ -3,7 +3,7 @@ class SomethingElse(object):
     
     def one(self, long):
         number = 1
-        result = number * 10
+        result = number * 10 #@UnusedVariable
         self.b(number, long)
      
     def b(self, number, long):

@@ -25,12 +25,12 @@ class Marker(object):
     def __repr__(self):
         frame = sys._getframe(1)
         while frame:
-            if frame.f_code == self.xtb.format_variable.func_code:
+            if frame.f_code == self.xtb._format_variable.func_code:
                 indent = frame.f_locals["indent"] + 4
                 break
             frame = frame.f_back
-        else:
-            raise RuntimeError("Expecting to be called with XTraceback.format_variable in stack")
+        else: # pragma: no cover - defensive
+            raise RuntimeError("Expecting to be called with XTraceback._format_variable in stack")
         pretty_repr = pprint.pformat(self.reference.target)
         if indent + len(self.key) + len(pretty_repr) > self.xtb.TERMINAL_WIDTH \
             or pretty_repr.find("\n") > 0:

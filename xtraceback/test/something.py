@@ -1,9 +1,9 @@
-import logging
-import os
-import sys
+import logging #@UnusedImport
+import os #@UnusedImport
+import sys #@UnusedImport
 
 
-from somethingelse import SomethingElse
+from .somethingelse import SomethingElse
 
 class Something(object):
     
