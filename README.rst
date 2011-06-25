@@ -1,5 +1,5 @@
 XTraceback
-----------
+==========
 
 Extended Python traceback formatter with support for variable expansion and
 syntax highlighting::
@@ -25,8 +25,10 @@ syntax highlighting::
     # as a sys.excepthook
     xtraceback.compat.install_excepthook()
 
-Options are passed as keyword arguments to the XTraceback constructor. The available
-options are listed below with their default values:
+Configuration
+=============
+
+Options are passed as keyword arguments to the XTraceback constructor.
  
  - offset=0 - Traceback offset
  - limit=None - Traceback limit  
@@ -37,18 +39,16 @@ options are listed below with their default values:
  - qualify_method_names=True - Qualify method names with the name of the owning class
  - shorten_filenames=True - Shorten filenames where possible
  - color=None - Whether to use color output
-
-The xtracetraceback.compat options can be changed with its update_defaults method.
  
 Installation
-------------
+============
 
 Using pip::
     
     pip install xtraceback
 
 Nose plugin
------------
+===========
 
 The nose plugin is enabled with the `--with-xtraceback` flag. See `nose --help`
 for other options.
