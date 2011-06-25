@@ -22,7 +22,7 @@
         <mkdir dir="reports" />
     </target>
 
-    <target name="test" depends="clean,init">
+    <target name="test" depends="init">
         <exec executable="nosetests" failonerror="true">
             <arg value="--verbose" />
             <arg value="--with-xunit" />
