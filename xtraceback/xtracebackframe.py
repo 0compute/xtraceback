@@ -86,7 +86,7 @@ class XTracebackFrame(object):
     def _format_variable(self, lines, key, value, indent=4, prefix=""):
         if value is not self.formatted_vars.get(key):
             self.formatted_vars[key] = value
-            if self.globals.get(key) == value:
+            if self.globals.get(key) is value:
                 prefix = self.GLOBALS_PREFIX + prefix
             lines.append(self.xtb._format_variable(key, value, indent, prefix))
     
