@@ -38,8 +38,7 @@
             <arg value="--with-xunit" />
         	<arg value="--xunit-file=reports/nosetests.xml" />
             <arg value="--with-coverage" />
-            <arg value="--with-profile"/>
-            <arg value="--profile-stats-file=reports/profile.out"/>
+            <!--<arg value="- -with-profile"/> <arg value="- -profile-stats-file=.profile.out"/> -->
         </exec>
     </target>
 
