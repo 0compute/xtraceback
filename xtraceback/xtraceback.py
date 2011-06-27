@@ -72,8 +72,8 @@ class XTraceback(object):
         tb = None
             
         # placeholders
-        self.lexer = None
-        self.formatter = None
+        self._lexer = None
+        self._formatter = None
     
     def __str__(self):
         return "".join(self.format_exception())
@@ -105,12 +105,12 @@ class XTraceback(object):
         if pygments is None:
             warnings.warn("highlighting disabled - pygments is not available")
         else:
-            if self.lexer is None:
-                self.lexer = PythonXTracebackLexer()
-            if self.formatter is None:
-                self.formatter = TerminalFormatter()
+            if self._lexer is None:
+                self._lexer = PythonXTracebackLexer()
+            if self._formatter is None:
+                self._formatter = TerminalFormatter()
             try:
-                return pygments.highlight(string, self.lexer, self.formatter)
+                return pygments.highlight(string, self._lexer, self._formatter)
             except KeyboardInterrupt:
                 # let the user abort a long-running highlight
                 pass
