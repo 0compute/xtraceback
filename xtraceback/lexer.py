@@ -31,7 +31,7 @@ class PythonXTracebackLexer(PythonTracebackLexer):
         ],
         "entry" : [
             (r"^Traceback \(most recent call last\):\n", Generic.Error, "frame"),
-            (r'^(  File )("[^"]+")(, line )(\d+)(, in )(.+)(\n)',
+            (r'^(  File )("[^"]+")(, line )(\d+)((?:, in )?)(.*)(\n)',
              bygroups(Generic.Error, Name.Builtin, Generic.Error, Number, Generic.Error, Name.Function, Text), "frame"),
         ],
         "exception" : [
