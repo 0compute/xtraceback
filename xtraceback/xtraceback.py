@@ -6,6 +6,8 @@ import warnings
 
 try:
     import pygments
+    from pygments.formatters.terminal import TerminalFormatter
+    from .lexer import PythonXTracebackLexer
 except ImportError:
     pygments = None
     
@@ -28,12 +30,6 @@ class XTraceback(object):
         }
     
     stdlib_path = os.path.dirname(os.__file__)
-    
-    if pygments is not None:
-        from pygments.formatters.terminal import TerminalFormatter
-        from .lexer import PythonXTracebackLexer
-        _formatter = TerminalFormatter()
-        _lexer = PythonXTracebackLexer()
     
     def __init__(self, etype, value, tb, **options):
         
@@ -71,6 +67,16 @@ class XTraceback(object):
                     self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
             tb = tb.tb_next
             i += 1
+            
+        # get rid of tb once we no longer need it
+        tb = None
+            
+        # placeholders
+        self.lexer = None
+        self.formatter = None
+    
+    def __str__(self):
+        return "".join(self.format_exception())
     
     def _format_filename(self, filename):
         if self.shorten_filenames:
@@ -99,11 +105,16 @@ class XTraceback(object):
         if pygments is None:
             warnings.warn("highlighting disabled - pygments is not available")
         else:
+            if self.lexer is None:
+                self.lexer = PythonXTracebackLexer()
+            if self.formatter is None:
+                self.formatter = TerminalFormatter()
             try:
-                return pygments.highlight(string, self._lexer, self._formatter)
+                return pygments.highlight(string, self.lexer, self.formatter)
             except KeyboardInterrupt:
                 # let the user abort a long-running highlight
-                return string
+                pass
+        return string
     
     def format_tb(self, color=False):
         lines = []
@@ -157,5 +168,18 @@ class XTraceback(object):
                 lines[i] = self.highlight(line)
         return lines
     
-    def __str__(self):
-        return "".join(self.format_exception())
+    def _print_lines(self, lines, stream=None, color=None):
+        if stream is None:
+            stream = sys.stderr
+        if color is None:
+            color = hasattr(stream, "isatty") and stream.isatty()
+        string = "".join(lines)
+        if color:
+            string = self.highlight(string)
+        stream.write(string)
+        
+    def print_tb(self, stream=None, color=None):
+        self._print_lines(self.format_tb(), stream, color)
+        
+    def print_exception(self, stream=None, color=None, **options):
+        self._print_lines(self.format_exception(), stream, color)

@@ -52,9 +52,8 @@ else:
                          and hasattr(sys.stderr, "isatty") \
                          and sys.stderr.isatty()))
             options = dict(show_globals=self.xtraceback_globals,
-                           globals_module_include=self.xtraceback_globals_include,
-                           color=color)
-            xtraceback.compat.update_defaults(**options)
+                           globals_module_include=self.xtraceback_globals_include)
+            xtraceback.compat.update_defaults(color, **options)
             xtraceback.compat.__enter__()
             
         def finalize(self, result):

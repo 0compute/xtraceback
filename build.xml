@@ -1,7 +1,7 @@
 <project name="xtraceback" default="test">
     
     <!--
-    This requires nose, coverage, pylint, and  clonedigger
+    easy_install nose coverage pylint clonedigger sphinx
     -->
     
     <target name="clean">
@@ -10,7 +10,7 @@
         </exec>
         <delete dir="dist" />
         <delete dir="reports" />
-        <delete file=".profile.out" />
+        <delete dir="doc/.build" />
         <delete>
             <fileset dir="." includes="**/*.pyc"/>
         </delete>
@@ -22,9 +22,9 @@
         </exec>
     </target>
     
-    <target name="sdist">
-        <exec executable="${basedir}/setup.py" failonerror="true">
-            <arg value="sdist" />
+    <target name="doc">
+        <exec executable="make" dir="doc" failonerror="true">
+            <arg value="html" />
         </exec>
     </target>
     
@@ -71,5 +71,11 @@
     </target>
     
     <target name="metrics" depends="coverage,pylint,clonedigger" />
+    
+    <target name="dist" depends="metrics,doc">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="sdist" />
+        </exec>
+    </target>
 
 </project>

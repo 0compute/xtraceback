@@ -1,8 +1,5 @@
-XTraceback
-==========
-
-Extended Python traceback formatter with support for variable expansion and
-syntax highlighting.
+XTraceback is an extended Python traceback formatter with support for variable
+expansion and syntax highlighting.
 
 Examples
 --------
