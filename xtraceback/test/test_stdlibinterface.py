@@ -2,8 +2,6 @@ from StringIO import StringIO
 import sys
 import traceback
 
-from test.test_traceback import TracebackCases, TracebackFormatTests
-
 from xtraceback import StdlibCompat
 
 from .cases import TestCaseMixin, XTracebackTestCase
@@ -42,15 +40,23 @@ class InstalledStdlibTestMixin(StdlibTestMixin):
         self.compat.__exit__(None, None, None)
 
 
-class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
+# use the stdlib's traceback test cases
+try:
+    from test.test_traceback import TracebackCases, TracebackFormatTests
+except ImportError:
+    # on debian (and maybe others) the stdlib does not have the full test package
     pass
+else:
+
+    class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
+        pass
 
 
-class TestStdlibFormat(InstalledStdlibTestMixin, TracebackFormatTests):
-    pass
+    class TestStdlibFormat(InstalledStdlibTestMixin, TracebackFormatTests):
+        pass
 
-# otherwise they get run as tests
-del TracebackCases, TracebackFormatTests
+    # otherwise they get run as tests
+    del TracebackCases, TracebackFormatTests
 
 
 class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
