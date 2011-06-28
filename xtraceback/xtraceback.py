@@ -122,24 +122,24 @@ class XTraceback(object):
         tb = None
 
     @property
-    def stream(self):
-        return self.options.get("stream", sys.stderr)
+    def tty_stream(self):
+        return hasattr(self.options.stream, "isatty") \
+            and self.options.stream.isatty()
 
     @property
     def color(self):
-        color = self.options.get("color")
+        color = self.options.color
         if color is None:
-            color = hasattr(self.stream, "isatty") and self.stream.isatty()
+            color = self.tty_stream
         return color
 
     @property
     def print_width(self):
-        print_width = self.options.get("print_width")
-        if print_width is None and fcntl is not None \
-            and hasattr(self.stream, "isatty") and self.stream.isatty():
+        print_width = self.options.print_width
+        if print_width is None and fcntl is not None and self.tty_stream:
             print_width = struct.unpack(
                 'HHHH',
-                fcntl.ioctl(self.stream,
+                fcntl.ioctl(self.options.stream,
                             termios.TIOCGWINSZ,
                             struct.pack('HHHH', 0, 0, 0, 0)),
                 )[1]
@@ -195,12 +195,12 @@ class XTraceback(object):
 
     def _str_lines(self, lines):
         exc_str = "".join(lines)
-        if self.options.color:
+        if self.color:
             exc_str = self._highlight(exc_str)
         return exc_str
 
     def _format_lines(self, lines):
-        if self.options.color:
+        if self.color:
             # XXX: This is not a good way to do it...
             return [self._highlight(line) for line in lines]
         return lines
