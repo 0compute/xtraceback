@@ -69,7 +69,8 @@ class XTracebackFrame(object):
 
     @property
     def exclude(self):
-        return self.function in self.FUNCTION_EXCLUDE
+        return self.locals.get("__xtraceback_skip_frame__", False) \
+            or self.function in self.FUNCTION_EXCLUDE
 
     def _filter(self, fdict):
         fdict = fdict.copy()
