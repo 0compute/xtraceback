@@ -22,7 +22,7 @@ class TestCaseMixin(object):
 
 class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
 
-    XTB_DEFAULTS = dict(offset=1, color=False)
+    XTB_DEFAULTS = dict(offset=1)
 
     def _factory(self, *exc_info, **options):
         _options = self.XTB_DEFAULTS.copy()

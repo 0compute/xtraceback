@@ -55,14 +55,15 @@ class StdlibCompat(object):
             target, member, patch = self._patch_stack.pop()
             setattr(target, member, patch)
 
-    def _factory(self, etype, value, tb, limit=None, file=None, **options):
-        if limit is not None:
-            options["limit"] = limit
-        if file is not None:
-            options["stream"] = file
+    def _factory(self, etype, value, tb, limit=None, **options):
+        options["limit"] = getattr(sys, "tracebacklimit", None) if limit is None else limit
         _options = self.defaults.copy()
         _options.update(options)
         return XTraceback(etype, value, tb, **_options)
+
+    def _print_factory(self, etype, value, tb, limit=None, file=None, **options):
+        options["stream"] = sys.stderr if file is None else file
+        return self._factory(etype, value, tb, limit, **options)
 
     def format_tb(self, tb, limit=None, **options):
         xtb = self._factory(None, None, tb, limit, **options)
@@ -80,11 +81,11 @@ class StdlibCompat(object):
         return self.format_exception(*sys.exc_info(), limit=limit, **options)
 
     def print_tb(self, tb, limit=None, file=None, **options):
-        xtb = self._factory(None, None, tb, limit, file, **options)
+        xtb = self._print_factory(None, None, tb, limit, file, **options)
         xtb.print_tb()
 
     def print_exception(self, etype, value, tb, limit=None, file=None, **options):
-        xtb = self._factory(etype, value, tb, limit, file, **options)
+        xtb = self._print_factory(etype, value, tb, limit, file, **options)
         xtb.print_exception()
 
     def print_exc(self, limit=None, file=None, **options):

@@ -20,8 +20,7 @@ class StdlibTestMixin(TestCaseMixin):
     def setUp(self):
         super(StdlibTestMixin, self).setUp()
         # these options should produce tracebacks that the same as from stdlib
-        self.compat = StdlibCompat(color=False,
-                                   context=1,
+        self.compat = StdlibCompat(context=1,
                                    show_args=False,
                                    show_locals=False,
                                    show_globals=False,

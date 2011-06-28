@@ -49,14 +49,14 @@ class XTraceback(object):
 
     _options = dict(
 
-        stream=lambda: sys.stderr,
+        stream=None,
 
         # These take their value from the stream if None
         color=None,
         print_width=None,
 
         offset=0,
-        limit=lambda: getattr(sys, "tracebacklimit", None),
+        limit=None,
         context=5,
 
         show_args=True,
@@ -91,8 +91,6 @@ class XTraceback(object):
             value = options.pop(key, None)
             if value is None:
                 value = self._options[key]
-            if callable(value):
-                value = value()
             self.options[key] = value
         if options:
             raise TypeError("Unsupported options: %r" % options)
@@ -123,20 +121,18 @@ class XTraceback(object):
 
     @property
     def tty_stream(self):
-        return hasattr(self.options.stream, "isatty") \
-            and self.options.stream.isatty()
+        return hasattr(self.options.stream, "isatty") and self.options.stream.isatty()
 
     @property
     def color(self):
-        color = self.options.color
-        if color is None:
-            color = self.tty_stream
-        return color
+        return self.tty_stream if self.options.color is None else self.options.color
 
     @property
     def print_width(self):
         print_width = self.options.print_width
-        if print_width is None and fcntl is not None and self.tty_stream:
+        if print_width is None \
+            and fcntl is not None \
+            and self.tty_stream:
             print_width = struct.unpack(
                 'HHHH',
                 fcntl.ioctl(self.options.stream,
@@ -206,6 +202,8 @@ class XTraceback(object):
         return lines
 
     def _print_lines(self, lines):
+        if self.options.stream is None:
+            raise RuntimeError("Cannot print - %r has None stream" % self)
         self.options.stream.write(self._str_lines(lines))
 
     # { Traceback format - these return lines that should be joined with ""
