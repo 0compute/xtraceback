@@ -1,7 +1,5 @@
 import re
 
-from xtraceback import XTraceback
-
 from . import something
 from .cases import XTracebackTestCase
 
@@ -191,44 +189,44 @@ Exception: exc
 """
 
 SYNTAX_EXCEPTION = \
-"""SyntaxError: invalid syntax
-  File "<string>", line 1
+"""  File "<string>", line 1
     if:
       ^
+SyntaxError: invalid syntax
 """
 
 class TestXTraceback(XTracebackTestCase):
-            
+
     def test_simple(self):
         self._check_tb_str(BASIC_TEST, SIMPLE_EXCEPTION)
-        
+
     def test_simple_str(self):
         exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(*exc_info)
         self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION)
-    
+
     def test_simple_str_color(self):
         exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str("".join(xtb.format_exception(True)), SIMPLE_EXCEPTION_COLOR)
-        
+        xtb = self._factory(*exc_info, color=True)
+        self._assert_tb_str("".join(xtb.format_exception()), SIMPLE_EXCEPTION_COLOR)
+
     def test_simple_no_tb(self):
         etype, value = self._get_exc_info(BASIC_TEST)[:-1]
-        xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
+        xtb = self._factory(etype, value, None)
         self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_NO_TB)
-        
+
     def test_with_globals(self):
         self._check_tb_str(BASIC_TEST, WITH_GLOBALS_EXCEPTION, one=1)
-        
+
     def test_with_show_globals(self):
         exc_info = self._get_exc_info(BASIC_TEST, one=1)
-        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), WITH_SHOW_GLOBALS_EXCEPTION)
-    
+
     def test_extended(self):
         exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
-        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), EXTENDED_EXCEPTION)
-    
+
     def test_syntax(self):
         self._check_tb_str(SYNTAX_TEST, SYNTAX_EXCEPTION)

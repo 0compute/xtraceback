@@ -3,7 +3,7 @@ import unittest
 
 from nose.plugins import PluginTester
 
-from nosextraceback import NoseXTraceback 
+from nosextraceback import NoseXTraceback
 
 from .cases import XTracebackTestCase
 
@@ -33,18 +33,18 @@ TIME_PATTEN = re.compile("\d+\.\d+s")
 
 
 class TestNoseXTraceback(PluginTester, XTracebackTestCase):
-    
+
     activate = '--with-xtraceback'
     args = ('--xtraceback-color=off',)
-    
+
     plugins = [NoseXTraceback()]
-    
+
     def makeSuite(self):
         class TC(unittest.TestCase):
             def runTest(self):
                 raise ValueError("xxx")
         return unittest.TestSuite([TC()])
-    
+
     def test_active(self):
         exc_str = TIME_PATTEN.sub("0.001s", str(self.output))
         self._assert_tb_str(exc_str, EXCEPTION)
