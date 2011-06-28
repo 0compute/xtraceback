@@ -136,7 +136,7 @@ class XTraceback(object):
     def print_width(self):
         print_width = self.options.get("print_width")
         if print_width is None and fcntl is not None \
-            and hasattr(self.stream, "fileno"):
+            and hasattr(self.stream, "isatty") and self.stream.isatty():
             print_width = struct.unpack(
                 'HHHH',
                 fcntl.ioctl(self.stream,
