@@ -2,7 +2,6 @@ import inspect
 import os
 import pprint
 import struct
-import sys
 import warnings
 
 try:
