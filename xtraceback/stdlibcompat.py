@@ -28,7 +28,7 @@ class StdlibCompat(object):
 
     def __init__(self, **defaults):
         self.defaults = defaults
-        self._entries = []
+        self._entered = False
 
     def _patch(self, target, member, patch):
         current = getattr(target, member)
@@ -39,24 +39,21 @@ class StdlibCompat(object):
         self._patch(sys, "excepthook", self.print_exception)
 
     def __enter__(self):
-        if not self._entries:
-            # first entry - doing it like this to ease testing
-            for func_name in self._traceback_patch_functions:
-                self._patch(traceback, func_name, getattr(self, func_name))
-        self._entries.append(None)
+        if self._entered:
+            raise RuntimeError("Already entered %r" % self)
+        self._entered = True
+        # first entry - doing it like this to ease testing
+        for func_name in self._traceback_patch_functions:
+            self._patch(traceback, func_name, getattr(self, func_name))
         return self
 
     def __exit__(self, *exc_info):
-        self._entries.pop()
-        if not self._entries:
-            while self._patch_stack:
-                target, member, patch = self._patch_stack.pop()
-                setattr(target, member, patch)
-
-    def __del__(self):
-        if self._entries:
-            self.__exit__(None, None, None)
-        assert not self._entries
+        if not self._entered:
+            raise RuntimeError("Not entered %r" % self)
+        self._entered = False
+        while self._patch_stack:
+            target, member, patch = self._patch_stack.pop()
+            setattr(target, member, patch)
 
     def _factory(self, etype, value, tb, limit=None, file=None, **options):
         if limit is not None:
