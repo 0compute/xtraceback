@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from nose.plugins.plugintest import PluginTester
+from nose.plugins import PluginTester
 
 from nosextraceback import NoseXTraceback
 
@@ -11,11 +11,11 @@ from .cases import XTracebackTestCase
 EXCEPTION = \
 """E
 ======================================================================
-ERROR: runTest (xtraceback.tests.test_nosextraceback.TC)
+ERROR: runTest (xtraceback.test.test_nosextraceback.TC)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "xtraceback/tests/test_nosextraceback.py", line 45, in TC.runTest
-    self = <xtraceback.tests.test_nosextraceback.TC testMethod=runTest>
+  File "xtraceback/test/test_nosextraceback.py", line 45, in TC.runTest
+    self = <xtraceback.test.test_nosextraceback.TC testMethod=runTest>
     43 class TC(unittest.TestCase):
     44     def runTest(self):
 --> 45         raise ValueError("xxx")
