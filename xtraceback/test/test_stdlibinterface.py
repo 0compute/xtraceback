@@ -2,11 +2,7 @@ from StringIO import StringIO
 import sys
 import traceback
 
-try:
-    from test.test_traceback import TracebackCases, TracebackFormatTests
-except ImportError:
-    # debian does not include the full test package from stdlib
-    from .stdlib_test_traceback import TracebackCases, TracebackFormatTests
+from test.test_traceback import TracebackCases, TracebackFormatTests
 
 from xtraceback import StdlibCompat
 
