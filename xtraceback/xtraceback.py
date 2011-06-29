@@ -58,14 +58,18 @@ class XTraceback(object):
         limit=None,
         context=5,
 
+        globals_module_include=None,
+
+        )
+
+    _flags = dict(
+
         show_args=True,
         show_locals=True,
         show_globals=False,
 
         qualify_methods=True,
         shorten_filenames=True,
-
-        globals_module_include=None,
 
         )
 
@@ -84,13 +88,22 @@ class XTraceback(object):
         self.etype = etype
         self.value = value
 
-        # set options
+        # options
         self.options = Options()
         for key in self._options:
             value = options.pop(key, None)
             if value is None:
                 value = self._options[key]
             self.options[key] = value
+        # flags
+        for key in self._flags:
+            value = options.pop(key, None)
+            if value is None:
+                value = self._flags[key]
+            else:
+                value = bool(value)
+            self.options[key] = value
+        # there should be no more options
         if options:
             raise TypeError("Unsupported options: %r" % options)
 
