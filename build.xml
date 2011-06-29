@@ -16,6 +16,12 @@
         </delete>
     </target>
     
+    <target name="develop">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="develop" />
+        </exec>
+    </target>
+    
     <target name="doc">
         <exec executable="make" dir="doc" failonerror="true">
             <arg value="html" />
@@ -66,4 +72,10 @@
     
     <target name="metrics" depends="coverage,pylint,clonedigger" />
     
+    <target name="dist" depends="metrics,doc">
+        <exec executable="${basedir}/setup.py" failonerror="true">
+            <arg value="sdist" />
+        </exec>
+    </target>
+
 </project>
