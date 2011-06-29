@@ -55,11 +55,7 @@ class XTracebackFrame(object):
             cls = self.frame.f_locals[self.args[0]]
             if not isinstance(cls, type):
                 cls = cls.__class__
-            method = getattr(cls, self.function, None)
-            if hasattr(method, "__get__") and hasattr(method, "fget"):
-                method = method.fget
-            if method is not None and hasattr(method, "im_class") \
-                and method.im_class in (cls, getattr(cls, "__metaclass__", None)):
+            if hasattr(cls, self.function):
                 for base in inspect.getmro(cls):
                     if self.function in base.__dict__:
                         self.function = base.__name__ + "." + self.function
