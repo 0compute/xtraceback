@@ -54,7 +54,7 @@ class XTracebackFrame(object):
         if self.xtb.options.qualify_methods and self.args:
             cls = self.frame.f_locals[self.args[0]]
             if not isinstance(cls, type):
-                cls = cls.__class__
+                cls = type(cls)
             if hasattr(cls, self.function):
                 for base in inspect.getmro(cls):
                     if self.function in base.__dict__:
