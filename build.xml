@@ -55,11 +55,10 @@
     </target>
 
     <target name="clonedigger" depends="init">
-        <mkdir dir="reports/clonedigger" />
         <exec executable="clonedigger">
             <arg value="--cpd-output" />
             <arg value="-o" />
-            <arg value="reports/clonedigger/index.html" />
+            <arg value="reports/clonedigger.xml" />
             <arg value="${ant.project.name}" />
         </exec>
     </target>
