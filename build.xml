@@ -45,6 +45,7 @@
 
     <target name="pylint" depends="init">
         <exec executable="pylint">
+            <!-- pylint gives exit status as the number of warnings -->
             <arg value="--rcfile=.pylintrc" />
             <arg value="-f" />
             <arg value="parseable" />
@@ -55,7 +56,7 @@
     </target>
 
     <target name="clonedigger" depends="init">
-        <exec executable="clonedigger">
+        <exec executable="clonedigger" failonerror="true">
             <arg value="--cpd-output" />
             <arg value="-o" />
             <arg value="reports/clonedigger.xml" />
