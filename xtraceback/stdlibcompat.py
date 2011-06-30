@@ -35,25 +35,34 @@ class StdlibCompat(object):
         self._patch_stack.append((target, member, current))
         setattr(target, member, patch)
 
-    def install_excepthook(self):
+    def install_sys_excepthook(self):
         self._patch(sys, "excepthook", self.print_exception)
+
+    def install_traceback(self):
+        for func_name in self._traceback_patch_functions:
+            self._patch(traceback, func_name, getattr(self, func_name))
+
+    def install(self):
+        self.install_sys_excepthook()
+        self.install_traceback()
+
+    def uninstall(self):
+        while self._patch_stack:
+            target, member, patch = self._patch_stack.pop()
+            setattr(target, member, patch)
 
     def __enter__(self):
         if self._entered:
             raise RuntimeError("Already entered %r" % self)
         self._entered = True
-        # first entry - doing it like this to ease testing
-        for func_name in self._traceback_patch_functions:
-            self._patch(traceback, func_name, getattr(self, func_name))
+        self.install_traceback()
         return self
 
     def __exit__(self, *exc_info):
         if not self._entered:
             raise RuntimeError("Not entered %r" % self)
+        self.uninstall()
         self._entered = False
-        while self._patch_stack:
-            target, member, patch = self._patch_stack.pop()
-            setattr(target, member, patch)
 
     def _factory(self, etype, value, tb, limit=None, **options):
         options["limit"] = getattr(sys, "tracebacklimit", None) if limit is None else limit

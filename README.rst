@@ -39,7 +39,7 @@ As a context manager - the stdlib traceback module is monkey patched::
 
 As a sys.excepthook::
 
-    >>> xtraceback.compat.install_excepthook()
+    >>> xtraceback.compat.install_sys_excepthook()
     >>> print sys.excepthook #doctest: +ELLIPSIS
     <bound method StdlibCompat.print_exception of <xtraceback.stdlibcompat.StdlibCompat object at 0x...>>
     >>> raise Exception("exc") #doctest: +ELLIPSIS
@@ -70,11 +70,10 @@ By itself::
     Exception: exc
     <BLANKLINE>
     
-In a python startup file::
+In a python sitecustomize.py file::
 
-    if __name__ == "__main__":
-        import xtraceback
-        xtraceback.compat.install_excepthook()
+    import xtraceback
+    xtraceback.compat.install()
     
 Then tell python to use the startup file::
 

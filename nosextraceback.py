@@ -5,6 +5,8 @@ This module is placed outside of the xtraceback package because we don't want
 nose to import the xtraceback package until it has started the coverage plugin.
 """
 
+import sys
+
 try:
     from nose.plugins import Plugin
 except ImportError:
@@ -55,8 +57,8 @@ class NoseXTraceback(Plugin):
                        show_globals=self.xtraceback_globals,
                        globals_module_include=self.xtraceback_globals_include)
         xtraceback.compat.defaults.update(**options)
-        xtraceback.compat.__enter__()
+        xtraceback.compat.install()
 
     def finalize(self, result):
         import xtraceback
-        xtraceback.compat.__exit__(None, None, None)
+        xtraceback.compat.uninstall()

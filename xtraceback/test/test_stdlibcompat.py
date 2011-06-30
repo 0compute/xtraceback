@@ -88,8 +88,8 @@ class TestStdlibCompat(XTracebackTestCase):
             self.fail("Should have raised exception")
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
 
-    def test_excepthook(self):
-        self.compat.install_excepthook()
+    def test_install_sys_excepthook(self):
+        self.compat.install_sys_excepthook()
         self.assertEqual(sys.excepthook, traceback.print_exception)
         try:
             exec BASIC_TEST in {}
