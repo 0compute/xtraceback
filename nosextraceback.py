@@ -5,8 +5,6 @@ This module is placed outside of the xtraceback package because we don't want
 nose to import the xtraceback package until it has started the coverage plugin.
 """
 
-import sys
-
 try:
     from nose.plugins import Plugin
 except ImportError:
