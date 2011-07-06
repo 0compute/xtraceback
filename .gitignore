@@ -2,8 +2,6 @@
 *.egg-info/
 dist/
 .coverage
-.project
-.pydevproject
 reports/
 *.swp
 doc/.build/
