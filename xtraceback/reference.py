@@ -29,11 +29,13 @@ class Marker(object):
                 indent = frame.f_locals["indent"] + 4
                 break
             frame = frame.f_back
-        else: # pragma: no cover - defensive
-            raise RuntimeError("Expecting to be called with XTraceback._format_variable in stack")
+        else:  # pragma: no cover - defensive
+            raise RuntimeError("Expecting to be called with "
+                               "XTraceback._format_variable in stack")
         pretty_repr = pprint.pformat(self.reference.target)
         if indent + len(self.key) + len(pretty_repr) > self.xtb.print_width \
             or pretty_repr.find("\n") > 0:
-            name = "" if self.reference.varname == self.key else " name=%s" % self.reference.varname
+            name = "" if self.reference.varname == self.key \
+                       else " name=%s" % self.reference.varname
             pretty_repr = "<ref offset=%d%s>" % (self.tb_offset, name)
         return pretty_repr

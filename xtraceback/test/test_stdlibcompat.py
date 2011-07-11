@@ -5,7 +5,8 @@ import traceback
 from xtraceback import StdlibCompat
 
 from .cases import XTracebackTestCase
-from .test_xtraceback import BASIC_TEST, SIMPLE_EXCEPTION, SIMPLE_EXCEPTION_NO_TB, SIMPLE_TRACEBACK
+from .test_xtraceback import BASIC_TEST, SIMPLE_EXCEPTION, \
+    SIMPLE_EXCEPTION_NO_TB, SIMPLE_TRACEBACK
 
 
 SIMPLE_EXCEPTION_ONEFRAME = \
@@ -66,7 +67,9 @@ class TestStdlibCompat(XTracebackTestCase):
 
     def test_print_exception_limited(self):
         stream = StringIO()
-        traceback.print_exception(*self._get_exc_info(BASIC_TEST), limit=2, file=stream)
+        traceback.print_exception(*self._get_exc_info(BASIC_TEST),
+                                  limit=2,
+                                  file=stream)
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION_ONEFRAME)
 
     def test_format_exc(self):

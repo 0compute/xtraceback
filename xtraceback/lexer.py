@@ -29,14 +29,17 @@ class PythonXTracebackLexer(PythonTracebackLexer):
             include("exception"),
             (r"^.*\n", Generic.Error),
         ],
-        "entry" : [
+        "entry": [
             (r"^Traceback \(most recent call last\):\n", Generic.Error, "frame"),
             # file - path is colored differently if under working directory
             (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)(, line )(\d+)((?:, in )?)(.*)(\n)',
-             bygroups(Generic.Error, Name.Builtin, Operator.Word, Generic.Error, Number, Generic.Error, Name.Function, Text), "frame"),
+             bygroups(Generic.Error, Name.Builtin, Operator.Word, Generic.Error,
+                      Number, Generic.Error, Name.Function, Text),
+             "frame"),
         ],
-        "exception" : [
-            (r"^(AssertionError: )(.+\n)", bygroups(Generic.Error, using(XPythonLexer))),
+        "exception": [
+            (r"^(AssertionError: )(.+\n)", bygroups(Generic.Error,
+                                                    using(XPythonLexer))),
             (r"^(%s:?)(.+\n)" % BASE_NAME, bygroups(Generic.Error, String)),
             ],
         "frame": [
@@ -50,7 +53,8 @@ class PythonXTracebackLexer(PythonTracebackLexer):
              bygroups(Text, String, Name.Operator, using(XPythonLexer), Text)),
             # variable
             (r"^([ ]+)((?:g:)?)(\**%s)( = )(.+\n)" % BASE_NAME,
-             bygroups(Text, Name.Builtin, Name.Variable, Name.Operator, using(XPythonLexer))),
+             bygroups(Text, Name.Builtin, Name.Variable, Name.Operator,
+                      using(XPythonLexer))),
             # plain python
             (r"^(    )(.+)(\n)",
              bygroups(Text, using(XPythonLexer), Text)),

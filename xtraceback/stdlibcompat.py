@@ -16,8 +16,9 @@ class StdlibCompatMeta(type):
 class StdlibCompat(object):
     """
     Provides interface compatibility with the stdlib traceback module
-    
-    :ivar defaults: Default options to apply to XTracebacks created by this instance
+
+    :ivar defaults: Default options to apply to XTracebacks created by this
+                    instance
     :type defaults: dict
     """
 
@@ -65,7 +66,8 @@ class StdlibCompat(object):
         self._entered = False
 
     def _factory(self, etype, value, tb, limit=None, **options):
-        options["limit"] = getattr(sys, "tracebacklimit", None) if limit is None else limit
+        options["limit"] = getattr(sys, "tracebacklimit", None) if limit is None \
+                               else limit
         _options = self.defaults.copy()
         _options.update(options)
         return XTraceback(etype, value, tb, **_options)
