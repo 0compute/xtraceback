@@ -1,75 +1,85 @@
+<?xml version="1.0"?>
 <project name="xtraceback" default="test">
-    
-    <!--
+
+  <!--
     easy_install nose coverage pylint clonedigger sphinx
-    -->
-    
-    <target name="clean">
-        <exec executable="${basedir}/setup.py" failonerror="true">
-            <arg value="clean" />
-        </exec>
-        <delete dir="dist" />
-        <delete dir="reports" />
-        <delete dir="doc/.build" />
-        <delete>
-            <fileset dir="." includes="**/*.pyc"/>
-        </delete>
-    </target>
-    
-    <target name="doc">
-        <exec executable="make" dir="doc" failonerror="true">
-            <arg value="html" />
-        </exec>
-    </target>
-    
-    <target name="init">
-        <mkdir dir="reports" />
-    </target>
+  -->
 
-    <target name="test" depends="init">
-        <exec executable="nosetests" failonerror="true">
-            <arg value="--verbose" />
-            <arg value="--with-xunit" />
-        	<arg value="--xunit-file=reports/nosetests.xml" />
-            <arg value="--with-coverage" />
-            <!--<arg value="- -with-profile"/> <arg value="- -profile-stats-file=.profile.out"/> -->
-        </exec>
-    </target>
+  <target name="clean">
+    <exec executable="${basedir}/setup.py" failonerror="true">
+      <arg value="clean"/>
+    </exec>
+    <delete dir="dist"/>
+    <delete dir="reports"/>
+    <delete dir="doc/.build"/>
+    <delete>
+      <fileset dir="." includes="**/*.pyc"/>
+    </delete>
+  </target>
 
-    <target name="coverage" depends="test">
-        <exec executable="coverage" failonerror="true">
-            <arg value="xml" />
-            <arg value="-oreports/coverage.xml" />
-        </exec>
-    </target>
+  <target name="doc">
+    <exec executable="make" dir="doc" failonerror="true">
+      <arg value="html"/>
+    </exec>
+  </target>
 
-    <target name="pylint" depends="init">
-        <exec executable="pylint">
-            <!-- pylint gives exit status as the number of warnings -->
-            <arg value="--rcfile=.pylintrc" />
-            <arg value="-f" />
-            <arg value="parseable" />
-            <arg value="${ant.project.name}" />
-            <redirector output="reports/pylint" />
-        </exec>
-        <replace file="reports/pylint" token="arm/" value="core/arm/" />
-    </target>
+  <target name="init">
+    <mkdir dir="reports"/>
+  </target>
 
-    <target name="clonedigger" depends="init">
-        <exec executable="clonedigger" failonerror="true">
-            <arg value="--cpd-output" />
-            <arg value="-o" />
-            <arg value="reports/clonedigger.xml" />
-            <arg value="${ant.project.name}" />
-        </exec>
-    </target>
-    
-    <target name="metrics" depends="coverage,pylint,clonedigger" />
-    
-    <target name="dist" depends="metrics,doc">
-        <exec executable="${basedir}/setup.py" failonerror="true">
-            <arg value="sdist" />
-        </exec>
-    </target>
+  <target name="test" depends="init">
+    <exec executable="nosetests" failonerror="true">
+      <arg value="--verbose"/>
+      <arg value="--with-xunit"/>
+      <arg value="--xunit-file=reports/nosetests.xml"/>
+      <arg value="--with-coverage"/>
+    </exec>
+  </target>
+
+  <target name="coverage" depends="test">
+    <exec executable="coverage" failonerror="true">
+      <arg value="xml"/>
+      <arg value="-oreports/coverage.xml"/>
+    </exec>
+  </target>
+
+  <target name="pylint" depends="init">
+    <exec executable="pylint">
+      <!-- pylint gives exit status as the number of warnings -->
+      <arg value="--rcfile=.pylintrc"/>
+      <arg value="-f"/>
+      <arg value="parseable"/>
+      <arg value="${ant.project.name}"/>
+      <redirector output="reports/pylint"/>
+    </exec>
+    <replace file="reports/pylint" token="arm/" value="core/arm/"/>
+  </target>
+
+  <target name="pep8" depends="init">
+    <exec executable="pep8">
+      <arg value="--repeat"/>
+      <!-- E501=line too long -->
+      <arg value="--ignore=E501"/>
+      <arg value="${ant.project.name}"/>
+      <redirector output="reports/pep8"/>
+    </exec>
+  </target>
+
+  <target name="clonedigger" depends="init">
+    <exec executable="clonedigger" failonerror="true">
+      <arg value="--cpd-output"/>
+      <arg value="-o"/>
+      <arg value="reports/clonedigger.xml"/>
+      <arg value="${ant.project.name}"/>
+    </exec>
+  </target>
+
+  <target name="metrics" depends="coverage,pylint,pep8,clonedigger"/>
+
+  <target name="dist" depends="metrics,doc">
+    <exec executable="${basedir}/setup.py" failonerror="true">
+      <arg value="sdist"/>
+    </exec>
+  </target>
 
 </project>

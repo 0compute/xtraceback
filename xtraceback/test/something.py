@@ -2,8 +2,8 @@ import logging
 import os
 import sys
 
-
 from .somethingelse import SomethingElse
+
 
 class Something(object):
 

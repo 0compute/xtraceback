@@ -37,11 +37,11 @@ class XTraceback(object):
     DEFAULT_WIDTH = 80
 
     REFORMAT = {
-        dict : ("{", "}"),
-        list : ("[", "]"),
-        tuple : ("(", ")"),
-        set : ("set([", "])"),
-        frozenset : ("frozenset([", "])"),
+        dict: ("{", "}"),
+        list: ("[", "]"),
+        tuple: ("(", ")"),
+        set: ("set([", "])"),
+        frozenset: ("frozenset([", "])"),
         }
 
     stdlib_path = os.path.dirname(os.__file__)

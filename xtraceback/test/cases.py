@@ -43,7 +43,7 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
         # stripping trailing whitespace that gets added when we have an empty
         # line
         exc_str = TRAILING_WHITESPACE_PATTERN.sub("\n", exc_str)
-        if exc_str != expect_exc_str: # pragma: no cover for obvious reasons
+        if exc_str != expect_exc_str:  # pragma: no cover for obvious reasons
             diff = difflib.ndiff(expect_exc_str.splitlines(True),
                                  exc_str.splitlines(True))
             print "-" * 70

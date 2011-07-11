@@ -50,7 +50,6 @@ else:
     class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
         pass
 
-
     class TestStdlibFormat(InstalledStdlibTestMixin, TracebackFormatTests):
         pass
 

@@ -29,7 +29,7 @@ class PythonXTracebackLexer(PythonTracebackLexer):
             include("exception"),
             (r"^.*\n", Generic.Error),
         ],
-        "entry" : [
+        "entry": [
             (r"^Traceback \(most recent call last\):\n", Generic.Error, "frame"),
             # file - path is colored differently if under working directory
             (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)(, line )(\d+)((?:, in )?)(.*)(\n)',
@@ -37,7 +37,7 @@ class PythonXTracebackLexer(PythonTracebackLexer):
                       Number, Generic.Error, Name.Function, Text),
              "frame"),
         ],
-        "exception" : [
+        "exception": [
             (r"^(AssertionError: )(.+\n)", bygroups(Generic.Error,
                                                     using(XPythonLexer))),
             (r"^(%s:?)(.+\n)" % BASE_NAME, bygroups(Generic.Error, String)),

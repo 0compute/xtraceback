@@ -29,7 +29,7 @@ class Marker(object):
                 indent = frame.f_locals["indent"] + 4
                 break
             frame = frame.f_back
-        else: # pragma: no cover - defensive
+        else:  # pragma: no cover - defensive
             raise RuntimeError("Expecting to be called with "
                                "XTraceback._format_variable in stack")
         pretty_repr = pprint.pformat(self.reference.target)
