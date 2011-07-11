@@ -9,11 +9,11 @@ API
 .. autoclass:: xtraceback.XTraceback
     :members:
     :undoc-members:
-    
-.. autoclass:: xtraceback.TracebackCompat
+
+.. autoclass:: xtraceback.StdlibCompat
     :members:
     :undoc-members:
- 
+
 Indices and tables
 ==================
 
