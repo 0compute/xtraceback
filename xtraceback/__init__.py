@@ -1,6 +1,6 @@
-from .tracebackcompat import TracebackCompat
+from .stdlibcompat import StdlibCompat
 from .xtraceback import XTraceback
 
-compat = TracebackCompat()
+compat = StdlibCompat()
 __enter__ = compat.__enter__
 __exit__ = compat.__exit__

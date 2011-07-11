@@ -1,7 +1,5 @@
 import re
 
-from xtraceback import XTraceback
-
 from . import something
 from .cases import XTracebackTestCase
 
@@ -123,7 +121,7 @@ EXTENDED_EXCEPTION = \
     11     sugar = max(1, 2)
 --> 12     self.two(sugar)
            sugar = 2
-    13 
+    13
     14 def two(self, sugar):
   File "xtraceback/test/something.py", line 17, in Something.two
     self = <xtraceback.test.something.Something object at 0x123456789>
@@ -133,102 +131,104 @@ EXTENDED_EXCEPTION = \
     g:logging = <package 'logging' from='<stdlib>/logging'>
     g:os = <module 'os' from='<stdlib>/os.pyc'>
     g:sys = <module 'sys' (built-in)>
-    13 
+    13
     14 def two(self, sugar):
     15     long = "y" * 67
     16     obj = SomethingElse()
 --> 17     obj.one(long)
            long = 'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
            obj = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-  File "xtraceback/test/somethingelse.py", line 7, in SomethingElse.one
+  File "xtraceback/test/somethingelse.py", line 8, in SomethingElse.one
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     long = <ref offset=-1>
     g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
-     5     number = 1
-     6     result = number * 10 #@UnusedVariable
----> 7     self.b(number, long)
+     6     number = 1
+     7     result = number * 10
+---> 8     self.b(number, long)
            number = 1
            result = 10
-     8 
-     9 def b(self, number, long):
-  File "xtraceback/test/somethingelse.py", line 10, in SomethingElse.b
+     9
+    10 def b(self, number, long):
+  File "xtraceback/test/somethingelse.py", line 11, in SomethingElse.b
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     number = 1
     long = <ref offset=-2>
     g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
-     8 
-     9 def b(self, number, long):
---> 10     self.c("arg1", "arg2", a_kw_arg=1)
-    11 
-    12 def c(self, *args, **kwargs):
-  File "xtraceback/test/somethingelse.py", line 13, in SomethingElse.c
+     9
+    10 def b(self, number, long):
+--> 11     self.c("arg1", "arg2", a_kw_arg=1)
+    12
+    13 def c(self, *args, **kwargs):
+  File "xtraceback/test/somethingelse.py", line 14, in SomethingElse.c
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     *args = ('arg1', 'arg2')
     **kwargs = {'a_kw_arg': 1}
     g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
-    11 
-    12 def c(self, *args, **kwargs):
---> 13     self.d()
-    14 
-    15 def d(self):
-  File "xtraceback/test/somethingelse.py", line 16, in SomethingElse.d
+    12
+    13 def c(self, *args, **kwargs):
+--> 14     self.d()
+    15
+    16 def d(self):
+  File "xtraceback/test/somethingelse.py", line 17, in SomethingElse.d
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
-    14 
-    15 def d(self):
---> 16     self.e()
-    17 
-    18 def e(self):
-  File "xtraceback/test/somethingelse.py", line 19, in SomethingElse.e
+    15
+    16 def d(self):
+--> 17     self.e()
+    18
+    19 def e(self):
+  File "xtraceback/test/somethingelse.py", line 20, in SomethingElse.e
     self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
     g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
-    15 def d(self):
-    16     self.e()
-    17 
-    18 def e(self):
---> 19     raise Exception("exc")
+    16 def d(self):
+    17     self.e()
+    18
+    19 def e(self):
+--> 20     raise Exception("exc")
 Exception: exc
 """
 
 SYNTAX_EXCEPTION = \
-"""SyntaxError: invalid syntax
-  File "<string>", line 1
+"""  File "<string>", line 1
     if:
       ^
+SyntaxError: invalid syntax
 """
 
+
 class TestXTraceback(XTracebackTestCase):
-            
+
     def test_simple(self):
         self._check_tb_str(BASIC_TEST, SIMPLE_EXCEPTION)
-        
+
     def test_simple_str(self):
         exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(*exc_info)
         self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION)
-    
+
     def test_simple_str_color(self):
         exc_info = self._get_exc_info(BASIC_TEST)
-        xtb = XTraceback(*exc_info, **self.XTB_DEFAULTS)
-        self._assert_tb_str("".join(xtb.format_exception(True)), SIMPLE_EXCEPTION_COLOR)
-        
+        xtb = self._factory(*exc_info, color=True)
+        self._assert_tb_str("".join(xtb.format_exception()),
+                            SIMPLE_EXCEPTION_COLOR)
+
     def test_simple_no_tb(self):
         etype, value = self._get_exc_info(BASIC_TEST)[:-1]
-        xtb = XTraceback(etype, value, None, **self.XTB_DEFAULTS)
+        xtb = self._factory(etype, value, None)
         self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION_NO_TB)
-        
+
     def test_with_globals(self):
         self._check_tb_str(BASIC_TEST, WITH_GLOBALS_EXCEPTION, one=1)
-        
+
     def test_with_show_globals(self):
         exc_info = self._get_exc_info(BASIC_TEST, one=1)
-        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), WITH_SHOW_GLOBALS_EXCEPTION)
-    
+
     def test_extended(self):
         exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
-        xtb = XTraceback(show_globals=True, *exc_info, **self.XTB_DEFAULTS)
+        xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), EXTENDED_EXCEPTION)
-    
+
     def test_syntax(self):
         self._check_tb_str(SYNTAX_TEST, SYNTAX_EXCEPTION)
