@@ -52,7 +52,6 @@ As a sys.excepthook::
 
 By itself::
 
-    >>>
     >>> try:
     ...     raise Exception("exc")
     ... except:
@@ -70,29 +69,20 @@ By itself::
     Exception: exc
     <BLANKLINE>
 
-In a python sitecustomize.py file::
+In a sitecustomize module::
 
     import xtraceback
     xtraceback.compat.install()
 
-Then tell python to use the startup file::
-
-    export PYTHONSTARTUP=/path/to/startup.py
-
 Configuration
 -------------
 
-Options are passed as keyword arguments to the XTraceback constructor.
+For options and their defaults see `xtraceback.XTraceback`'s constructor. When
+using stdlib compat the `xtraceback.StdlibCompat` class has a `defaults`
+dictionary which should be updated with your overrides - the default instance
+exists at xtraceback.compat::
 
- - offset=0 - Traceback offset
- - limit=None - Traceback limit
- - context=5 - Number of lines of context to show
- - show_args=True - Show frame args
- - show_locals=True - Show line locals
- - show_globals=False - Show globals
- - qualify_method_names=True - Qualify method names with the name of the owning class
- - shorten_filenames=True - Shorten filenames where possible
- - color=None - Whether to use color output
+    xtraceback.compat.defaults.update(option=value[, ...])
 
 Installation
 ------------
