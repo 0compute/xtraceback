@@ -7,6 +7,7 @@ from xtraceback import XTraceback
 
 
 ID_PATTERN = re.compile("0[xX][a-fA-F0-9]+")
+TRAILING_WHITESPACE_PATTERN = re.compile(" \n")
 
 TB_DEFAULTS = dict(address="0x123456789")
 
@@ -39,8 +40,12 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
 
     def _assert_tb_str(self, exc_str, expect_exc_str):
         exc_str = ID_PATTERN.sub(TB_DEFAULTS["address"], exc_str)
+        # stripping trailing whitespace that gets added when we have an empty
+        # line
+        exc_str = TRAILING_WHITESPACE_PATTERN.sub("\n", exc_str)
         if exc_str != expect_exc_str: # pragma: no cover for obvious reasons
-            diff = difflib.ndiff(expect_exc_str.splitlines(True), exc_str.splitlines(True))
+            diff = difflib.ndiff(expect_exc_str.splitlines(True),
+                                 exc_str.splitlines(True))
             print "-" * 70
             print "want:"
             print expect_exc_str

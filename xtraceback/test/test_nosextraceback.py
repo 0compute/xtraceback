@@ -20,7 +20,7 @@ Traceback (most recent call last):
     44     def runTest(self):
 --> 45         raise ValueError("xxx")
     46 return unittest.TestSuite([TC()])
-    47 
+    47
 ValueError: xxx
 
 ----------------------------------------------------------------------

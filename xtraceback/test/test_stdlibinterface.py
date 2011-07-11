@@ -98,7 +98,8 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         with self.compat:
             etype, value = self._get_exc_info(EXTENDED_TEST)[:-1]
             lines = traceback.format_exception_only(etype, value)
-        self._assert_tb_lines(traceback.format_exception_only(etype, value), lines)
+        self._assert_tb_lines(traceback.format_exception_only(etype, value),
+                              lines)
 
     def test_format_exception(self):
         with self.compat:

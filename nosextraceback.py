@@ -21,8 +21,12 @@ class NoseXTraceback(Plugin):
 
     _options = (
         ("globals", "Include globals in tracebacks [%s]", "store_true"),
-        ("globals_include", "Include only globals in this namespace [%s]", "store"),
-        ("color", "Show color tracebacks - one of on,off,auto (default=auto) [%s]", "store"),
+        ("globals_include",
+         "Include only globals in this namespace [%s]",
+         "store"),
+        ("color",
+         "Show color tracebacks - one of on,off,auto (default=auto) [%s]",
+         "store"),
         )
 
     def options(self, parser, env):
@@ -48,7 +52,8 @@ class NoseXTraceback(Plugin):
                 self.xtraceback_color = False
 
     def begin(self):
-        # not importing in global scope because it messes with the coverage analysis
+        # not importing in global scope because it messes with the coverage
+        # analysis
         import xtraceback
         options = dict(color=self.xtraceback_color,
                        stream=self.conf.stream,

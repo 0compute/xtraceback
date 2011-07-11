@@ -23,7 +23,8 @@ class XTracebackFrame(object):
         self.frame_info = frame_info
         self.tb_index = tb_index
 
-        self.filename, self.lineno, self.function, self.code_context, self.index = self.frame_info
+        self.filename, self.lineno, self.function, self.code_context, self.index \
+            = self.frame_info
         self.args, self.varargs, self.varkw = inspect.getargs(self.frame.f_code)
 
         # keep track of what we've formatted in this frame
@@ -43,12 +44,16 @@ class XTracebackFrame(object):
                 else:
                     module = getattr(value, "__module__", None)
                 if module is not None \
-                    and not module.startswith(self.xtb.options.globals_module_include):
+                    and not module.startswith(
+                                self.xtb.options.globals_module_include
+                                ):
                     del self.globals[key]
 
         # if path is a real path then try to shorten it
         if os.path.exists(self.filename):
-            self.filename = self.xtb._format_filename(os.path.abspath(self.filename))
+            self.filename = self.xtb._format_filename(
+                                os.path.abspath(self.filename)
+                                )
 
         # qualify method name with class name
         if self.xtb.options.qualify_methods and self.args:
@@ -106,16 +111,19 @@ class XTracebackFrame(object):
 
     def _format_frame(self):
 
-        lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno, self.function)]
+        lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno,
+                                                  self.function)]
 
         # push frame args
         if self.xtb.options.show_args:
             for arg in self.args:
                 self._format_variable(lines, arg, self.locals[arg])
             if self.varargs:
-                self._format_variable(lines, self.varargs, self.locals[self.varargs], prefix="*")
+                self._format_variable(lines, self.varargs,
+                                      self.locals[self.varargs], prefix="*")
             if self.varkw:
-                self._format_variable(lines, self.varkw, self.locals[self.varkw], prefix="**")
+                self._format_variable(lines, self.varkw,
+                                      self.locals[self.varkw], prefix="**")
 
         # push globals
         if self.xtb.options.show_globals:
@@ -138,14 +146,16 @@ class XTracebackFrame(object):
                         # push the numbered line with a marker
                         dedented_line = numbered_line.lstrip()
                         marker_padding = len(numbered_line) - len(dedented_line) - 2
-                        lines.append("%s> %s" % ("-" * marker_padding, dedented_line))
+                        lines.append("%s> %s" % ("-" * marker_padding,
+                                                 dedented_line))
                     else:
                         # push the line only
                         lines.append("    " + line)
 
                     # push locals below lined up with the start of code
                     if self.xtb.options.show_locals:
-                        indent = self.xtb.number_padding + len(line) - len(line.lstrip()) + 5
+                        indent = self.xtb.number_padding + len(line) \
+                                     - len(line.lstrip()) + 5
                         lines.extend(self._format_dict(self.locals, indent))
 
                 else:
@@ -165,4 +175,3 @@ class XTracebackFrame(object):
         if self._formatted is None:
             self._formatted = self._format_frame()
         return self._formatted
-

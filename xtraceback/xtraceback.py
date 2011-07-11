@@ -118,13 +118,15 @@ class XTraceback(object):
         self.tb_frames = []
         self.number_padding = 0
         i = 0
-        while tb is not None and (self.options.limit is None or i < self.options.limit):
+        while tb is not None and (self.options.limit is None
+                                  or i < self.options.limit):
             if i >= self.options.offset:
                 frame_info = inspect.getframeinfo(tb, self.options.context)
                 frame = XTracebackFrame(self, tb.tb_frame, frame_info, i)
                 if not frame.exclude:
                     self.tb_frames.append(frame)
-                    self.number_padding = max(len(str(frame_info.lineno)), self.number_padding)
+                    self.number_padding = max(len(str(frame_info.lineno)),
+                                              self.number_padding)
             tb = tb.tb_next
             i += 1
 
@@ -133,11 +135,13 @@ class XTraceback(object):
 
     @property
     def tty_stream(self):
-        return hasattr(self.options.stream, "isatty") and self.options.stream.isatty()
+        return hasattr(self.options.stream, "isatty") \
+            and self.options.stream.isatty()
 
     @property
     def color(self):
-        return self.tty_stream if self.options.color is None else self.options.color
+        return self.tty_stream if self.options.color is None \
+            else self.options.color
 
     @property
     def print_width(self):
@@ -178,7 +182,8 @@ class XTraceback(object):
             reformat = self.REFORMAT.get(type(value))
             if reformat is not None:
                 start, end = reformat
-                lines = map(str.strip, pvalue.lstrip(start).rstrip(end).splitlines())
+                lines = map(str.strip,
+                            pvalue.lstrip(start).rstrip(end).splitlines())
                 sub_indent = "\n" + " " * (indent + 4)
                 pvalue = "".join((start, sub_indent, sub_indent.join(lines),
                                   ",", sub_indent, end))
@@ -242,20 +247,24 @@ class XTraceback(object):
             except:
                 pass
             else:
-                filename = filename and self._format_filename(filename) or "<string>"
+                filename = filename and self._format_filename(filename) \
+                               or "<string>"
                 filename = filename or "<string>"
                 lines.append('  File "%s", line %d\n' % (filename, lineno))
                 if badline is not None:
                     lines.append('    %s\n' % badline.strip())
                     if offset is not None:
                         caretspace = badline[:offset].lstrip()
-                        # non-space whitespace (likes tabs) must be kept for alignment
-                        caretspace = ((c.isspace() and c or ' ') for c in caretspace)
+                        # non-space whitespace (likes tabs) must be kept for
+                        # alignment
+                        caretspace = ((c.isspace() and c or ' ')
+                                      for c in caretspace)
                         # only three spaces to account for offset1 == pos 0
                         lines.append('   %s^\n' % ''.join(caretspace))
                     value_str = msg
 
-        exc_line = isinstance(self.etype, type) and self.etype.__name__ or str(self.etype)
+        exc_line = isinstance(self.etype, type) and self.etype.__name__ \
+                       or str(self.etype)
         if self.value is not None and value_str:
             exc_line += ": %s" % value_str
         lines.append(exc_line + "\n")
