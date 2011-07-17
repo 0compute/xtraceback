@@ -94,5 +94,5 @@ The package is on PyPI::
 Nose plugin
 -----------
 
-The nose plugin is enabled with the `--with-xtraceback` flag. See `nose --help`
+The nose plugin is enabled with the `--with-xtraceback` flag. See `nosetests --help`
 for other options.
