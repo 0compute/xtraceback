@@ -63,7 +63,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         with self.compat:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
             lines = traceback.format_tb(tb)
-        self._assert_tb_lines(traceback.format_tb(tb), lines)
+        self.assertEqual(traceback.format_tb(tb), lines)
 
     def test_print_tb(self):
         with self.compat:
@@ -74,7 +74,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         stream = StringIO()
         traceback.print_tb(tb, file=stream)
         stdlib_exc_str = stream.getvalue()
-        self._assert_tb_str(stdlib_exc_str, exc_str)
+        self.assertEqual(stdlib_exc_str, exc_str)
 
     def test_print_tb_no_file(self):
         stderr = sys.stderr
@@ -89,7 +89,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
             sys.stderr = stream
             traceback.print_tb(tb)
             stdlib_exc_str = stream.getvalue()
-            self._assert_tb_str(stdlib_exc_str, exc_str)
+            self.assertEqual(stdlib_exc_str, exc_str)
         finally:
             sys.stderr = stderr
 
@@ -97,14 +97,13 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         with self.compat:
             etype, value = self._get_exc_info(EXTENDED_TEST)[:-1]
             lines = traceback.format_exception_only(etype, value)
-        self._assert_tb_lines(traceback.format_exception_only(etype, value),
-                              lines)
+        self.assertEqual(traceback.format_exception_only(etype, value), lines)
 
     def test_format_exception(self):
         with self.compat:
             exc_info = self._get_exc_info(EXTENDED_TEST)
             lines = traceback.format_exception(*exc_info)
-        self._assert_tb_lines(traceback.format_exception(*exc_info), lines)
+        self.assertEqual(traceback.format_exception(*exc_info), lines)
 
     def test_print_exception(self):
         exc_info = self._get_exc_info(EXTENDED_TEST)
@@ -115,7 +114,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         stream = StringIO()
         traceback.print_exception(*exc_info, file=stream)
         stdlib_exc_str = stream.getvalue()
-        self._assert_tb_str(stdlib_exc_str, exc_str)
+        self.assertEqual(stdlib_exc_str, exc_str)
 
     def test_format_exc(self):
         with self.compat:
@@ -125,7 +124,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
                 lines = traceback.format_exc()
             else:
                 self.fail("Should have raised exception")
-        self._assert_tb_lines(traceback.format_exc(), lines)
+        self.assertEqual(traceback.format_exc(), lines)
 
     def test_print_exc(self):
         with self.compat:
@@ -140,4 +139,4 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         stream = StringIO()
         traceback.print_exc(file=stream)
         stdlib_exc_str = stream.getvalue()
-        self._assert_tb_str(stdlib_exc_str, exc_str)
+        self.assertEqual(stdlib_exc_str, exc_str)

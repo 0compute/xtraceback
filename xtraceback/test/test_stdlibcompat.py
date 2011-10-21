@@ -76,10 +76,10 @@ class TestStdlibCompat(XTracebackTestCase):
         try:
             exec BASIC_TEST in {}
         except:
-            lines = traceback.format_exc()
+            exc_str = traceback.format_exc()
         else:
             self.fail("Should have raised exception")
-        self._assert_tb_lines(lines, SIMPLE_EXCEPTION)
+        self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
 
     def test_print_exc(self):
         stream = StringIO()

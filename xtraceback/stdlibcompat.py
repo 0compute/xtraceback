@@ -89,7 +89,7 @@ class StdlibCompat(object):
         return xtb.format_exception()
 
     def format_exc(self, limit=None, **options):
-        return self.format_exception(*sys.exc_info(), limit=limit, **options)
+        return "".join(self.format_exception(*sys.exc_info(), limit=limit, **options))
 
     def print_tb(self, tb, limit=None, file=None, **options):
         xtb = self._print_factory(None, None, tb, limit, file, **options)
