@@ -213,10 +213,7 @@ class XTraceback(object):
         return exc_str
 
     def _format_lines(self, lines):
-        if self.color:
-            # XXX: This is not a good way to do it...
-            return [self._highlight(line) for line in lines]
-        return lines
+        return map(self._highlight, lines) if self.color else lines
 
     def _print_lines(self, lines):
         if self.options.stream is None:
@@ -226,10 +223,7 @@ class XTraceback(object):
     # { Traceback format - these return lines that should be joined with ""
 
     def _format_tb(self):
-        lines = []
-        for frame in self.tb_frames:
-            lines.append("%s\n" % frame)
-        return lines
+        return ["%s\n" % frame for frame in self.tb_frames]
 
     def _format_exception_only(self):
 
