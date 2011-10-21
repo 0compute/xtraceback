@@ -81,6 +81,7 @@
       <arg value="sdist"/>
       <arg value="register"/>
       <arg value="upload"/>
+      <arg value="upload_sphinx"/>
     </exec>
   </target>
 
