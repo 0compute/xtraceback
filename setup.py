@@ -4,10 +4,12 @@ import os
 
 from setuptools import setup
 
+import xtraceback
+
 README = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
 setup(name="xtraceback",
-      version="0.3.1",
+      version=xtraceback.__version__,
       description="An extended traceback formatter",
       long_description=README,
       license="MIT",
