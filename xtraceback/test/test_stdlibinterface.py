@@ -42,7 +42,7 @@ class InstalledStdlibTestMixin(StdlibTestMixin):
 # use the stdlib's traceback test cases
 try:
     from test.test_traceback import TracebackCases, TracebackFormatTests
-except ImportError:
+except ImportError: # pragma: no cover
     # on debian (and maybe others) the stdlib does not have the full test package
     pass
 else:
@@ -82,7 +82,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         sys.stderr = stream
         try:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
-            with self.compat:
+            with self.compat: # pragma: no cover - coverage does not see this
                 traceback.print_tb(tb)
             exc_str = stream.getvalue()
             stream = StringIO()
