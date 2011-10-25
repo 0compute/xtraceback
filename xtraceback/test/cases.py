@@ -14,7 +14,7 @@ TB_DEFAULTS = dict(address="0x123456789")
 
 class TestCaseMixin(object):
 
-    def __str__(self):
+    def __str__(self): # pragma: no cover - test util only
         # so that you can copy/paste the test name to rerun
         return "%s:%s.%s" % (self.__class__.__module__,
                              self.__class__.__name__,
@@ -58,8 +58,6 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
             self.fail("different")
 
     def _assert_tb_lines(self, exc_lines, expect_lines):
-        if isinstance(expect_lines, str):
-            expect_lines = expect_lines.splitlines(True)
         self._assert_tb_str("".join(exc_lines), "".join(expect_lines))
 
     def _check_tb_str(self, exec_str, expect_exc_str, **namespace):

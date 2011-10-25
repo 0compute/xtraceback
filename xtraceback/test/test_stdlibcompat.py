@@ -102,3 +102,10 @@ class TestStdlibCompat(XTracebackTestCase):
             self._assert_tb_lines(lines, SIMPLE_EXCEPTION)
         else:
             self.fail("Should have raised exception")
+
+    def test_double_entry(self):
+        compat = StdlibCompat(**self.XTB_DEFAULTS)
+        compat.__enter__()
+        self.assertRaises(RuntimeError, compat.__enter__)
+        compat.__exit__(None, None, None)
+        self.assertRaises(RuntimeError, compat.__exit__, None, None, None)
