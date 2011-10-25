@@ -1,7 +1,7 @@
 from .stdlibcompat import StdlibCompat
 from .xtraceback import XTraceback
 
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 
 compat = StdlibCompat()
 __enter__ = compat.__enter__
