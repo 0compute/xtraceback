@@ -177,9 +177,13 @@ class XTraceback(object):
         if isinstance(value, basestring) and len(value) > self.print_width * 2:
             # truncate long strings - minus 2 for the quotes and 3 for the ellipsis
             value = value[:self.print_width - base_size - 2 - 3] + "..."
-        pvalue = pprint.pformat(value, indent=0)
+        vtype = type(value)
+        try:
+            pvalue = pprint.pformat(value, indent=0)
+        except:
+            pvalue = "<unprintable %s object>" % vtype.__name__
         if base_size + len(pvalue) > self.print_width:
-            reformat = self.REFORMAT.get(type(value))
+            reformat = self.REFORMAT.get(vtype)
             if reformat is not None:
                 start, end = reformat
                 lines = map(str.strip,
