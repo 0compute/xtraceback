@@ -91,6 +91,10 @@ The package is on PyPI::
 
     pip install xtraceback
 
+Syntax highlighting depends on the pygments library::
+
+    pip install pygments
+
 Nose plugin
 -----------
 
