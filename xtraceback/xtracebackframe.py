@@ -59,7 +59,7 @@ class XTracebackFrame(object):
         if self.xtb.options.qualify_methods and self.args:
             try:
                 cls = self.frame.f_locals[self.args[0]]
-            except KeyError:
+            except KeyError: # pragma: no cover - defensive
                 # we're assuming that the first argument is in f_locals but
                 # it may not be in some cases so this is a defence, see
                 # https://github.com/ischium/xtraceback/issues/3 with further
