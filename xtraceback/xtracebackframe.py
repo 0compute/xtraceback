@@ -62,7 +62,9 @@ class XTracebackFrame(object):
             except KeyError:
                 # we're assuming that the first argument is in f_locals but
                 # it may not be in some cases so this is a defence, see
-                # https://github.com/ischium/xtraceback/issues/3
+                # https://github.com/ischium/xtraceback/issues/3 with further
+                # detail at http://www.sqlalchemy.org/trac/ticket/2317 and
+                # https://dev.entrouvert.org/issues/765
                 pass
             else:
                 if not isinstance(cls, type):
