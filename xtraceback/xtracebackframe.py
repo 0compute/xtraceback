@@ -57,14 +57,23 @@ class XTracebackFrame(object):
 
         # qualify method name with class name
         if self.xtb.options.qualify_methods and self.args:
-            cls = self.frame.f_locals[self.args[0]]
-            if not isinstance(cls, type):
-                cls = type(cls)
-            if hasattr(cls, self.function):
-                for base in inspect.getmro(cls):
-                    if self.function in base.__dict__:
-                        self.function = base.__name__ + "." + self.function
-                        break
+            try:
+                cls = self.frame.f_locals[self.args[0]]
+            except KeyError: # pragma: no cover - defensive
+                # we're assuming that the first argument is in f_locals but
+                # it may not be in some cases so this is a defence, see
+                # https://github.com/ischium/xtraceback/issues/3 with further
+                # detail at http://www.sqlalchemy.org/trac/ticket/2317 and
+                # https://dev.entrouvert.org/issues/765
+                pass
+            else:
+                if not isinstance(cls, type):
+                    cls = type(cls)
+                if hasattr(cls, self.function):
+                    for base in inspect.getmro(cls):
+                        if self.function in base.__dict__:
+                            self.function = base.__name__ + "." + self.function
+                            break
 
         self._formatted = None
 
