@@ -125,7 +125,7 @@ class XTraceback(object):
                 frame = XTracebackFrame(self, tb.tb_frame, frame_info, i)
                 if not frame.exclude:
                     self.tb_frames.append(frame)
-                    self.number_padding = max(len(str(frame_info.lineno)),
+                    self.number_padding = max(len(str(frame_info[1])),
                                               self.number_padding)
             tb = tb.tb_next
             i += 1
@@ -166,7 +166,8 @@ class XTraceback(object):
         if self.options.shorten_filenames:
             if filename.startswith(self.stdlib_path):
                 filename = filename.replace(self.stdlib_path, "<stdlib>")
-            else:
+            elif hasattr(os.path, "relpath"):
+                # os.path.relpath was introduced in python 2.5
                 relative = os.path.relpath(filename)
                 if len(relative) < len(filename):
                     filename = relative
@@ -235,8 +236,12 @@ class XTraceback(object):
 
         try:
             value_str = str(self.value)
-        except:
-            value_str = "<unprintable %s object>" % type(self.value).__name__
+        except Exception:
+            try:
+                value_str = unicode(self.value).encode("ascii",
+                                                       "backslashreplace")
+            except Exception:
+                value_str = "<unprintable %s object>" % type(self.value).__name__
 
         if isinstance(self.value, SyntaxError):
             # taken from traceback.format_exception_only
@@ -252,7 +257,7 @@ class XTraceback(object):
                 if badline is not None:
                     lines.append('    %s\n' % badline.strip())
                     if offset is not None:
-                        caretspace = badline[:offset].lstrip()
+                        caretspace = badline.rstrip('\n')[:offset].lstrip()
                         # non-space whitespace (likes tabs) must be kept for
                         # alignment
                         caretspace = ((c.isspace() and c or ' ')

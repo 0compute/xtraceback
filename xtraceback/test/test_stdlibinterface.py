@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 from StringIO import StringIO
 import sys
 import traceback
@@ -109,10 +111,10 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
         exc_info = self._get_exc_info(EXTENDED_TEST)
         with self.compat:
             stream = StringIO()
-            traceback.print_exception(*exc_info, file=stream)
+            traceback.print_exception(*exc_info, **dict(file=stream))
             exc_str = stream.getvalue()
         stream = StringIO()
-        traceback.print_exception(*exc_info, file=stream)
+        traceback.print_exception(*exc_info, **dict(file=stream))
         stdlib_exc_str = stream.getvalue()
         self.assertEqual(stdlib_exc_str, exc_str)
 

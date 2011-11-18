@@ -26,7 +26,7 @@ As a context manager - the stdlib traceback module is monkey patched::
     --> 3         some_func()
                   g:some_func = <function some_func at 0x...>
                   g:sys = <module 'sys' (built-in)>
-                  g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
+                  g:traceback = <module 'traceback' from='<stdlib>/traceback.py'>
                   g:xtraceback = <package 'xtraceback' from='xtraceback'>
         4     except:
         5         traceback.print_exc(file=sys.stdout) #doctest: +ELLIPSIS +REPORT_NDIFF
@@ -55,17 +55,17 @@ By itself::
     >>> try:
     ...     raise Exception("exc")
     ... except:
-    ...     print xtraceback.XTraceback(*sys.exc_info(), color=False) #doctest: +ELLIPSIS
+    ...     print xtraceback.XTraceback(*sys.exc_info()) #doctest: +ELLIPSIS
     Traceback (most recent call last):
       File "<doctest README.rst[...]>", line 2, in <module>
         1 try:
     --> 2     raise Exception("exc")
               g:some_func = <function some_func at 0x...>
               g:sys = <module 'sys' (built-in)>
-              g:traceback = <module 'traceback' from='<stdlib>/traceback.pyc'>
+              g:traceback = <module 'traceback' from='<stdlib>/traceback.py'>
               g:xtraceback = <package 'xtraceback' from='xtraceback'>
         3 except:
-        4     print xtraceback.XTraceback(*sys.exc_info(), color=False) #doctest: +ELLIPSIS
+        4     print xtraceback.XTraceback(*sys.exc_info()) #doctest: +ELLIPSIS
     Exception: exc
     <BLANKLINE>
 

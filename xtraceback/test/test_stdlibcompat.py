@@ -62,14 +62,13 @@ class TestStdlibCompat(XTracebackTestCase):
     def test_print_exception(self):
         stream = StringIO()
         exc_info = self._get_exc_info(BASIC_TEST)
-        traceback.print_exception(*exc_info, file=stream)
+        traceback.print_exception(*exc_info, **dict(file=stream))
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
 
     def test_print_exception_limited(self):
         stream = StringIO()
         traceback.print_exception(*self._get_exc_info(BASIC_TEST),
-                                  limit=2,
-                                  file=stream)
+                                  **dict(limit=2, file=stream))
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION_ONEFRAME)
 
     def test_format_exc(self):

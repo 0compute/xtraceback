@@ -1,6 +1,9 @@
 from .stdlibcompat import StdlibCompat
 from .xtraceback import XTraceback
 
+from . import pycompat
+del pycompat
+
 __version__ = "0.3.3"
 
 compat = StdlibCompat()

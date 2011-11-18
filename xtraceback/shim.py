@@ -32,6 +32,9 @@ class ModuleShim(Shim):
             if basename.endswith("__init__"):
                 self.package = True
                 self.filename = self.filename[:-9 - len(extension)]
+            elif extension.endswith(".pyc"):
+                self.filename = self.filename[:-1]
+
 
     def __repr__(self):
         if self.filename is not None:
