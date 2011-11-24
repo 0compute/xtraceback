@@ -4,7 +4,7 @@ from .xtraceback import XTraceback
 from . import pycompat
 del pycompat
 
-__version__ = "0.3.3"
+__version__ = "0.4.0-dev"
 
 compat = StdlibCompat()
 __enter__ = compat.__enter__
