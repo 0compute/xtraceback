@@ -66,13 +66,14 @@ class StdlibCompat(object):
         self._entered = False
 
     def _factory(self, etype, value, tb, limit=None, **options):
-        options["limit"] = getattr(sys, "tracebacklimit", None) if limit is None \
-                               else limit
+        options["limit"] = getattr(sys, "tracebacklimit", None) \
+                               if limit is None else limit
         _options = self.defaults.copy()
         _options.update(options)
         return XTraceback(etype, value, tb, **_options)
 
-    def _print_factory(self, etype, value, tb, limit=None, file=None, **options):
+    def _print_factory(self, etype, value, tb, limit=None, file=None,
+                       **options):
         options["stream"] = sys.stderr if file is None else file
         return self._factory(etype, value, tb, limit, **options)
 
@@ -96,7 +97,8 @@ class StdlibCompat(object):
         xtb = self._print_factory(None, None, tb, limit, file, **options)
         xtb.print_tb()
 
-    def print_exception(self, etype, value, tb, limit=None, file=None, **options):
+    def print_exception(self, etype, value, tb, limit=None, file=None,
+                        **options):
         xtb = self._print_factory(etype, value, tb, limit, file, **options)
         xtb.print_exception()
 

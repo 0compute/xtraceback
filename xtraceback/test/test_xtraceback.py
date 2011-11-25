@@ -205,6 +205,7 @@ else:
 SyntaxError: invalid syntax
 """
 
+
 class TestXTraceback(XTracebackTestCase):
 
     def test_simple(self):
@@ -235,7 +236,8 @@ class TestXTraceback(XTracebackTestCase):
         self._assert_tb_str(str(xtb), WITH_SHOW_GLOBALS_EXCEPTION)
 
     def test_extended(self):
-        exc_info = self._get_exc_info(EXTENDED_TEST, Something=something.Something)
+        exc_info = self._get_exc_info(EXTENDED_TEST,
+                                      Something=something.Something)
         xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), EXTENDED_EXCEPTION)
 

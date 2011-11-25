@@ -15,10 +15,11 @@ class XPythonLexer(PythonLexer):
         ]
 
     # Marker __repr__
-    ref = r"(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" % BASE_NAME
-    tokens["root"].insert(0, (ref, bygroups(Name.Builtin, Name.Operator, Number,
-                                            Text, Name.Builtin, Name.Operator,
-                                            Name.Variable, Name.Builtin)))
+    ref = "(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" % BASE_NAME
+    tokens["root"].insert(0, (ref, bygroups(Name.Builtin, Name.Operator,
+                                            Number, Text, Name.Builtin,
+                                            Name.Operator, Name.Variable,
+                                            Name.Builtin)))
 
 
 class PythonXTracebackLexer(PythonTracebackLexer):
@@ -30,11 +31,15 @@ class PythonXTracebackLexer(PythonTracebackLexer):
             (r"^.*\n", Generic.Error),
         ],
         "entry": [
-            (r"^Traceback \(most recent call last\):\n", Generic.Error, "frame"),
+            (r"^Traceback \(most recent call last\):\n",
+             Generic.Error,
+             "frame"),
             # file - path is colored differently if under working directory
-            (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)(, line )(\d+)((?:, in )?)(.*)(\n)',
-             bygroups(Generic.Error, Name.Builtin, Operator.Word, Generic.Error,
-                      Number, Generic.Error, Name.Function, Text),
+            (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)' \
+             '(, line )(\d+)((?:, in )?)(.*)(\n)',
+             bygroups(Generic.Error, Name.Builtin, Operator.Word,
+                      Generic.Error, Number, Generic.Error, Name.Function,
+                      Text),
              "frame"),
         ],
         "exception": [

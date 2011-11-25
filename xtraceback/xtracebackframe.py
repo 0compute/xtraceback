@@ -23,16 +23,16 @@ class XTracebackFrame(object):
         self.frame_info = frame_info
         self.tb_index = tb_index
 
-        self.filename, self.lineno, self.function, self.code_context, self.index \
-            = self.frame_info
-        self.args, self.varargs, self.varkw = inspect.getargs(self.frame.f_code)
+        (self.filename, self.lineno, self.function,
+         self.code_context, self.index) = self.frame_info
+        self.args, self.varargs, self.varkw = inspect.getargs(frame.f_code)
 
         # keep track of what we've formatted in this frame
         self.formatted_vars = {}
 
         # we use a filtered copy of locals and globals
-        self.locals = self._filter(self.frame.f_locals)
-        self.globals = self._filter(self.frame.f_globals)
+        self.locals = self._filter(frame.f_locals)
+        self.globals = self._filter(frame.f_globals)
 
         # filter globals
         if self.xtb.options.globals_module_include is not None:
@@ -58,8 +58,8 @@ class XTracebackFrame(object):
         # qualify method name with class name
         if self.xtb.options.qualify_methods and self.args:
             try:
-                cls = self.frame.f_locals[self.args[0]]
-            except KeyError: # pragma: no cover - defensive
+                cls = frame.f_locals[self.args[0]]
+            except KeyError:  # pragma: no cover - defensive
                 # we're assuming that the first argument is in f_locals but
                 # it may not be in some cases so this is a defence, see
                 # https://github.com/ischium/xtraceback/issues/3 with further
@@ -143,7 +143,8 @@ class XTracebackFrame(object):
 
             lineno = self.lineno - self.index
 
-            for line in textwrap.dedent("".join(self.code_context)).splitlines():
+            dedented = textwrap.dedent("".join(self.code_context))
+            for line in dedented.splitlines():
 
                 numbered_line = "    %s" % "%*s %s" % (self.xtb.number_padding,
                                                        lineno,
@@ -154,7 +155,8 @@ class XTracebackFrame(object):
                     if self.xtb.options.context > 1:
                         # push the numbered line with a marker
                         dedented_line = numbered_line.lstrip()
-                        marker_padding = len(numbered_line) - len(dedented_line) - 2
+                        marker_padding = len(numbered_line) \
+                                             - len(dedented_line) - 2
                         lines.append("%s> %s" % ("-" * marker_padding,
                                                  dedented_line))
                     else:

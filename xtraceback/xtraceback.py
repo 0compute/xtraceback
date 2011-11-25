@@ -182,10 +182,12 @@ class XTraceback(object):
         # consistent with CPython
         return str(filename)
 
-    def _format_variable(self, key, value, indent=4, prefix="", separator=" = "):
+    def _format_variable(self, key, value, indent=4, prefix="",
+                         separator=" = "):
         base_size = indent + len(prefix) + len(key) + len(separator)
         if isinstance(value, basestring) and len(value) > self.print_width * 2:
-            # truncate long strings - minus 2 for the quotes and 3 for the ellipsis
+            # truncate long strings - minus 2 for the quotes and 3 for
+            # the ellipsis
             value = value[:self.print_width - base_size - 2 - 3] + "..."
         vtype = type(value)
         try:
@@ -250,7 +252,8 @@ class XTraceback(object):
                 value_str = unicode(self.value).encode("ascii",
                                                        "backslashreplace")
             except Exception:
-                value_str = "<unprintable %s object>" % type(self.value).__name__
+                value_str = "<unprintable %s object>" \
+                                % type(self.value).__name__
 
         if isinstance(self.value, SyntaxError):
             # taken from traceback.format_exception_only

@@ -36,10 +36,9 @@ class ModuleShim(Shim):
                 self.filename = os.path.dirname(self.filename)
             self.filename = self.xtb._format_filename(self.filename)
 
-
     def __repr__(self):
-        if self.filename is not None:
-            return "<%s '%s' from=%r>" % (self.package and "package" or "module",
-                                          self.target.__name__,
-                                          self.filename)
-        return repr(self.target)
+        if self.filename is None:
+            return repr(self.target)
+        return "<%s '%s' from=%r>" % (self.package and "package" or "module",
+                                      self.target.__name__,
+                                      self.filename)

@@ -14,7 +14,7 @@ TB_DEFAULTS = dict(address="0x123456789")
 
 class TestCaseMixin(object):
 
-    def __str__(self): # pragma: no cover - test util only
+    def __str__(self):  # pragma: no cover - test util only
         # so that you can copy/paste the test name to rerun
         return "%s:%s.%s" % (self.__class__.__module__,
                              self.__class__.__name__,
