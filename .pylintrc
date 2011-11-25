@@ -41,8 +41,8 @@ load-plugins=
 # R0901-4: Min/max stuff
 # W0212: Access to a protected member
 # W0122: Use of the exec statement
-# W0702: No exception type(s) specified
-disable=R,C0301,C0111,C0103,W0142,W0212,W0122,W0702
+# W0141: Used builtin function 'map'
+disable=R,C0301,C0111,C0103,W0142,W0212,W0122,W0141
 
 
 [REPORTS]
