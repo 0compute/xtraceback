@@ -27,13 +27,14 @@ class ModuleShim(Shim):
         self.package = False
         self.filename = getattr(self.target, "__file__", None)
         if self.filename is not None:
-            self.filename = self.xtb._format_filename(self.filename)
-            basename, extension = os.path.splitext(self.filename)
-            if basename.endswith("__init__"):
-                self.package = True
-                self.filename = self.filename[:-9 - len(extension)]
-            elif extension.endswith(".pyc"):
+            if self.filename.endswith(".pyc"):
                 self.filename = self.filename[:-1]
+            elif self.filename.endswith("$py.class"):
+                self.filename = "%s.py" % self.filename[:-9]
+            if os.path.basename(self.filename) == "__init__.py":
+                self.package = True
+                self.filename = os.path.dirname(self.filename)
+            self.filename = self.xtb._format_filename(self.filename)
 
 
     def __repr__(self):

@@ -8,7 +8,7 @@ try:
     import fcntl
     import termios
 except ImportError:
-    fcntl, termios = None
+    fcntl = None
 
 try:
     import pygments
@@ -44,7 +44,13 @@ class XTraceback(object):
         frozenset: ("frozenset([", "])"),
         }
 
-    stdlib_path = os.path.dirname(os.__file__)
+    stdlib_path = os.path.dirname(
+        os.path.realpath(
+            os.__file__.endswith(".pyc") and os.__file__[:-1]
+            or os.__file__.endswith("$py.class") and "%s.py" % os.__file__[:-9]
+            or os.__file__
+            )
+        )
 
     _options = dict(
 
@@ -164,6 +170,7 @@ class XTraceback(object):
 
     def _format_filename(self, filename):
         if self.options.shorten_filenames:
+            filename = os.path.realpath(filename)
             if filename.startswith(self.stdlib_path):
                 filename = filename.replace(self.stdlib_path, "<stdlib>")
             elif hasattr(os.path, "relpath"):
@@ -171,7 +178,9 @@ class XTraceback(object):
                 relative = os.path.relpath(filename)
                 if len(relative) < len(filename):
                     filename = relative
-        return filename
+        # using str on filename to make Jython (default string is unicode)
+        # consistent with CPython
+        return str(filename)
 
     def _format_variable(self, key, value, indent=4, prefix="", separator=" = "):
         base_size = indent + len(prefix) + len(key) + len(separator)

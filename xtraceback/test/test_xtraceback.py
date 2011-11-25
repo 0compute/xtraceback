@@ -1,4 +1,5 @@
 import re
+import sys
 
 from . import something
 from .cases import XTracebackTestCase
@@ -188,13 +189,21 @@ EXTENDED_EXCEPTION = \
 Exception: exc
 """
 
-SYNTAX_EXCEPTION = \
+# jython prints syntax errors differently to CPython
+if sys.platform.startswith("java"):
+    SYNTAX_EXCEPTION = \
+"""  File "<string>", line 1
+    if:
+     ^
+SyntaxError: no viable alternative at input ':'
+"""
+else:
+    SYNTAX_EXCEPTION = \
 """  File "<string>", line 1
     if:
       ^
 SyntaxError: invalid syntax
 """
-
 
 class TestXTraceback(XTracebackTestCase):
 
