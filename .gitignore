@@ -6,3 +6,4 @@ dist/
 reports/
 *.swp
 doc/.build/
+.tox/
