@@ -44,15 +44,15 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
         # line
         exc_str = TRAILING_WHITESPACE_PATTERN.sub("\n", exc_str)
         if exc_str != expect_exc_str:  # pragma: no cover for obvious reasons
-            diff = difflib.ndiff(expect_exc_str.splitlines(True),
-                                 exc_str.splitlines(True))
-            print "-" * 70
-            print "want:"
-            print expect_exc_str
-            print "-" * 70
-            print "got:"
-            print exc_str
-            print "-" * 70
+            diff = difflib.ndiff(exc_str.splitlines(True),
+                                 expect_exc_str.splitlines(True))
+            #print "-" * 70
+            #print "want:"
+            #print expect_exc_str
+            #print "-" * 70
+            #print "got:"
+            #print exc_str
+            #print "-" * 70
             print "diff:"
             print "".join(diff)
             self.fail("different")
