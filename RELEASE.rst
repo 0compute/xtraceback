@@ -13,4 +13,5 @@ Using git flow::
 Then wait for the ci build on master and::
 
     git push --tags
-    ant publish
+    tox -e docs
+    ./setup.py sdist register upload upload_sphinx
