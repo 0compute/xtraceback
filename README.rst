@@ -101,6 +101,6 @@ Nose plugin
 The nose plugin is enabled with the `--with-xtraceback` flag. See `nosetests --help`
 for other options.
 
-It will not work in conjunction with other plugins that patch nose or stdlib hence
-a second plugin on pypi named `yanc` which colorizes nose output without patching
-anything.
+It will not work in conjunction with other plugins that patch nose or stdlib
+hence a second plugin named `yanc <https://github.com/ischium/yanc>` which
+colorizes nose output without patching anything.
