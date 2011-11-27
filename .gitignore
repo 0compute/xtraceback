@@ -3,6 +3,7 @@
 *.egg-info/
 dist/
 .coverage
+.coverage.*
 .build/
 .tox/
 .ropeproject/
