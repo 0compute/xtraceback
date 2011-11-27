@@ -3,7 +3,6 @@
 *.egg-info/
 dist/
 .coverage
-reports/
-*.swp
-doc/.build/
+.build/
 .tox/
+.ropeproject/

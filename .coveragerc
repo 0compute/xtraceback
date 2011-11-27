@@ -9,4 +9,4 @@ exclude_lines =
 include = *xtraceback*
 
 [html]
-directory = reports/htmlcov
+directory = .build/coverage
