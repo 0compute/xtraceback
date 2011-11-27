@@ -1,3 +1,4 @@
+import inspect
 import os
 
 
@@ -25,12 +26,11 @@ class ModuleShim(Shim):
     def __init__(self, target, xtb):
         super(ModuleShim, self).__init__(target, xtb)
         self.package = False
-        self.filename = getattr(self.target, "__file__", None)
+        try:
+            self.filename = inspect.getsourcefile(target)
+        except TypeError:
+            self.filename = None
         if self.filename is not None:
-            if self.filename.endswith(".pyc"):
-                self.filename = self.filename[:-1]
-            elif self.filename.endswith("$py.class"):
-                self.filename = "%s.py" % self.filename[:-9]
             if os.path.basename(self.filename) == "__init__.py":
                 self.package = True
                 self.filename = os.path.dirname(self.filename)

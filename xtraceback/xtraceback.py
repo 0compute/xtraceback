@@ -44,13 +44,7 @@ class XTraceback(object):
         frozenset: ("frozenset([", "])"),
         }
 
-    stdlib_path = os.path.dirname(
-        os.path.realpath(
-            os.__file__.endswith(".pyc") and os.__file__[:-1]
-            or os.__file__.endswith("$py.class") and "%s.py" % os.__file__[:-9]
-            or os.__file__
-            )
-        )
+    _stdlib_path = os.path.dirname(os.path.realpath(inspect.getsourcefile(os)))
 
     _options = dict(
 
@@ -171,8 +165,8 @@ class XTraceback(object):
     def _format_filename(self, filename):
         if self.options.shorten_filenames:
             filename = os.path.realpath(filename)
-            if filename.startswith(self.stdlib_path):
-                filename = filename.replace(self.stdlib_path, "<stdlib>")
+            if filename.startswith(self._stdlib_path):
+                filename = filename.replace(self._stdlib_path, "<stdlib>")
             elif hasattr(os.path, "relpath"):
                 # os.path.relpath was introduced in python 2.5
                 relative = os.path.relpath(filename)
