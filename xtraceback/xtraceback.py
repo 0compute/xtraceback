@@ -208,7 +208,12 @@ class XTraceback(object):
             if self._lexer is None:
                 self._lexer = PythonXTracebackLexer()
             if self._formatter is None:
-                self._formatter = TerminalFormatter()
+                try:
+                    self._formatter = TerminalFormatter()
+                except pygments.util.ClassNotFound, exc:
+                    warnings.warn("highlighting not available - %s" % exc)
+                    # this can happen when running under gae
+                    return string
             try:
                 return pygments.highlight(string, self._lexer, self._formatter)
             except KeyboardInterrupt:
