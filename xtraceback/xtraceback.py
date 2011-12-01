@@ -1,3 +1,4 @@
+import functools
 import inspect
 import os
 import pprint
@@ -6,32 +7,79 @@ import warnings
 
 try:
     import fcntl
-    import termios
 except ImportError:
     fcntl = None
+else:
+    import termios
 
 try:
     import pygments
-    from pygments.formatters.terminal import TerminalFormatter
-    from .lexer import PythonXTracebackLexer
 except ImportError:
     pygments = None
+else:
+    from pygments.formatters.terminal import TerminalFormatter
+    from .lexer import PythonXTracebackLexer
 
 from .xtracebackframe import XTracebackFrame
 
 
-class Options(dict):
+class XTracebackOptions(object):
+    """
+    XTraceback options
 
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError(key)
+    :ivar stream: A file-like object that is the default for print_* methods
+    :type stream: file
+    :ivar color: Flag to force color on or off - if None look to whether the
+        `stream` is a tty
+    :type color: bool
+    :ivar print_width: How many columns wide to print the screen - if None and
+        `stream` is a tty on Unix then fill the available width
+    """
+
+    # default options
+    _options = dict(
+        stream=None,
+        color=None,
+        print_width=None,
+        offset=0,
+        limit=None,
+        context=5,
+        globals_module_include=None,
+        )
+
+    # default flags
+    _flags = dict(
+        show_args=True,
+        show_locals=True,
+        show_globals=False,
+        qualify_methods=True,
+        shorten_filenames=True,
+        )
+
+    def __init__(self, options):
+        # options
+        for key in self._options:
+            value = options.pop(key, None)
+            if value is None:
+                value = self._options[key]
+            setattr(self, key, value)
+        # flags
+        for key in self._flags:
+            value = options.pop(key, None)
+            if value is None:
+                value = self._flags[key]
+            else:
+                value = bool(value)
+            setattr(self, key, value)
+        # there should be no more options
+        if options:
+            raise TypeError("Unsupported options: %r" % options)
 
 
 class XTraceback(object):
     """
     An extended traceback formatter
+
     """
 
     DEFAULT_WIDTH = 80
@@ -46,32 +94,6 @@ class XTraceback(object):
 
     _stdlib_path = os.path.dirname(os.path.realpath(inspect.getsourcefile(os)))
 
-    _options = dict(
-
-        stream=None,
-
-        # These take their value from the stream if None
-        color=None,
-        print_width=None,
-
-        offset=0,
-        limit=None,
-        context=5,
-
-        globals_module_include=None,
-
-        )
-
-    _flags = dict(
-
-        show_args=True,
-        show_locals=True,
-        show_globals=False,
-
-        qualify_methods=True,
-        shorten_filenames=True,
-
-        )
 
     def __init__(self, etype, value, tb, **options):
         """
@@ -88,24 +110,7 @@ class XTraceback(object):
         self.etype = etype
         self.value = value
 
-        # options
-        self.options = Options()
-        for key in self._options:
-            value = options.pop(key, None)
-            if value is None:
-                value = self._options[key]
-            self.options[key] = value
-        # flags
-        for key in self._flags:
-            value = options.pop(key, None)
-            if value is None:
-                value = self._flags[key]
-            else:
-                value = bool(value)
-            self.options[key] = value
-        # there should be no more options
-        if options:
-            raise TypeError("Unsupported options: %r" % options)
+        self.options = XTracebackOptions(options)
 
         # placeholders
         self._lexer = None
@@ -135,16 +140,25 @@ class XTraceback(object):
 
     @property
     def tty_stream(self):
+        """
+        Whether or not our stream is a tty
+        """
         return hasattr(self.options.stream, "isatty") \
             and self.options.stream.isatty()
 
     @property
     def color(self):
+        """
+        Whether or not color should be output
+        """
         return self.tty_stream if self.options.color is None \
             else self.options.color
 
     @property
     def print_width(self):
+        """
+        Width of one screen
+        """
         print_width = self.options.print_width
         if print_width is None \
             and fcntl is not None \

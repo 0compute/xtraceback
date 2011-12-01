@@ -1,5 +1,5 @@
 from .stdlibcompat import StdlibCompat
-from .xtraceback import XTraceback
+from .xtraceback import XTraceback, XTracebackOptions
 
 from . import pycompat
 del pycompat
