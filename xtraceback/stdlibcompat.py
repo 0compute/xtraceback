@@ -1,3 +1,4 @@
+import logging
 import sys
 import traceback
 
@@ -40,8 +41,30 @@ class StdlibCompat(object):
         self._patch(sys, "excepthook", self.print_exception)
 
     def install_traceback(self):
+        """
+        Patch the stdlib traceback module with methods from this class
+        """
         for func_name in self._traceback_patch_functions:
             self._patch(traceback, func_name, getattr(self, func_name))
+
+    def install_logformatter(self, formatter, **options):
+
+        myself = self
+        self._patch(formatter,
+                    "formatException",
+                    lambda self, ei: myself.format_exception(*ei, **options))
+
+        # this is shit but we're stuck with the stdlib implementation since
+        # it caches the result of formatException which we don't want to do
+        # as it will screw up other formatters who are expecting a regular
+        # traceback
+        _format = formatter.format
+        def format(self, record):
+            record.exc_text = None
+            formatted = _format(self, record)
+            record.exc_text = None
+            return formatted
+        self._patch(formatter, "format", format)
 
     def install(self):
         self.install_sys_excepthook()
