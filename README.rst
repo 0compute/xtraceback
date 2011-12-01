@@ -17,7 +17,7 @@ Configuration
 -------------
 
 For options and their defaults see :py:class:`-xtraceback.XTracebackOptions`. When using
-stdlib compat the `xtraceback.StdlibCompat` class has a `defaults` dictionary
+stdlib compat the xtraceback.StdlibCompat class has a `defaults` dictionary
 which should be updated with your overrides - the default instance exists at
 xtraceback.compat::
 
