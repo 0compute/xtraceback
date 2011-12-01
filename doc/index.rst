@@ -3,16 +3,15 @@ Welcome to XTraceback's documentation!
 
 .. include:: ../README.rst
 
-API
----
+More
+----
 
-.. autoclass:: xtraceback.XTraceback
-    :members:
-    :undoc-members:
+.. toctree::
+   :maxdepth: 1
 
-.. autoclass:: xtraceback.StdlibCompat
-    :members:
-    :undoc-members:
+   examples
+   api
+
 
 Indices and tables
 ==================
