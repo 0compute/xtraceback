@@ -83,26 +83,31 @@ class XTracebackFrame(object):
             or self.function in self.FUNCTION_EXCLUDE
 
     def _filter(self, fdict):
-        fdict = fdict.copy()
-        for key, value in fdict.items():
-            if key in self.FILTER:
-                del fdict[key]
-            else:
-                # replace some values with shim types
-                if isinstance(value, types.ModuleType):
-                    value = ModuleShim.get_instance(value, self.xtb)
-                # replace objects from further up the stack with a Marker
-                oid = id(value)
-                stack_ref = self.xtb.seen.get(oid)
-                if stack_ref is not None:
-                    marker = stack_ref.marker(self.xtb, self.tb_index, key)
-                    if marker.tb_offset != 0:
-                        value = marker
+        try:
+            fdict = fdict.copy()
+        except NotImplementedError:
+            # user data types inheriting dict may not have implemented copy
+            pass
+        else:
+            for key, value in fdict.items():
+                if key in self.FILTER:
+                    del fdict[key]
                 else:
-                    self.xtb.seen[oid] = Reference(self.tb_index, key, value)
-                if isinstance(value, dict):
-                    value = self._filter(value)
-                fdict[key] = value
+                    # replace some values with shim types
+                    if isinstance(value, types.ModuleType):
+                        value = ModuleShim.get_instance(value, self.xtb)
+                    # replace objects from further up the stack with a Marker
+                    oid = id(value)
+                    stack_ref = self.xtb.seen.get(oid)
+                    if stack_ref is not None:
+                        marker = stack_ref.marker(self.xtb, self.tb_index, key)
+                        if marker.tb_offset != 0:
+                            value = marker
+                    else:
+                        self.xtb.seen[oid] = Reference(self.tb_index, key, value)
+                    if isinstance(value, dict):
+                        value = self._filter(value)
+                    fdict[key] = value
         return fdict
 
     def _format_variable(self, lines, key, value, indent=4, prefix=""):
