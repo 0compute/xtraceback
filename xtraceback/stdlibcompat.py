@@ -50,8 +50,8 @@ class StdlibCompat(object):
     def install_logformatter(self, formatter, **options):
 
         def formatException(ei):
-            xtb = self._factory(*ei, **options)
-            return str(xtb)
+            return str(self._factory(*ei, **options))
+
         self._patch(formatter, "formatException", formatException)
 
         # this is shit but we're stuck with the stdlib implementation since

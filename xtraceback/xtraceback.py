@@ -21,59 +21,7 @@ else:
     from .lexer import PythonXTracebackLexer
 
 from .xtracebackframe import XTracebackFrame
-
-
-class XTracebackOptions(object):
-    """
-    XTraceback options
-
-    :ivar stream: A file-like object that is the default for print_* methods
-    :type stream: file
-    :ivar color: Flag to force color on or off - if None look to whether the
-        `stream` is a tty
-    :type color: bool
-    :ivar print_width: How many columns wide to print the screen - if None and
-        `stream` is a tty on Unix then fill the available width
-    """
-
-    # default options
-    _options = dict(
-        stream=None,
-        color=None,
-        print_width=None,
-        offset=0,
-        limit=None,
-        context=5,
-        globals_module_include=None,
-        )
-
-    # default flags
-    _flags = dict(
-        show_args=True,
-        show_locals=True,
-        show_globals=False,
-        qualify_methods=True,
-        shorten_filenames=True,
-        )
-
-    def __init__(self, options):
-        # options
-        for key in self._options:
-            value = options.pop(key, None)
-            if value is None:
-                value = self._options[key]
-            setattr(self, key, value)
-        # flags
-        for key in self._flags:
-            value = options.pop(key, None)
-            if value is None:
-                value = self._flags[key]
-            else:
-                value = bool(value)
-            setattr(self, key, value)
-        # there should be no more options
-        if options:
-            raise TypeError("Unsupported options: %r" % options)
+from .xtracebackoptions import XTracebackOptions
 
 
 class XTraceback(object):
@@ -107,10 +55,14 @@ class XTraceback(object):
         :type options: dict
         """
 
+        #: The exception type
         self.etype = etype
+
+        #: The exception instance
         self.value = value
 
-        self.options = XTracebackOptions(options)
+        self.options = XTracebackOptions(**options)
+
 
         # placeholders
         self._lexer = None
@@ -190,8 +142,7 @@ class XTraceback(object):
         # consistent with CPython
         return str(filename)
 
-    def _format_variable(self, key, value, indent=4, prefix="",
-                         separator=" = "):
+    def _format_variable(self, key, value, indent=4, prefix="", separator=" = "):
         base_size = indent + len(prefix) + len(key) + len(separator)
         if isinstance(value, basestring) and len(value) > self.print_width * 2:
             # truncate long strings - minus 2 for the quotes and 3 for
