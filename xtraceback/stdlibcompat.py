@@ -1,3 +1,4 @@
+import functools
 import logging
 import sys
 import traceback
@@ -59,11 +60,13 @@ class StdlibCompat(object):
         # as it will screw up other formatters who are expecting a regular
         # traceback
         _format = formatter.format
+
         def format(record):
             record.exc_text = None
             formatted = _format(record)
             record.exc_text = None
             return formatted
+
         self._patch(formatter, "format", format)
 
     def install(self):
@@ -100,31 +103,38 @@ class StdlibCompat(object):
         options["stream"] = sys.stderr if file is None else file
         return self._factory(etype, value, tb, limit, **options)
 
+    @functools.wraps(traceback.format_tb)
     def format_tb(self, tb, limit=None, **options):
         xtb = self._factory(None, None, tb, limit, **options)
         return xtb.format_tb()
 
+    @functools.wraps(traceback.format_exception_only)
     def format_exception_only(self, etype, value, **options):
         xtb = self._factory(etype, value, None, **options)
         return xtb.format_exception_only()
 
+    @functools.wraps(traceback.format_exception)
     def format_exception(self, etype, value, tb, limit=None, **options):
         xtb = self._factory(etype, value, tb, limit, **options)
         return xtb.format_exception()
 
+    @functools.wraps(traceback.format_exc)
     def format_exc(self, limit=None, **options):
         options["limit"] = limit
         return "".join(self.format_exception(*sys.exc_info(), **options))
 
+    @functools.wraps(traceback.print_tb)
     def print_tb(self, tb, limit=None, file=None, **options):
         xtb = self._print_factory(None, None, tb, limit, file, **options)
         xtb.print_tb()
 
+    @functools.wraps(traceback.print_exception)
     def print_exception(self, etype, value, tb, limit=None, file=None,
                         **options):
         xtb = self._print_factory(etype, value, tb, limit, file, **options)
         xtb.print_exception()
 
+    @functools.wraps(traceback.print_exc)
     def print_exc(self, limit=None, file=None, **options):
         options["limit"] = limit
         options["file"] = file

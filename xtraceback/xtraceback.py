@@ -30,8 +30,11 @@ class XTraceback(object):
 
     """
 
+    #: The default width of one line
     DEFAULT_WIDTH = 80
 
+    #: A dictionary keyed by type with values as the wrapper for string
+    #: representation of the type
     REFORMAT = {
         dict: ("{", "}"),
         list: ("[", "]"),
@@ -40,8 +43,8 @@ class XTraceback(object):
         frozenset: ("frozenset([", "])"),
         }
 
+    #: Filesystem path to the Python standard library
     _stdlib_path = os.path.dirname(os.path.realpath(inspect.getsourcefile(os)))
-
 
     def __init__(self, etype, value, tb, **options):
         """
@@ -109,7 +112,10 @@ class XTraceback(object):
     @property
     def print_width(self):
         """
-        Width of one screen
+        Width of one screen for line width calculations
+
+        If not explicitly set in self.options the width will be the terminal
+        width if on Unix.
         """
         print_width = self.options.print_width
         if print_width is None \
