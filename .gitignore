@@ -6,4 +6,3 @@ dist/
 .coverage.*
 .build/
 .tox/
-.ropeproject/
