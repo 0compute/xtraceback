@@ -1,34 +1,26 @@
 XTraceback is an extended Python traceback formatter with support for variable
-expansion and syntax highlighting.
+expansion and syntax highlighting. It is intended both as a development tool
+and for post-mortem debugging of live applications.
 
-Installation
-------------
+It works as a drop-in replacement for the standard library's
+:py:mod:`traceback` module and has support for the :py:mod:`logging` package.
 
-The package is on PyPI::
+To use XTraceback you need to have the following as early as possible in your
+code, or alternatively in a :py:mod:`site` `sitecustomize` module.
 
-    pip install xtraceback
+    >>> import xtraceback
+    >>> xtraceback.compat.install()
 
-Syntax highlighting depends on `pygments <http://pygments.org/>`_; this can be
-installed in one step using::
+This will patch the :py:mod:`traceback` module replacing the following
+functions with extended versions from :py:class:`xtraceback.StdlibCompat`:
 
-    pip install "xtraceback[color]"
+ * :py:func:`traceback.format_tb`
+ * :py:func:`traceback.format_exception_only`
+ * :py:func:`traceback.format_exception`
+ * :py:func:`traceback.format_exc`
+ * :py:func:`traceback.print_tb`
+ * :py:func:`traceback.print_exception`
+ * :py:func:`traceback.print_exc`
 
-Configuration
--------------
-
-For options and their defaults see xtraceback.XTracebackOptions. When using
-stdlib compat the xtraceback.StdlibCompat class has a `defaults` dictionary
-which should be updated with your overrides - the default instance exists at
-xtraceback.compat::
-
-    xtraceback.compat.defaults.update(option=value[, ...])
-
-Nose plugin
------------
-
-The nose plugin is enabled with the `--with-xtraceback` flag. See `nosetests
---help` for other options.
-
-The plugin will not work in conjunction with other plugins that patch nose or
-stdlib hence a second plugin named `yanc <https://github.com/ischium/yanc>_`
-which colorizes nose output without resorting to monkey patching.
+It will also install :py:meth:`xtraceback.StdlibCompat.print_exception` as a
+:py:obj:`sys.excepthook`.

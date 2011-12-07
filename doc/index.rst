@@ -1,16 +1,23 @@
-Welcome to XTraceback's documentation!
-======================================
+XTraceback
+==========
 
 .. include:: ../README.rst
 
-More
-----
+.. warning::
+
+    XTraceback is not tested on Windows systemse.
+
+Documentation
+-------------
 
 .. toctree::
-   :maxdepth: 1
+    :maxdepth: 2
 
-   examples
-   api
+    installation
+    configuration
+    examples
+    api
+    nose
 
 
 Indices and tables

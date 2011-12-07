@@ -18,7 +18,7 @@ setup(name="xtraceback",
       author_email="support@ischium.net",
       url="https://github.com/ischium/xtraceback",
       packages=("xtraceback",),
-      extras_require=dict(color=("pygments")),
+      extras_require=dict(syntax=("pygments")),
       tests_require=("nose", "pygments", "yanc"),
       test_suite="nose.collector",
       entry_points={

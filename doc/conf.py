@@ -26,8 +26,11 @@ import xtraceback
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
+              'sphinx.ext.doctest', 'sphinx.ext.todo',
+              'sphinx.ext.coverage', 'sphinx.ext.viewcode',
+              'sphinx.ext.intersphinx', 'sphinxcontrib.cheeseshop',
+              'sphinxcontrib.googleanalytics', 'sphinxcontrib.spelling']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -219,3 +222,12 @@ man_pages = [
 
 # Options for extensions
 autoclass_content = "both"
+autodoc_default_flags = ['members', 'undoc-members', 'private-members']
+autodoc_member_order = 'bysource'
+
+intersphinx_mapping = {"python": ("http://docs.python.org/", None)}
+
+googleanalytics_id = "UA-1135899-3"
+
+spelling_lang = 'en'
+#spelling_ignore_pypi_package_names = True
