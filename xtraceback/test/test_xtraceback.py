@@ -280,5 +280,5 @@ class TestXTraceback(XTracebackTestCase):
         assert formatted_str.startswith("    a = {")
         assert formatted_str.endswith("}")
 
-    def test_unsupported_options(self):
-        self.assertRaises(TypeError, XTraceback, None, None, None, bad_option=True)
+    def test_highlight(self):
+        pass
