@@ -1,14 +1,15 @@
 """
-nose plugin for XTraceback
-
-This module is placed outside of the xtraceback package because we don't want
-nose to import the xtraceback package until it has started the coverage plugin.
+XTraceback plugin for nose
 """
 
 try:
     from nose.plugins import Plugin
 except ImportError:
-    Plugin = object
+    # in case nose is not installed
+    pass
+else:
+
+from .stdlibcompat import StdlibCompat
 
 
 class NoseXTraceback(Plugin):
@@ -20,7 +21,9 @@ class NoseXTraceback(Plugin):
     score = 600
 
     _options = (
-        ("globals", "Include globals in tracebacks [%s]", "store_true"),
+        ("globals",
+         "Include globals in tracebacks [%s]",
+         "store_true"),
         ("globals_include",
          "Include only globals in this namespace [%s]",
          "store"),
@@ -31,19 +34,19 @@ class NoseXTraceback(Plugin):
 
     def options(self, parser, env):
         super(NoseXTraceback, self).options(parser, env)
-        for name, help, action in self._options:
+        for name, doc, action in self._options:
             env_opt = "NOSE_XTRACEBACK_%s" % name.upper()
             parser.add_option("--xtraceback-%s" % name.replace("_", "-"),
                               action=action,
                               dest="xtraceback_%s" % name,
                               default=env.get(env_opt),
-                              help=help % env_opt)
+                              help=doc % env_opt)
 
 
     def configure(self, options, conf):
         super(NoseXTraceback, self).configure(options, conf)
-        for name, help, dummy in self._options:
-            name = "xtraceback_%s" % name
+        for option in self._options:
+            name = "xtraceback_%s" % options[0]
             setattr(self, name, getattr(options, name))
         if self.xtraceback_color is not None:
             if self.xtraceback_color == "on":
@@ -52,16 +55,12 @@ class NoseXTraceback(Plugin):
                 self.xtraceback_color = False
 
     def begin(self):
-        # not importing in global scope because it messes with the coverage
-        # analysis
-        import xtraceback
         options = dict(color=self.xtraceback_color,
                        stream=self.conf.stream,
                        show_globals=self.xtraceback_globals,
                        globals_module_include=self.xtraceback_globals_include)
-        xtraceback.compat.defaults.update(**options)
-        xtraceback.compat.install()
+        self.compat = StdlibCompat(**options)
+        self.compat.install()
 
     def finalize(self, result):
-        import xtraceback
-        xtraceback.compat.uninstall()
+        self.compat.uninstall()
