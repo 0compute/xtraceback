@@ -1,3 +1,4 @@
+import logging
 from StringIO import StringIO
 import sys
 import traceback
@@ -99,6 +100,17 @@ class TestStdlibCompat(XTracebackTestCase):
             exc_info = self._get_exc_info(BASIC_TEST)
             lines = traceback.format_exception(*exc_info)
             self._assert_tb_lines(lines, SIMPLE_EXCEPTION)
+        else:
+            self.fail("Should have raised exception")
+
+    def test_install_logformatter(self):
+        formatter = logging.Formatter()
+        self.compat.install_logformatter(formatter)
+        try:
+            exec BASIC_TEST in {}
+        except:
+            exc_str = formatter.formatException(self._get_exc_info(BASIC_TEST))
+            self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
         else:
             self.fail("Should have raised exception")
 
