@@ -1,6 +1,13 @@
 import re
 import sys
 
+import nose
+
+try:
+    import pygments
+except ImportError:
+    pygments = None
+
 from xtraceback import XTraceback
 
 from . import something
@@ -219,6 +226,8 @@ class TestXTraceback(XTracebackTestCase):
         self._assert_tb_str(str(xtb), SIMPLE_EXCEPTION)
 
     def test_simple_str_color(self):
+        if pygments is None:
+            raise nose.SkipTest("pygments not available")
         exc_info = self._get_exc_info(BASIC_TEST)
         xtb = self._factory(*exc_info, **dict(color=True))
         self._assert_tb_str("".join(xtb.format_exception()),
