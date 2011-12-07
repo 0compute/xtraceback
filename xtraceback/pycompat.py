@@ -1,32 +1,34 @@
 import os
 
 
-if not hasattr(os.path, "relpath"):
+def monkeypatch():
 
-    # taken from py27 posixpath
+    if not hasattr(os.path, "relpath"):
 
-    try:
+        # taken from py27 posixpath
 
-        import posixpath as pp
+        try:
 
-        def relpath(path, start=pp.curdir):
-            """Return a relative version of a path"""
+            import posixpath as pp
 
-            if not path:
-                raise ValueError("no path specified")
+            def relpath(path, start=pp.curdir):
+                """Return a relative version of a path"""
 
-            start_list = [x for x in pp.abspath(start).split(pp.sep) if x]
-            path_list = [x for x in pp.abspath(path).split(pp.sep) if x]
+                if not path:
+                    raise ValueError("no path specified")
 
-            # Work out how much of the filepath is shared by start and path.
-            i = len(pp.commonprefix([start_list, path_list]))
+                start_list = [x for x in pp.abspath(start).split(pp.sep) if x]
+                path_list = [x for x in pp.abspath(path).split(pp.sep) if x]
 
-            rel_list = [pp.pardir] * (len(start_list) - i) + path_list[i:]
-            if not rel_list:
-                return pp.curdir
-            return pp.join(*rel_list)
+                # Work out how much of the filepath is shared by start and path.
+                i = len(pp.commonprefix([start_list, path_list]))
 
-        os.path.relpath = relpath
+                rel_list = [pp.pardir] * (len(start_list) - i) + path_list[i:]
+                if not rel_list:
+                    return pp.curdir
+                return pp.join(*rel_list)
 
-    except ImportError:
-        pass
+            os.path.relpath = relpath
+
+        except ImportError:
+            pass

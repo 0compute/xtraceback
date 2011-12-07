@@ -1,10 +1,12 @@
-from .stdlibcompat import StdlibCompat
-from .xtraceback import XTraceback, XTracebackOptions
-
-from . import pycompat
-del pycompat
-
 __version__ = "0.4.0-dev"
+
+from .stdlibcompat import StdlibCompat
+from .xtraceback import XTraceback
+from .xtracebackoptions import XTracebackOptions
+
+from .pycompat import monkeypatch
+monkeypatch()
+del monkeypatch
 
 compat = StdlibCompat()
 __enter__ = compat.__enter__
