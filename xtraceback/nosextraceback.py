@@ -56,9 +56,9 @@ else:
 
         def begin(self):
             options = dict(color=self.xtraceback_color,
-                        stream=self.conf.stream,
-                        show_globals=self.xtraceback_globals,
-                        globals_module_include=self.xtraceback_globals_include)
+                           stream=self.conf.stream,
+                           show_globals=self.xtraceback_globals,
+                           globals_module_include=self.xtraceback_globals_include)
             self.compat = StdlibCompat(**options)
             self.compat.install()
 
