@@ -45,9 +45,10 @@ class InstalledStdlibTestMixin(StdlibTestMixin):
 try:
     from test.test_traceback import TracebackCases, TracebackFormatTests
 except ImportError:  # pragma: no cover
-    # on debian (and maybe others) the stdlib does not have the full
-    # test package
-    pass
+    # on debian (and maybe others) the standard python distribution does not
+    # include a test package
+    import warnings
+    warnings.warn("Cannot import test from stdlib - skipping compatibility checks")
 else:
 
     class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):

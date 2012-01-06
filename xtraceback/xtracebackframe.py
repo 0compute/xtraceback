@@ -131,13 +131,13 @@ class XTracebackFrame(object):
         # push frame args
         if self.xtb.options.show_args:
             for arg in self.args:
-                self._format_variable(lines, arg, self.locals[arg])
+                self._format_variable(lines, arg, self.locals.get(arg))
             if self.varargs:
                 self._format_variable(lines, self.varargs,
-                                      self.locals[self.varargs], prefix="*")
+                                      self.locals.get(self.varargs), prefix="*")
             if self.varkw:
                 self._format_variable(lines, self.varkw,
-                                      self.locals[self.varkw], prefix="**")
+                                      self.locals.get(self.varkw), prefix="**")
 
         # push globals
         if self.xtb.options.show_globals:

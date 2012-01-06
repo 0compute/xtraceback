@@ -98,9 +98,13 @@ class StdlibCompat(object):
         _options.update(options)
         return XTraceback(etype, value, tb, **_options)
 
-    def _print_factory(self, etype, value, tb, limit=None, file=None,
-                       **options):
-        options["stream"] = sys.stderr if file is None else file
+    def _print_factory(self, etype, value, tb, limit=None, file=None, **options):
+        # late binding here may cause problems where there is no sys i.e. on
+        # google app engine but it is required for cases where sys.stderr is
+        # rebound i.e. under nose
+        if file is None and hasattr(sys, "stderr"):
+            file = sys.stderr
+        options["stream"] = file
         return self._factory(etype, value, tb, limit, **options)
 
     @functools.wraps(traceback.format_tb)

@@ -81,7 +81,11 @@ class XTraceback(object):
         while tb is not None and (self.options.limit is None
                                   or i < self.options.limit):
             if i >= self.options.offset:
-                frame_info = inspect.getframeinfo(tb, self.options.context)
+                try:
+                    frame_info = inspect.getframeinfo(tb, self.options.context)
+                except KeyError:
+                    # <stdlib>/inspect.py line 506 - there may be no __main__
+                    pass
                 frame = XTracebackFrame(self, tb.tb_frame, frame_info, i)
                 if not frame.exclude:
                     self.tb_frames.append(frame)
