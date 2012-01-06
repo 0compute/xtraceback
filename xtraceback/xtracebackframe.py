@@ -90,8 +90,13 @@ class XTracebackFrame(object):
             pass
         else:
             for key, value in fdict.items():
-                if key in self.FILTER:
-                    del fdict[key]
+                try:
+                    if key in self.FILTER:
+                        del fdict[key]
+                except:
+                    # the comparison failed for an unknown reason likely a
+                    # custom __cmp__ that makes bad assumptions - swallow
+                    continue
                 else:
                     # replace some values with shim types
                     if isinstance(value, types.ModuleType):
