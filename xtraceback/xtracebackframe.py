@@ -66,6 +66,10 @@ class XTracebackFrame(object):
                 # detail at http://www.sqlalchemy.org/trac/ticket/2317 and
                 # https://dev.entrouvert.org/issues/765
                 pass
+            except TypeError:  # pragma: no cover - defensive
+                # if self.args[0] is a list it is not hashable - inspect.getargs
+                # may return nested lists for args
+                pass
             else:
                 if not isinstance(cls, type):
                     cls = type(cls)
