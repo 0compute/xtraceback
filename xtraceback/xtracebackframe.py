@@ -140,6 +140,10 @@ class XTracebackFrame(object):
         # push frame args
         if self.xtb.options.show_args:
             for arg in self.args:
+                if isinstance(arg, list):
+                    # TODO: inspect.getargs arg list may contain nested lists;
+                    # skip it for now
+                    continue
                 self._format_variable(lines, arg, self.locals.get(arg))
             if self.varargs:
                 self._format_variable(lines, self.varargs,

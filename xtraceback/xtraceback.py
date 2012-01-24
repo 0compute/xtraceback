@@ -1,4 +1,3 @@
-import functools
 import inspect
 import os
 import pprint
