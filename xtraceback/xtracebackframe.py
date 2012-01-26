@@ -16,6 +16,8 @@ class XTracebackFrame(object):
 
     GLOBALS_PREFIX = "g:"
 
+    GLOBALS_IGNORE = ("__builtins__", "__file__", "__name__", "__package__")
+
     def __init__(self, xtb, frame, frame_info, tb_index):
 
         self.xtb = xtb
@@ -43,10 +45,10 @@ class XTracebackFrame(object):
                     module = value.__class__.__module__
                 else:
                     module = getattr(value, "__module__", None)
-                if module is not None \
+                if (module is not None \
                     and not module.startswith(
-                                self.xtb.options.globals_module_include
-                                ):
+                        self.xtb.options.globals_module_include
+                        )) or key in self.GLOBALS_IGNORE:
                     del self.globals[key]
 
         # if path is a real path then try to shorten it
