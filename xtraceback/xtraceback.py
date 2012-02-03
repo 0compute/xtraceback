@@ -17,6 +17,7 @@ except ImportError:
     pygments = None
 else:
     from pygments.formatters.terminal import TerminalFormatter
+    from pygments.styles import default
     from .lexer import PythonXTracebackLexer
 
 from .xtracebackframe import XTracebackFrame
@@ -182,7 +183,12 @@ class XTraceback(object):
             if self._lexer is None:
                 self._lexer = PythonXTracebackLexer()
             if self._formatter is None:
-                self._formatter = TerminalFormatter()
+                # passing style=default here is the same as passing no
+                # arguments - the reason for doing it is that if we don't
+                # the style gets imported at runtime which under some restricted
+                # environments (appengine) causes a problem - all of the imports
+                # must be done before appengine installs its import hook
+                self._formatter = TerminalFormatter(style=default)
             try:
                 return pygments.highlight(string, self._lexer, self._formatter)
             except KeyboardInterrupt:
