@@ -1,0 +1,47 @@
+ifndef VENV_PATH
+$(error VENV_PATH not defined)
+endif
+
+# to be overridden
+VENV_POST_CREATE =
+
+# this is what anything that depends on the virtualenv should specify as a
+# prerequisite
+VENV_ACTIVATE = $(VENV_PATH)/bin/activate
+
+$(VENV_ACTIVATE):
+	virtualenv $(VENV_PATH)
+	$(VENV_POST_CREATE)
+
+SUBMAKE := $(MAKE)
+VSUBMAKE := . $(VENV_ACTIVATE) && $(SUBMAKE)
+
+# silence these by default
+ifndef VENV_MAKE_DEBUG
+VSUBMAKE := @$(VSUBMAKE) --no-print-directory
+SUBMAKE := @$(SUBMAKE) --no-print-directory
+endif
+
+.PHONY: virtualenv
+virtualenv: $(VENV_ACTIVATE)
+
+# TODO: make sure that VENV_ACTIVATE exists
+ifneq ($(VIRTUAL_ENV),$(VENV_PATH))
+define vmake
+	$(warning Relaunching in virtualenv $(VENV_PATH)...)
+	$(VSUBMAKE) $(1)
+endef
+else
+define vmake
+	$(SUBMAKE) $(1)
+endef
+endif
+
+ifneq ($(VIRTUAL_ENV),$(VENV_PATH))
+define assert-vmake
+	$(error VIRTUAL_ENV is "$(VIRTUAL_ENV)", should be "$(VENV_PATH)".)
+endef
+else
+define assert-vmake
+endef
+endif
