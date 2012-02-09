@@ -1,3 +1,16 @@
+# Virtualenv utils
+#
+# This expects VENV_PATH to be defined as the absolute path to the virtualenv
+#
+# Targets that depend on the virtualenv are specified as follows:
+#
+# path/to/prerequisite: $(VENV_ACTIVATE)
+# 	$(call vmake,.vtgt)
+#
+# .vtgt:
+# 	$(call assert-vmake)
+#	<recipe>
+
 ifndef VENV_PATH
 $(error VENV_PATH not defined)
 endif
