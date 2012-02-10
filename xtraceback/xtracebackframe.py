@@ -2,6 +2,7 @@ import inspect
 import os
 import textwrap
 import types
+import warnings
 
 from .reference import Reference
 from .shim import ModuleShim
@@ -15,8 +16,6 @@ class XTracebackFrame(object):
     FUNCTION_EXCLUDE = ("GeneratorContextManager.__exit__",)
 
     GLOBALS_PREFIX = "g:"
-
-    GLOBALS_IGNORE = ("__builtins__", "__file__", "__name__", "__package__")
 
     def __init__(self, xtb, frame, frame_info, tb_index):
 
@@ -39,6 +38,7 @@ class XTracebackFrame(object):
         # filter globals
         if self.xtb.options.globals_module_include is not None:
             for key, value in self.globals.items():
+                assert key not in self.FILTER
                 if isinstance(value, types.ModuleType):
                     module = value.__name__
                 elif isinstance(value, types.InstanceType):
@@ -48,7 +48,7 @@ class XTracebackFrame(object):
                 if (module is not None \
                     and not module.startswith(
                         self.xtb.options.globals_module_include
-                        )) or key in self.GLOBALS_IGNORE:
+                        )):
                     del self.globals[key]
 
         # if path is a real path then try to shorten it
@@ -99,9 +99,14 @@ class XTracebackFrame(object):
                 try:
                     if key in self.FILTER:
                         del fdict[key]
-                except:
+                        continue
+                except Exception, exc:
                     # the comparison failed for an unknown reason likely a
                     # custom __cmp__ that makes bad assumptions - swallow
+                    try:
+                        warnings.warn("Could not filter %r: %r" % (key, exc))
+                    except:
+                        warnings.warn("Could not filter and can't say why: %s" % exc)
                     continue
                 else:
                     # replace some values with shim types
