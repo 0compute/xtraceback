@@ -51,10 +51,10 @@ endef
 endif
 
 ifneq ($(VIRTUAL_ENV),$(VENV_PATH))
-define assert-vmake
+define assert-venv
 	$(error VIRTUAL_ENV is "$(VIRTUAL_ENV)", should be "$(VENV_PATH)".)
 endef
 else
-define assert-vmake
+define assert-venv
 endef
 endif
