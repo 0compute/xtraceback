@@ -16,7 +16,7 @@ NOSETESTS_ARGS =
 endif
 
 # tox defaults
-TOX = tox --develop
+TOX = tox
 ifeq ($(NOSETESTS_ARGS),)
 TOX_ARGS =
 else
