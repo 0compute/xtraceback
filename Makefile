@@ -110,7 +110,7 @@ all: metrics doc
 release:
 	$(if $(VERSION),,$(error VERSION not set))
 	git flow release start $(VERSION)
-	sed -i "" "s/$(CURRENT_VERSION)/$(VERSION)/" xtraceback/__init__.py
+	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i xtraceback/__init__.py
 	git commit -m "version bump" xtraceback/__init__.py
 	git flow release finish $(VERSION)
 #	git push --all
