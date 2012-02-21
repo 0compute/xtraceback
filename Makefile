@@ -113,7 +113,7 @@ release:
 	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i xtraceback/__init__.py
 	git commit -m "version bump" xtraceback/__init__.py
 	git flow release finish $(VERSION)
-#	git push --all
+	git push --all
 
 
 .PHONY: publish
