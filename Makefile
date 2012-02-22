@@ -16,12 +16,7 @@ NOSETESTS_ARGS =
 endif
 
 # tox defaults
-TOX = tox
-ifeq ($(NOSETESTS_ARGS),)
-TOX_ARGS =
-else
-TOX_ARGS = -- $(NOSETESTS_ARGS)
-endif
+TOX = tox --develop -v -e
 
 # the tox environments to test
 TEST_ENVS = $(shell grep envlist tox.ini | awk -F= '{print $$2}' | tr -d ,)
@@ -52,7 +47,7 @@ $(DIRS):
 
 $(DEV_ENV_ACTIVATE):
 	virtualenv $(DEV_ENV_ABS_PATH)
-	$(TOX) -e $(DEV_ENV)
+	$(TOX) $(DEV_ENV)
 
 .PHONY: virtualenv
 virtualenv: $(DEV_ENV_ACTIVATE)
@@ -66,7 +61,9 @@ virtualenv: $(DEV_ENV_ACTIVATE)
 
 .PHONY: $(TEST_ENVS)
 $(TEST_ENVS): .build
-	$(TOX) -e $@ $(TOX_ARGS)
+	rm -f .coverage
+	$(TOX) $@ -- nosetests --with-xunit --xunit-file=.build/nosetests-$@.xml \
+		--with-coverage $(NOSETESTS_ARGS)
 
 .PHONY: test
 test: $(TEST_ENVS)
@@ -75,19 +72,22 @@ test: $(TEST_ENVS)
 nosetests: .assert-venv
 	$(NOSETESTS) $(NOSETESTS_ARGS)
 
-.PHONY: metrics
-metrics: test virtualenv
-	$(call vmake,.metrics)
-
-.PHONY: .metrics
-.metrics: .build/clonedigger .assert-venv
+.PHONY: coverage .coverage
+coverage: test
+	$(call vmake,.coverage)
+.coverage:
 	coverage combine
-	coverage xml -o.build/coverage.xml
 	coverage html
+	coverage xml -o.build/coverage.xml
+
+.PHONY: metrics .metrics
+metrics: virtualenv
+	$(call vmake,.metrics)
+.metrics: .build/clonedigger .assert-venv
 	-pylint --rcfile=.pylintrc -f parseable xtraceback > .build/pylint
 	-pep8 --repeat xtraceback > .build/pep8
-	clonedigger --cpd-output -o .build/clonedigger.xml xtraceback
-	clonedigger -o .build/clonedigger/index.html xtraceback
+	clonedigger --cpd-output -o .build/clonedigger.xml xtraceback > /dev/null
+	clonedigger -o .build/clonedigger/index.html xtraceback > /dev/null 2>&1
 	sloccount --wide --details xtraceback > .build/sloccount
 
 .PHONY: doc
@@ -123,4 +123,4 @@ clean:
 
 .DEFAULT_GOAL := all
 .PHONY: all
-all: metrics doc
+all: coverage metrics doc
