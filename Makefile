@@ -103,9 +103,6 @@ doc: .build/doc/index.html
 #	sphinx-build -W -b linkcheck doc .build/doc
 	sphinx-build -W -b html doc .build/doc
 
-.DEFAULT_GOAL: all
-all: metrics doc
-
 .PHONY: release
 release:
 	$(if $(VERSION),,$(error VERSION not set))
@@ -115,7 +112,6 @@ release:
 	git flow release finish $(VERSION)
 	git push --all
 
-
 .PHONY: publish
 publish: doc
 	git push --tags
@@ -124,3 +120,7 @@ publish: doc
 .PHONY: clean
 clean:
 	git clean -fdX
+
+.DEFAULT_GOAL := all
+.PHONY: all
+all: metrics doc
