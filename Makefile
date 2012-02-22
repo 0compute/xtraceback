@@ -16,7 +16,7 @@ NOSETESTS_ARGS =
 endif
 
 # tox defaults
-TOX = tox --develop -v -e
+TOX = tox -v -e
 
 # the tox environments to test
 TEST_ENVS = $(shell grep envlist tox.ini | awk -F= '{print $$2}' | tr -d ,)
