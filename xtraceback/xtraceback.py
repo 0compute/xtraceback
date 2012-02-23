@@ -44,7 +44,9 @@ class XTraceback(object):
         }
 
     #: Filesystem path to the Python standard library
-    _stdlib_path = os.path.dirname(os.path.realpath(inspect.getsourcefile(os)))
+    _os_source = inspect.getsourcefile(os)
+    _stdlib_path = None if _os_source is None \
+        else os.path.dirname(os.path.realpath(_os_source))
 
     def __init__(self, etype, value, tb, **options):
         """
@@ -141,7 +143,8 @@ class XTraceback(object):
     def _format_filename(self, filename):
         if self.options.shorten_filenames:
             filename = os.path.realpath(filename)
-            if filename.startswith(self._stdlib_path):
+            if self._stdlib_path is not None \
+                and filename.startswith(self._stdlib_path):
                 filename = filename.replace(self._stdlib_path, "<stdlib>")
             elif hasattr(os.path, "relpath"):
                 # os.path.relpath was introduced in python 2.5
