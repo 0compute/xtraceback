@@ -18,7 +18,6 @@ except ImportError:
     assert len(paths) == 1
     sys.path.insert(0, paths[0])
     del sys.modules["test"]
-    print >> sys.stderr, "***", sys.path
     from test.test_traceback import TracebackCases
     try:
         from test.test_traceback import TracebackFormatTests
