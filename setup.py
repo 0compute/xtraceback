@@ -19,7 +19,8 @@ else:
 setup(name="xtraceback",
       version=xtraceback.__version__,
       description="An extended traceback formatter",
-      long_description=README,
+      long_description="XTraceback is an extended Python traceback formatter "
+          "with support for variable expansion and syntax highlighting.",
       license="MIT",
       keywords="traceback exception nose",
       author="Ischium",
