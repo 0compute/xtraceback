@@ -6,8 +6,6 @@ from setuptools import setup
 
 import xtraceback
 
-README = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
-
 # under test we do not want the nose entry point
 if "XTRACEBACK_NO_NOSE" in os.environ:
     entry_points = None
