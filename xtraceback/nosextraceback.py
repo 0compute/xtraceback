@@ -5,8 +5,7 @@ XTraceback plugin for nose
 try:
     from nose.plugins import Plugin
 except ImportError:
-    # in case nose is not installed
-    pass
+    pass  # pragma: no cover - in case nose is not installed
 else:
 
     from .stdlibcompat import StdlibCompat

@@ -5,7 +5,7 @@ DIRS := .build .build/clonedigger
 DEV_ENV = dev
 DEV_ENV_PATH = .tox/$(DEV_ENV)
 DEV_ENV_ABS_PATH = $(PWD)/$(DEV_ENV_PATH)
-DEV_ENV_ACTIVATE = . $(DEV_ENV_PATH)/bin/activate
+DEV_ENV_ACTIVATE = $(DEV_ENV_PATH)/bin/activate
 
 CURRENT_VERSION = $(shell python -c "import xtraceback; print xtraceback.__version__")
 
@@ -16,10 +16,20 @@ NOSETESTS_ARGS =
 endif
 
 # tox defaults
-TOX = tox -v -e
+# XXX: We use tox from https://bitbucket.org/ischium/tox pending
+# https://bitbucket.org/hpk42/tox/pull-request/7 as the --develop option is
+# required for combined coverage
+TOX = tox --develop -v -e
 
 # the tox environments to test
 TEST_ENVS = $(shell grep envlist tox.ini | awk -F= '{print $$2}' | tr -d ,)
+
+# for setup.py so that it knows not to install the nose entry point
+export XTRACEBACK_NO_NOSE = 1
+
+ifdef XTRACEBACK_TEST_SKIP_STDLIB
+export XTRACEBACK_TEST_SKIP_STDLIB
+endif
 
 # vmake: relaunch in virtualenv as required
 SUBMAKE := $(MAKE)
@@ -42,12 +52,18 @@ define vmake
 endef
 endif
 
+.PHONY: printvars
+printvars:
+	$(foreach V,$(sort $(.VARIABLES)), \
+		$(if $(filter-out environment% default automatic, $(origin $V)), \
+			$(warning $V=$($V) ($(value $V)))))
+
 $(DIRS):
 	mkdir -p $@
 
 $(DEV_ENV_ACTIVATE):
 	virtualenv $(DEV_ENV_ABS_PATH)
-	$(TOX) $(DEV_ENV)
+	$(TOX) $(DEV_ENV) --notest
 
 .PHONY: virtualenv
 virtualenv: $(DEV_ENV_ACTIVATE)
@@ -61,19 +77,20 @@ virtualenv: $(DEV_ENV_ACTIVATE)
 
 .PHONY: $(TEST_ENVS)
 $(TEST_ENVS): .build
-	rm -f .coverage
-	$(TOX) $@ -- nosetests --with-xunit --xunit-file=.build/nosetests-$@.xml \
+	$(TOX) $@ -- nosetests --xunit-file=.build/nosetests-$@.xml \
 		--with-coverage $(NOSETESTS_ARGS)
 
-.PHONY: test
-test: $(TEST_ENVS)
+.PHONY: tox
+tox: $(TEST_ENVS)
 
-.PHONY: nosetests
-nosetests: .assert-venv
+.PHONY: test .test
+test: virtualenv
+	$(call vmake,.test)
+.test: .assert-venv
 	$(NOSETESTS) $(NOSETESTS_ARGS)
 
 .PHONY: coverage .coverage
-coverage: test
+coverage: virtualenv tox
 	$(call vmake,.coverage)
 .coverage:
 	coverage combine
@@ -111,9 +128,6 @@ release:
 	git commit -m "version bump" xtraceback/__init__.py
 	git flow release finish $(VERSION)
 	git push --all
-
-.PHONY: publish
-publish: doc
 	git push --tags
 	./setup.py sdist register upload upload_sphinx
 

@@ -1,4 +1,5 @@
-Nose plugin ===========
+Nose plugin
+===========
 
 The plugin is enabled with the `--with-xtraceback` flag. See `nosetests --help`
 for other options.

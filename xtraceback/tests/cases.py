@@ -1,9 +1,11 @@
+import copy
 import difflib
 import re
 import sys
 import unittest
 
 from xtraceback import XTraceback
+from xtraceback import shim
 
 
 ID_PATTERN = re.compile("0[xX][a-fA-F0-9]+")
@@ -25,8 +27,12 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
 
     XTB_DEFAULTS = dict(offset=1)
 
+    def tearDown(self):
+        super(XTracebackTestCase, self).tearDown()
+        shim.Shim._instances = {}
+
     def _factory(self, *exc_info, **options):
-        _options = self.XTB_DEFAULTS.copy()
+        _options = copy.deepcopy(self.XTB_DEFAULTS)
         _options.update(options)
         return XTraceback(*exc_info, **_options)
 
@@ -44,16 +50,9 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
         # line
         exc_str = TRAILING_WHITESPACE_PATTERN.sub("\n", exc_str)
         if exc_str != expect_exc_str:  # pragma: no cover for obvious reasons
-            diff = difflib.ndiff(expect_exc_str.splitlines(True),
-                                 exc_str.splitlines(True))
-            #print "-" * 70
-            #print "want:"
-            #print expect_exc_str
-            #print "-" * 70
-            #print "got:"
-            #print exc_str
-            #print "-" * 70
-            print "diff:"
+            diff = difflib.unified_diff(expect_exc_str.splitlines(True),
+                                        exc_str.splitlines(True),
+                                        "expected", "actual")
             print "".join(diff)
             self.fail("different")
 

@@ -10,6 +10,11 @@ class XTracebackOptions(object):
     :type color: bool
     :ivar print_width: How many columns wide to print the screen - if None and
         `stream` is a tty on Unix then fill the available width
+    :ivar offset: A stack frame offset - defaults to 0
+    :type offset: int
+    :ivar limit: Stack frame limit - if None the entire stack is returned
+    :context: Lines of context that are included in traceback entries
+    :type context: int
     """
 
     # default options

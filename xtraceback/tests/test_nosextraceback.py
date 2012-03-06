@@ -11,11 +11,11 @@ from .cases import XTracebackTestCase
 EXCEPTION = \
 """E
 ======================================================================
-ERROR: runTest (xtraceback.test.test_nosextraceback.TC)
+ERROR: runTest (xtraceback.tests.test_nosextraceback.TC)
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "xtraceback/test/test_nosextraceback.py", line 45, in TC.runTest
-    self = <xtraceback.test.test_nosextraceback.TC testMethod=runTest>
+  File "xtraceback/tests/test_nosextraceback.py", line 45, in TC.runTest
+    self = <xtraceback.tests.test_nosextraceback.TC testMethod=runTest>
     43 class TC(unittest.TestCase):
     44     def runTest(self):
 --> 45         raise ValueError("xxx")

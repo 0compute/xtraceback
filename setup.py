@@ -8,6 +8,14 @@ import xtraceback
 
 README = open(os.path.join(os.path.dirname(__file__), "README.rst")).read()
 
+# under test we do not want the nose entry point
+if "XTRACEBACK_NO_NOSE" in os.environ:
+    entry_points = None
+else:
+    entry_points = {
+        "nose.plugins" : ("xtraceback=xtraceback.nosextraceback:NoseXTraceback",),
+        }
+
 setup(name="xtraceback",
       version=xtraceback.__version__,
       description="An extended traceback formatter",
@@ -21,7 +29,5 @@ setup(name="xtraceback",
       extras_require=dict(syntax=("pygments")),
       tests_require=("nose", "pygments", "yanc"),
       test_suite="nose.collector",
-      entry_points={
-          "nose.plugins" : ("xtraceback=xtraceback.nosextraceback:NoseXTraceback",),
-          },
+      entry_points=entry_points,
       )

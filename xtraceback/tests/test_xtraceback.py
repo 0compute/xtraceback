@@ -118,12 +118,12 @@ Exception: exc
 EXTENDED_EXCEPTION = \
 """Traceback (most recent call last):
   File "<string>", line 3, in <module>
-    g:Something = <class 'xtraceback.test.something.Something'>
-    g:something = <xtraceback.test.something.Something object at 0x123456789>
-  File "xtraceback/test/something.py", line 12, in Something.one
-    self = <xtraceback.test.something.Something object at 0x123456789>
-    g:Something = <class 'xtraceback.test.something.Something'>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+    g:Something = <class 'xtraceback.tests.something.Something'>
+    g:something = <xtraceback.tests.something.Something object at 0x123456789>
+  File "xtraceback/tests/something.py", line 12, in Something.one
+    self = <xtraceback.tests.something.Something object at 0x123456789>
+    g:Something = <class 'xtraceback.tests.something.Something'>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
     g:logging = <package 'logging' from='<stdlib>/logging'>
     g:os = <module 'os' from='<stdlib>/os.py'>
     g:sys = <module 'sys' (built-in)>
@@ -133,11 +133,11 @@ EXTENDED_EXCEPTION = \
            sugar = 2
     13
     14 def two(self, sugar):
-  File "xtraceback/test/something.py", line 17, in Something.two
-    self = <xtraceback.test.something.Something object at 0x123456789>
+  File "xtraceback/tests/something.py", line 17, in Something.two
+    self = <xtraceback.tests.something.Something object at 0x123456789>
     sugar = 2
-    g:Something = <class 'xtraceback.test.something.Something'>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+    g:Something = <class 'xtraceback.tests.something.Something'>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
     g:logging = <package 'logging' from='<stdlib>/logging'>
     g:os = <module 'os' from='<stdlib>/os.py'>
     g:sys = <module 'sys' (built-in)>
@@ -147,11 +147,11 @@ EXTENDED_EXCEPTION = \
     16     obj = SomethingElse()
 --> 17     obj.one(long)
            long = 'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-           obj = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-  File "xtraceback/test/somethingelse.py", line 8, in SomethingElse.one
-    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+           obj = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
+  File "xtraceback/tests/somethingelse.py", line 8, in SomethingElse.one
+    self = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
     long = <ref offset=-1>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
      6     number = 1
      7     result = number * 10
 ---> 8     self.b(number, long)
@@ -159,37 +159,37 @@ EXTENDED_EXCEPTION = \
            result = 10
      9
     10 def b(self, number, long):
-  File "xtraceback/test/somethingelse.py", line 11, in SomethingElse.b
-    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+  File "xtraceback/tests/somethingelse.py", line 11, in SomethingElse.b
+    self = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
     number = 1
     long = <ref offset=-2>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
      9
     10 def b(self, number, long):
 --> 11     self.c("arg1", "arg2", a_kw_arg=1)
     12
     13 def c(self, *args, **kwargs):
-  File "xtraceback/test/somethingelse.py", line 14, in SomethingElse.c
-    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
+  File "xtraceback/tests/somethingelse.py", line 14, in SomethingElse.c
+    self = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
     *args = ('arg1', 'arg2')
     **kwargs = {'a_kw_arg': 1}
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
     12
     13 def c(self, *args, **kwargs):
 --> 14     self.d()
     15
     16 def d(self):
-  File "xtraceback/test/somethingelse.py", line 17, in SomethingElse.d
-    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+  File "xtraceback/tests/somethingelse.py", line 17, in SomethingElse.d
+    self = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
     15
     16 def d(self):
 --> 17     self.e()
     18
     19 def e(self):
-  File "xtraceback/test/somethingelse.py", line 20, in SomethingElse.e
-    self = <xtraceback.test.somethingelse.SomethingElse object at 0x123456789>
-    g:SomethingElse = <class 'xtraceback.test.somethingelse.SomethingElse'>
+  File "xtraceback/tests/somethingelse.py", line 20, in SomethingElse.e
+    self = <xtraceback.tests.somethingelse.SomethingElse object at 0x123456789>
+    g:SomethingElse = <class 'xtraceback.tests.somethingelse.SomethingElse'>
     16 def d(self):
     17     self.e()
     18

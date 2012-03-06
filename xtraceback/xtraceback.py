@@ -66,8 +66,8 @@ class XTraceback(object):
         #: The exception instance
         self.value = value
 
+        #: Options for xtraceback
         self.options = XTracebackOptions(**options)
-
 
         # placeholders
         self._lexer = None
@@ -87,7 +87,7 @@ class XTraceback(object):
                     frame_info = inspect.getframeinfo(tb, self.options.context)
                 except KeyError:
                     # <stdlib>/inspect.py line 506 - there may be no __main__
-                    pass
+                    pass  # pragma: no cover - defensive
                 frame = XTracebackFrame(self, tb.tb_frame, frame_info, i)
                 if not frame.exclude:
                     self.tb_frames.append(frame)

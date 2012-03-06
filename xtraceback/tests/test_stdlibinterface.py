@@ -1,8 +1,30 @@
 from __future__ import with_statement
 
+import os
 from StringIO import StringIO
 import sys
 import traceback
+
+# on debian (and maybe others) the standard python distribution does not
+# include a test package so the required test_traceback module is included
+# with xtraceback
+try:
+    from test.test_traceback import TracebackCases, TracebackFormatTests
+except ImportError:
+    import glob
+    version = "%s.%s" % sys.version_info[0:2]
+    paths = glob.glob(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+                                  "test_support", "%s.*" % version))
+    assert len(paths) == 1
+    sys.path.insert(0, paths[0])
+    del sys.modules["test"]
+    print >> sys.stderr, "***", sys.path
+    from test.test_traceback import TracebackCases
+    try:
+        from test.test_traceback import TracebackFormatTests
+    except ImportError:
+        # not present in python 2.5
+        TracebackFormatTests = None
 
 from xtraceback import StdlibCompat
 
@@ -22,43 +44,43 @@ class StdlibTestMixin(TestCaseMixin):
     def setUp(self):
         super(StdlibTestMixin, self).setUp()
         # these options should produce tracebacks that the same as from stdlib
-        self.compat = StdlibCompat(context=1,
-                                   show_args=False,
-                                   show_locals=False,
-                                   show_globals=False,
-                                   qualify_methods=False,
-                                   shorten_filenames=False)
+
+    @property
+    def compat(self):
+        return StdlibCompat(context=1,
+                            show_args=False,
+                            show_locals=False,
+                            show_globals=False,
+                            qualify_methods=False,
+                            shorten_filenames=False)
+
+
+class SkipTestMeta(type):
+
+    @property
+    def __test__(mcs):
+        return "XTRACEBACK_TEST_SKIP_STDLIB" not in os.environ
 
 
 class InstalledStdlibTestMixin(StdlibTestMixin):
 
-    def setUp(self):
-        super(InstalledStdlibTestMixin, self).setUp()
-        self.compat.__enter__()
+    __metaclass__ = SkipTestMeta
 
-    def tearDown(self):
-        super(InstalledStdlibTestMixin, self).tearDown()
-        self.compat.__exit__(None, None, None)
+    def run(self, result=None):
+        with self.compat:
+            super(InstalledStdlibTestMixin, self).run(result)
 
 
-# use the stdlib's traceback test cases
-try:
-    from test.test_traceback import TracebackCases, TracebackFormatTests
-except ImportError:  # pragma: no cover
-    # on debian (and maybe others) the standard python distribution does not
-    # include a test package
-    import warnings
-    warnings.warn("Cannot import test from stdlib - skipping compatibility checks")
-else:
+class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
+    pass
 
-    class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
-        pass
 
+if TracebackFormatTests is not None:
     class TestStdlibFormat(InstalledStdlibTestMixin, TracebackFormatTests):
         pass
 
-    # otherwise they get run as tests
-    del TracebackCases, TracebackFormatTests
+# otherwise they get run as tests
+del TracebackCases, TracebackFormatTests
 
 
 class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):

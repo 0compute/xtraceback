@@ -1,0 +1,2 @@
+This is here because some distributions (debian, others?) do not include the stdlib's
+test package in their Python.
