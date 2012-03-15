@@ -30,5 +30,6 @@ the following functions with extended versions from
 logging
 -------
 
+    >>> import logging
     >>> import xtraceback
-    >>> xtraceback.compat.install_root_logformatter()
+    >>> xtraceback.compat.install_logging(logging.root)

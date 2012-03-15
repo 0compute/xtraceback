@@ -103,9 +103,11 @@ class TestStdlibCompat(XTracebackTestCase):
         else:
             self.fail("Should have raised exception")
 
-    def test_install_logformatter(self):
+    def test_install_logging(self):
         formatter = logging.Formatter()
-        self.compat.install_logformatter(formatter)
+        handler = logging.Handler()
+        handler.setFormatter(formatter)
+        self.compat.install_logging(handler)
         try:
             exec BASIC_TEST in {}
         except:

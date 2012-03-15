@@ -6,11 +6,15 @@ from .xtraceback import XTraceback
 
 
 class StdlibCompatMeta(type):
+    """
+    A metaclass for StdlibCompat that collects methods to patch on to the
+    `traceback` module
+    """
 
     def __init__(mcs, name, bases, dict_):
         for key in dict_.keys():
             if hasattr(traceback, key):
-                mcs._traceback_patch_functions.append(key)
+                mcs.traceback_patch_functions.append(key)
         super(StdlibCompatMeta, mcs).__init__(name, bases, dict_)
 
 
@@ -25,8 +29,12 @@ class StdlibCompat(object):
 
     __metaclass__ = StdlibCompatMeta
 
+    # a stack of patches that have been applied as (target, member, pre-patch-value)
     _patch_stack = []
-    _traceback_patch_functions = []
+
+    # names of methods in this class that patch functions of the same name in
+    # the `traceback` module.
+    traceback_patch_functions = []
 
     def __init__(self, **defaults):
         self.defaults = defaults
@@ -38,16 +46,32 @@ class StdlibCompat(object):
         setattr(target, member, patch)
 
     def install_sys_excepthook(self):
+        """
+        Patch `sys.excepthook`
+        """
         self._patch(sys, "excepthook", self.print_exception)
 
     def install_traceback(self):
         """
-        Patch the stdlib traceback module with methods from this class
+        Patch the stdlib traceback module's top level functions with
+        replacements from this class
+
+        The functions patched are named in `traceback_patch_functions`
         """
-        for func_name in self._traceback_patch_functions:
+        for func_name in self.traceback_patch_functions:
             self._patch(traceback, func_name, getattr(self, func_name))
 
-    def install_logformatter(self, formatter, **options):
+    def install_logging(self, handler, **options):
+        """
+        Patch a `logging.Handler`'s `formatter` so that it uses XTraceback
+        to format exceptions
+
+        :param handler: The handler to patch
+        :type handler: logging.Handler
+        :param options:
+        """
+
+        formatter = handler.formatter
 
         def formatException(ei):
             return str(self._factory(*ei, **options))
