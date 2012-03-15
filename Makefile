@@ -7,19 +7,17 @@ DEV_ENV_PATH = .tox/$(DEV_ENV)
 DEV_ENV_ABS_PATH = $(PWD)/$(DEV_ENV_PATH)
 DEV_ENV_ACTIVATE = $(DEV_ENV_PATH)/bin/activate
 
+# TODO: this should all be handled by git
 CURRENT_VERSION = $(shell python -c "import xtraceback; print xtraceback.__version__")
 
 # nose defaults
-NOSETESTS = nosetests
-ifndef NOSETESTS_ARGS
-NOSETESTS_ARGS =
-endif
+NOSETESTS ?= nosetests --with-xunit --xunit-file=.build/nosetests-$@.xml
 
 # tox defaults
 # XXX: We use tox from https://bitbucket.org/ischium/tox pending
 # https://bitbucket.org/hpk42/tox/pull-request/7 as the --develop option is
 # required for combined coverage
-TOX = tox --develop -v -e
+TOX ?= tox --develop -v -e
 
 # supress tox failure under jenkins since this is (likely) about a failing test
 # not a failing build
@@ -32,10 +30,6 @@ TEST_ENVS = $(shell grep envlist tox.ini | awk -F= '{print $$2}' | tr -d ,)
 
 # for setup.py so that it knows not to install the nose entry point
 export XTRACEBACK_NO_NOSE = 1
-
-ifdef XTRACEBACK_TEST_SKIP_STDLIB
-export XTRACEBACK_TEST_SKIP_STDLIB
-endif
 
 # vmake: relaunch in virtualenv as required
 SUBMAKE := $(MAKE)
@@ -83,8 +77,7 @@ virtualenv: $(DEV_ENV_ACTIVATE)
 
 .PHONY: $(TEST_ENVS)
 $(TEST_ENVS): .build
-	$(TOX) $@ -- nosetests --xunit-file=.build/nosetests-$@.xml \
-		--with-coverage $(NOSETESTS_ARGS)
+	$(TOX) $@ -- $(NOSETESTS) --with-coverage $(NOSETESTS_ARGS)
 
 .PHONY: tox
 tox: $(TEST_ENVS)
