@@ -21,6 +21,12 @@ endif
 # required for combined coverage
 TOX = tox --develop -v -e
 
+# supress tox failure under jenkins since this is (likely) about a failing test
+# not a failing build
+ifdef JENKINS_HOME
+TOX := -$(TOX)
+endif
+
 # the tox environments to test
 TEST_ENVS = $(shell grep envlist tox.ini | awk -F= '{print $$2}' | tr -d ,)
 
