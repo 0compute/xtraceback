@@ -13,6 +13,9 @@ CURRENT_VERSION = $(shell python -c "import xtraceback; print xtraceback.__versi
 # nose defaults
 NOSETESTS ?= nosetests --with-xunit --xunit-file=.build/nosetests-$@.xml
 
+# virtualenv defaults
+VIRTUALENV ?= virtualenv
+
 # tox defaults
 # XXX: We use tox from https://bitbucket.org/ischium/tox pending
 # https://bitbucket.org/hpk42/tox/pull-request/7 as the --develop option is
@@ -62,14 +65,14 @@ $(DIRS):
 	mkdir -p $@
 
 $(DEV_ENV_ACTIVATE):
-	virtualenv $(DEV_ENV_ABS_PATH)
+	$(VIRTUALENV) $(DEV_ENV_ABS_PATH)
 	$(TOX) $(DEV_ENV) --notest
 
-.PHONY: virtualenv
-virtualenv: $(DEV_ENV_ACTIVATE)
+.PHONY: dev
+dev: $(DEV_ENV_ACTIVATE)
 
 .PHONY: .assert-venv
-.assert-venv: virtualenv
+.assert-venv: dev
 	$(if $(VIRTUAL_ENV),,$(error Not in virtualenv $(DEV_ENV_ABS_PATH)))
 	$(if $(subst $(DEV_ENV_ABS_PATH),,$(VIRTUAL_ENV)), \
 		$(error	Not in correct virtualenv - VIRTUAL_ENV is "$(VIRTUAL_ENV)" \
@@ -83,13 +86,13 @@ $(TEST_ENVS): .build
 tox: $(TEST_ENVS)
 
 .PHONY: test .test
-test: virtualenv
+test: dev
 	$(call vmake,.test)
 .test: .assert-venv
 	$(NOSETESTS) $(NOSETESTS_ARGS)
 
 .PHONY: coverage .coverage
-coverage: virtualenv tox
+coverage: dev tox
 	$(call vmake,.coverage)
 .coverage:
 	coverage combine
@@ -97,7 +100,7 @@ coverage: virtualenv tox
 	coverage xml -o.build/coverage.xml
 
 .PHONY: metrics .metrics
-metrics: virtualenv
+metrics: dev
 	$(call vmake,.metrics)
 .metrics: .build/clonedigger .assert-venv
 	-pylint --rcfile=.pylintrc -f parseable xtraceback > .build/pylint
@@ -109,7 +112,7 @@ metrics: virtualenv
 .PHONY: doc
 doc: .build/doc/index.html
 
-.build/doc/index.html: virtualenv $(shell find doc -type f)
+.build/doc/index.html: dev $(shell find doc -type f)
 	$(call vmake,.vdoc)
 
 .vdoc: .assert-venv
