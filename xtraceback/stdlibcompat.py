@@ -2,6 +2,8 @@ import functools
 import sys
 import traceback
 
+from stacked import Stacked
+
 from .xtraceback import XTraceback
 
 
@@ -18,7 +20,7 @@ class StdlibCompatMeta(type):
         super(StdlibCompatMeta, mcs).__init__(name, bases, dict_)
 
 
-class StdlibCompat(object):
+class StdlibCompat(Stacked):
     """
     Provides interface compatibility with the stdlib traceback module
 
@@ -29,21 +31,13 @@ class StdlibCompat(object):
 
     __metaclass__ = StdlibCompatMeta
 
-    # a stack of patches that have been applied as (target, member, pre-patch-value)
-    _patch_stack = []
-
     # names of methods in this class that patch functions of the same name in
     # the `traceback` module.
     traceback_patch_functions = []
 
     def __init__(self, **defaults):
+        super(StdlibCompat, self).__init__()
         self.defaults = defaults
-        self._entered = False
-
-    def _patch(self, target, member, patch):
-        current = getattr(target, member)
-        self._patch_stack.append((target, member, current))
-        setattr(target, member, patch)
 
     def install_sys_excepthook(self):
         """
@@ -102,17 +96,9 @@ class StdlibCompat(object):
             setattr(target, member, patch)
 
     def __enter__(self):
-        if self._entered:
-            raise RuntimeError("Already entered %r" % self)
-        self._entered = True
+        super(StdlibCompat, self).__enter__()
         self.install_traceback()
         return self
-
-    def __exit__(self, *exc_info):
-        if not self._entered:
-            raise RuntimeError("Not entered %r" % self)
-        self.uninstall()
-        self._entered = False
 
     def _factory(self, etype, value, tb, limit=None, **options):
         options["limit"] = getattr(sys, "tracebacklimit", None) \

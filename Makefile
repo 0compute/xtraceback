@@ -64,6 +64,7 @@ $(VIRTUALENV_BUILD_DIR): | $(VIRTUALENV_BUILD_ARCHIVE)
 
 $(VENV_ACTIVATE): | $(VIRTUALENV_BUILD_DIR)
 	$(VIRTUALENV) $(abspath $(VENV_PATH))
+	pip install --editable=.
 
 $(VENV_SITE)/%.pipreq: requirements/%.pipreq
 	pip install --requirement=$<
@@ -199,6 +200,7 @@ CURRENT_VERSION = $(shell $(PYTHON) -c "import xtraceback; print xtraceback.__ve
 release:
 	$(if $(VERSION),,$(error VERSION not set))
 	git flow release start $(VERSION)
+	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py
 	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i xtraceback/__init__.py
 	git commit -m "version bump" xtraceback/__init__.py
 	git flow release finish $(VERSION)
