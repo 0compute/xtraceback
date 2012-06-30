@@ -32,4 +32,5 @@ logging
 
     >>> import logging
     >>> import xtraceback
-    >>> xtraceback.compat.install_logging(logging.root)
+    >>> logging.basicConfig()
+    >>> xtraceback.compat.install_logging(logging.root.handlers[0])

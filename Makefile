@@ -181,9 +181,9 @@ endif
 
 $(BUILD_DIR)/doc/index.html: virtualenv $(shell find doc -type f)
 	sphinx-build -W -b doctest doc $(BUILD_DIR)/doc
-#	sphinx-build -W -b spelling doc $(BUILD_DIR)/doc
+	sphinx-build -W -b spelling doc $(BUILD_DIR)/doc
 	sphinx-build -W -b coverage doc $(BUILD_DIR)/doc
-#	sphinx-build -W -b linkcheck doc $(BUILD_DIR)/doc
+	sphinx-build -W -b linkcheck doc $(BUILD_DIR)/doc
 	sphinx-build -W -b html doc $(BUILD_DIR)/doc
 
 .PHONY: doc
