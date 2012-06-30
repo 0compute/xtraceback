@@ -8,6 +8,7 @@ exclude_lines =
     raise NotImplementedError
     self.fail\("Should have raised exception"\)
 include = *xtraceback*
+omit = *monkeypatch*,*pycompat*
 
 [html]
 directory = .build/coverage

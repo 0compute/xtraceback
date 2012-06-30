@@ -1,4 +1,2 @@
 language: python
-install:
-    - pip install -e hg+https://bitbucket.org/ischium/tox#egg=tox
-script: make tox TEST_ENVS="py27 py26 py25 nopygments nonose"
+script: make tests

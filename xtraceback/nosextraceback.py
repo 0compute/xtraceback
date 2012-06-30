@@ -4,12 +4,11 @@ XTraceback plugin for nose
 
 try:
     from nose.plugins import Plugin
-except ImportError:
-    pass  # pragma: no cover - in case nose is not installed
+except ImportError:  # pragma: no cover - in case nose is not installed
+    pass
 else:
 
     from .stdlibcompat import StdlibCompat
-
 
     class NoseXTraceback(Plugin):
         """Extended traceback for error output."""
@@ -40,7 +39,6 @@ else:
                                 dest="xtraceback_%s" % name,
                                 default=env.get(env_opt),
                                 help=doc % env_opt)
-
 
         def configure(self, options, conf):
             super(NoseXTraceback, self).configure(options, conf)
