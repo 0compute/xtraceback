@@ -2,4 +2,11 @@ language: python
 before_install:
     - sudo apt-get update
     - sudo apt-get install jython
-script: make tests
+env:
+    - TARGET=python2.7
+    - TARGET=python2.6
+    - TARGET=python2.5
+    - TARGET=jython
+    - TARGET=nopygments
+    - TARGET-nonose
+script: make $TARGET
