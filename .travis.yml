@@ -8,5 +8,5 @@ env:
     - TARGET=python2.5
     - TARGET=jython
     - TARGET=nopygments
-    - TARGET-nonose
+    - TARGET=nonose
 script: make $TARGET
