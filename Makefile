@@ -71,10 +71,9 @@ $(VENV_SITE)/%.pipreq: requirements/%.pipreq
 	cp $< $@
 
 .PHONY: virtualenv
-ifeq ($(VENV_REQUIREMENTS),)
-virtualenv: $(VENV_ACTIVATE)
-else
-virtualenv: $(VENV_ACTIVATE) $(VENV_SITE)/$(VENV_REQUIREMENTS).pipreq
+virtualenv:: $(VENV_ACTIVATE)
+ifneq ($(VENV_REQUIREMENTS),)
+virtualenv:: $(VENV_SITE)/$(VENV_REQUIREMENTS).pipreq
 endif
 
 # }}}
@@ -200,9 +199,8 @@ CURRENT_VERSION = $(shell $(PYTHON) -c "import xtraceback; print xtraceback.__ve
 release:
 	$(if $(VERSION),,$(error VERSION not set))
 	git flow release start $(VERSION)
-	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py
-	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i xtraceback/__init__.py
-	git commit -m "version bump" xtraceback/__init__.py
+	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py xtraceback/__init__.py
+	git commit -m "version bump" setup.py xtraceback/__init__.py
 	git flow release finish $(VERSION)
 	git push --all
 	git push --tags
@@ -215,5 +213,11 @@ publish: doc
 .PHONY: clean
 clean:
 	git clean -fdX
+
+.PHONY: printvars
+printvars:
+	$(foreach V,$(sort $(.VARIABLES)), \
+		$(if $(filter-out environment% default automatic, $(origin $V)), \
+			$(warning $V=$($V) ($(value $V)))))
 
 # }}}
