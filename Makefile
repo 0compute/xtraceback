@@ -123,7 +123,7 @@ SUBMAKE = +$(MAKE) --no-print-directory
 # test without pygments
 .PHONY: nopygments
 nopygments:
-	$(SUBMAKE) coverage VENV_PATH=$(VENV_ROOT)/nopygments VENV_REQUIREMENTS=nopygments
+	$(SUBMAKE) coverage VENV_PATH=$(VENV_ROOT)/nopygments VENV_REQUIREMENTS=test-nopygments
 
 # test import without nose
 .PHONY: nonose
