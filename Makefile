@@ -129,7 +129,7 @@ nopygments:
 .PHONY: nonose
 nonose:
 	$(SUBMAKE) virtualenv VENV_PATH=$(VENV_ROOT)/nonose VENV_REQUIREMENTS=
-	$(PYTHON) -c "import xtraceback.nosextraceback"
+	$(VENV_ROOT)/nonose/bin/$(PYTHON) -c "import xtraceback.nosextraceback"
 
 # test supported python versions
 .PHONY: $(PYTHONS)
