@@ -8,5 +8,5 @@ env:
     - TEST=jython
     - JYTHON_URL=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar
 before_install:
-  - [[ $TEST == jython ]] && { wget $JYTHON_URL && java -jar jython_installer-2.5.2.jar -sd ~/jython && export PATH=~/jython:$PATH }
+  - if [[ $TEST == jython ]]; then wget $JYTHON_URL && java -jar jython_installer-2.5.2.jar -sd ~/jython && export PATH=~/jython:$PATH; fi
 script: make $TEST
