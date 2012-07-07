@@ -1,8 +1,12 @@
 language: python
 env:
-    - TARGET=python2.7
-    - TARGET=python2.6
-    - TARGET=python2.5
-    - TARGET=nopygments
-    - TARGET=nonose
-script: make $TARGET
+    - TEST=python2.7
+    - TEST=python2.6
+    - TEST=python2.5
+    - TEST=nopygments
+    - TEST=nonose
+    - TEST=jython
+    - JYTHON_URL=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar
+before_install:
+  - [[ $TEST == jython ]] && { wget $JYTHON_URL && java -jar jython_installer-2.5.2.jar -sd ~/jython && export PATH=~/jython:$PATH }
+script: make $TEST
