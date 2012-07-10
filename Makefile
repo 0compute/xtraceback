@@ -96,8 +96,13 @@ NOSE_ARGS ?=
 # under jenkins write out a xunit report and supress nose failure since this is
 # (likely) about a failing test not a failing build
 ifdef JENKINS_HOME
-NOSE_ARGS += --with-xunit --xunit-file=$(BUILD_DIR)/nosetests-$@.xml
+NOSE_ARGS += -v --with-xunit --xunit-file=$(BUILD_DIR)/nosetests-$@.xml
 NOSETESTS := -$(NOSETESTS)
+endif
+
+# under travis the only thing we're doing is testing so a failing test is it
+ifdef TRAVIS_PYTHON_VERSION
+NOSE_ARGS += -v
 endif
 
 # run tests under current virtualenv
