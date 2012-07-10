@@ -2,8 +2,8 @@ try:
     from pygments.lexer import bygroups, include, using
     from pygments.lexers.agile import PythonLexer, PythonTracebackLexer
     from pygments.token import Text, Name, Number, Generic, String, Operator
-except ImportError:
-    # this is for nose which does a recursive import on the package
+except ImportError:  # pragma: no cover
+    # this is for nose coverage which does a recursive import on the package
     pass
 else:
 

@@ -82,3 +82,9 @@ else:
 
         args = ('--xtraceback-color=on',)
         exc_str = EXCEPTION_COLOR
+
+
+class TestNoseXTracebackColorOff(TestNoseXTraceback):
+
+    args = ('--xtraceback-color=off',)
+    exc_str = EXCEPTION

@@ -17,6 +17,19 @@ Exception: exc
 """ % "\n".join(SIMPLE_TRACEBACK.splitlines()[0:2])
 
 
+class MockLogHandler(logging.Handler):
+    """
+    Mock logging.Handler for test
+    """
+
+    def __init__(self, level=logging.NOTSET):
+        logging.Handler.__init__(self, level)
+        self.log = dict()
+
+    def emit(self, record):
+        self.log.setdefault(record.levelname, []).append(self.format(record))
+
+
 class TestStdlibCompat(XTracebackTestCase):
 
     def setUp(self):
@@ -105,16 +118,24 @@ class TestStdlibCompat(XTracebackTestCase):
 
     def test_install_logging(self):
         formatter = logging.Formatter()
-        handler = logging.Handler()
+        handler = MockLogHandler()
         handler.setFormatter(formatter)
-        self.compat.install_logging(handler)
+        logging.root.addHandler(handler)
         try:
-            exec BASIC_TEST in {}
-        except:
-            exc_str = formatter.formatException(self._get_exc_info(BASIC_TEST))
+            self.compat.install_logging(handler)
+            try:
+                exec BASIC_TEST in {}
+            except:
+                logging.exception("the exc")
+                exc_str = formatter.formatException(self._get_exc_info(BASIC_TEST))
+                self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
+            else:
+                self.fail("Should have raised exception")
+                exc_str = "\n".join(handler.log["ERROR"][0].splitlines()[1:])
             self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
-        else:
-            self.fail("Should have raised exception")
+        finally:
+            logging.root.removeHandler(handler)
+
 
     def test_double_entry(self):
         compat = StdlibCompat(**self.XTB_DEFAULTS)

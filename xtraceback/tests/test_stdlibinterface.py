@@ -10,7 +10,7 @@ import traceback
 # with xtraceback
 try:
     from test.test_traceback import TracebackCases, TracebackFormatTests
-except ImportError:
+except ImportError:  # pragma: no cover - just a hack for testing
     import glob
     version = "%s.%s" % sys.version_info[0:2]
     paths = glob.glob(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
