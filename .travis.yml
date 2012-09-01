@@ -5,7 +5,7 @@ env:
     - TEST=python2.5
     - TEST=nopygments
     - TEST=nonose
-    - TEST=jython JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar
+    - TEST=jython
 before_install:
-  - if [[ $TEST == jython ]]; then wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+  - if [[ $TEST == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
 script: make $TEST
