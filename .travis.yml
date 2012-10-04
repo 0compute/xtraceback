@@ -7,6 +7,5 @@ env:
     - TEST=coverage-nonose
     - TEST=coverage-jython
 before_install:
-    - env
     - if [[ $TEST == coverage-jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
 script: make $TEST coverage-report
