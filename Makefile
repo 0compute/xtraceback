@@ -2,31 +2,47 @@
 # Setup {{{
 ###
 
-# using BASH_ENV to activate the virtualenv; this file is sourced on
-# non-interactive startup
-SHELL = /bin/bash
-export BASH_ENV = $(VENV_ACTIVATE)
+# these are the pythons we support
+SUPPORTED_PYTHONS = python2.7 python2.6 python2.5 #jython
 
-# development environment uses python 2.7, this variable is overriden using
-# recursive make testing other pythons
-PYTHON = python2.7
+# reduce SUPPORTED_PYTHONS to PYTHONS by skipping unavailable interpreters
+$(foreach python, $(SUPPORTED_PYTHONS), \
+	$(if $(shell which $(python) 2>/dev/null && echo x), \
+		$(eval PYTHONS := $(PYTHONS) $(python))))
+ifeq ($(PYTHONS),)
+$(error No python interpreters available - supported are $(SUPPORTED_PYTHONS))
+endif
+
+# take the first supported python as the default
+PYTHON_DEFAULT := $(shell echo $(PYTHONS) | awk '{print $$1}')
+
+# this is the python interpreter used in this make invocation - it is overriden
+# using recursive make when testing multiple python versions
+PYTHON ?= $(PYTHON_DEFAULT)
 ifeq ($(shell which $(PYTHON) 2>/dev/null || echo x),x)
 $(error $(PYTHON) not available)
 endif
 
-# these are the pythons we support
-PYTHONS = jython python2.5 python2.6 python2.7
+# the environments that we test; the extras are tests for behaviour in the
+# abscence of optional thirdparty libraries - they are not interpreter-specific
+TEST_ENVS = $(PYTHONS) nopygments nonose
 
-# build directory
+# set pip download cache if not already set so as to minimize network activity
+export PIP_DOWNLOAD_CACHE ?= $(shell mktemp -d)
+
+# where we put build artefacts
 BUILD_DIR = .build
-$(BUILD_DIR):
-	mkdir $@
 
-# set pip download cache if not set already otherwise each test env will
-# re-download
-ifndef PIP_DOWNLOAD_CACHE
-export PIP_DOWNLOAD_CACHE = $(shell mktemp -d)
-endif
+# this is used in setup.py to indicate that the nose entry point should not be
+# installed - if it is installed for test it screws up coverage because the
+# xtraceback module gets imported too early
+export XTRACEBACK_NO_NOSE = 1
+
+# using BASH_ENV to activate the virtualenv; this file is sourced on
+# non-interactive startup meaning that every shell command runs inside the
+# virtualenv (except when it is not yet created)
+SHELL = /bin/bash
+export BASH_ENV = $(VENV_ACTIVATE)
 
 # }}}
 
@@ -36,157 +52,176 @@ endif
 
 VIRTUALENV_RELEASE = 1.7.2
 VIRTUALENV_DIR = virtualenv-$(VIRTUALENV_RELEASE)
-VIRTUALENV_BUILD_DIR = $(BUILD_DIR)/$(VIRTUALENV_DIR)
 VIRTUALENV_ARCHIVE = $(VIRTUALENV_DIR).tar.gz
-VIRTUALENV_BUILD_ARCHIVE = $(BUILD_DIR)/$(VIRTUALENV_ARCHIVE)
 VIRTUALENV_URL = http://pypi.python.org/packages/source/v/virtualenv/$(VIRTUALENV_ARCHIVE)
 
-VIRTUALENV = $(PYTHON) $(VIRTUALENV_BUILD_DIR)/virtualenv.py $(VIRTUALENV_ARGS)
-
-VENV_ROOT ?= .venv
-VENV_PATH = $(VENV_ROOT)/$(PYTHON)
-VENV_ACTIVATE = $(VENV_PATH)/bin/activate
-
-VENV_SITE = $(VENV_PATH)/lib/$(PYTHON)/site-packages
-ifeq ($(PYTHON),jython)
-# XXX: jython has a different site-packages - is there a portable way to get
-# this from python itself?
-VENV_SITE = $(VENV_PATH)/Lib/site-packages
-endif
-
-VENV_REQUIREMENTS = development
-
+# the downloaded virtualenv archive
+VIRTUALENV_BUILD_ARCHIVE = $(BUILD_DIR)/$(VIRTUALENV_ARCHIVE)
 $(VIRTUALENV_BUILD_ARCHIVE): | $(BUILD_DIR)
 	cd $(BUILD_DIR) && curl -O $(VIRTUALENV_URL)
 
+# the extracted virtualenv archive
+VIRTUALENV_BUILD_DIR = $(BUILD_DIR)/$(VIRTUALENV_DIR)
 $(VIRTUALENV_BUILD_DIR): | $(VIRTUALENV_BUILD_ARCHIVE)
 	tar -C $(BUILD_DIR) -zxf $|
 
+# the virtualenv script
+VIRTUALENV = $(PYTHON) $(VIRTUALENV_BUILD_DIR)/virtualenv.py $(VIRTUALENV_ARGS)
+
+# root path for virtualenvs
+VENV_ROOT ?= .venv
+
+# name of the virtualenv - this defaults to $(PYTHON) and is overridden for the
+# non-interpreter tests
+VENV_NAME ?= $(PYTHON)
+
+# path to the virtualenv
+VENV_PATH = $(VENV_ROOT)/$(VENV_NAME)
+
+# virtualenv activate script
+VENV_ACTIVATE = $(VENV_PATH)/bin/activate
 $(VENV_ACTIVATE): | $(VIRTUALENV_BUILD_DIR)
 	$(VIRTUALENV) $(abspath $(VENV_PATH))
+	echo >> $@
+	echo >> $@ '# traceback venv support used in Makefile'
+	echo >> $@ export PYTHON=$(PYTHON)
+	echo >> $@ export VENV_NAME=$(VENV_NAME)
 	pip install --editable=.
 
-$(VENV_SITE)/%.pipreq: requirements/%.pipreq
+# the virtualenv's site directory - jython has a different layout
+ifeq ($(PYTHON),jython)
+VENV_SITE = $(VENV_PATH)/Lib/site-packages
+else
+VENV_SITE = $(VENV_PATH)/lib/$(PYTHON)/site-packages
+endif
+
+# a pip requirements file
+$(VENV_SITE)/%.pipreq:: requirements/%.pipreq $(VENV_ACTIVATE)
 	pip install --requirement=$<
 	cp $< $@
 
+# the base requirements for the venv - anything that needs the venv must depend
+# on this
+VENV_REQUIREMENTS = $(VENV_SITE)/$(VENV_NAME).pipreq
+
+# the virtualenv - this builds a virtualenv with "." installed and installs
+# requirements for $(VENpython2.7V_NAME) if present
 .PHONY: virtualenv
-virtualenv:: $(VENV_ACTIVATE)
-ifneq ($(VENV_REQUIREMENTS),)
-virtualenv:: $(VENV_SITE)/$(VENV_REQUIREMENTS).pipreq
-endif
+virtualenv:: $(VENV_REQUIREMENTS)
+
+# the development environment
+.PHONY: develop
+develop: $(VENV_REQUIREMENTS) $(VENV_SITE)/development.pipreq
 
 # }}}
 
 ###############################################################################
-# Basic Test {{{
+# Test Commands {{{
 ###
 
-# this is used in setup.py to indicate that the nose entry point should not be
-# installed - if it is installed for test it screws up coverage because the
-# xtraceback module gets imported too early
-export XTRACEBACK_NO_NOSE = 1
+# the nonose test has a different test
+ifeq ($(VENV_NAME),nonose)
 
-# nose test runner
-NOSETESTS = nosetests
+TEST_COMMAND = xtraceback/tests/test_plugin_import.py
+TEST_FAST_COMMAND = $(TEST_COMMAND)
+COVERAGE_COMMAND = coverage run $(TEST_COMMAND)
+COVERAGE_FAST_COMMAND = $(COVERAGE_COMMAND)
 
-# args passed to nose test
-NOSE_ARGS ?=
+else
+
+# default test uses the nose test runner
+TEST_COMMAND = nosetests
 
 # under jenkins write out a xunit report and supress nose failure since this is
 # (likely) about a failing test not a failing build
 ifdef JENKINS_HOME
-NOSE_ARGS += -v --with-xunit --xunit-file=$(BUILD_DIR)/nosetests-$@.xml
-NOSETESTS := -$(NOSETESTS)
+TEST_COMMAND := -$(TEST_COMMAND) -v --with-xunit --xunit-file=$(BUILD_DIR)/nosetests-$(VENV_NAME).xml
 endif
 
 # under travis the only thing we're doing is testing so a failing test is it
 ifdef TRAVIS_PYTHON_VERSION
-NOSE_ARGS += -v
+TEST_COMMAND += -v
 endif
 
-# run tests under current virtualenv
-.DEFAULT_GOAL := test
-.PHONY: test
-test: virtualenv
-	$(NOSETESTS) $(NOSE_ARGS)
+# specify tests to run using a make variable
+ifdef TESTS
+TEST_COMMAND += --tests=$(TESTS)
+endif
 
-# run coverage under current virtualenv
-.PHONY: coverage
-coverage: virtualenv
-	-$(NOSETESTS) --with-coverage $(NOSE_ARGS)
+# add in user-supplied arguments for nose
+TEST_COMMAND += $(NOSE_ARGS)
+
+# fast test excludes one test from stdlib tests because it has a 4 second sleep
+TEST_FAST_COMMAND = $(TEST_COMMAND) --exclude="test_bug737473"
+
+COVERAGE_COMMAND = $(TEST_COMMAND) --with-coverage
+COVERAGE_FAST_COMMAND = $(TEST_FAST_COMMAND) --with-coverage
+
+endif
 
 # }}}
 
 ###############################################################################
-# Test Environments {{{
+# Test Execution {{{
 ###
 
-SUBMAKE = +$(MAKE) --no-print-directory
+.DEFAULT_GOAL = test
+.PHONY: test
+test: $(VENV_REQUIREMENTS)
+	$(TEST_FAST_COMMAND)
 
-# test without pygments
-.PHONY: nopygments
-nopygments:
-	$(SUBMAKE) coverage VENV_PATH=$(VENV_ROOT)/nopygments VENV_REQUIREMENTS=test-nopygments
+.PHONY: coverage
+coverage: $(VENV_REQUIREMENTS)
+	$(COVERAGE_FAST_COMMAND)
 
-# test import without nose
-.PHONY: nonose
-nonose:
-	$(SUBMAKE) virtualenv VENV_PATH=$(VENV_ROOT)/nonose VENV_REQUIREMENTS=
-	$(VENV_ROOT)/nonose/bin/$(PYTHON) -c "import xtraceback.nosextraceback"
+.PHONY: test-full
+test-full: $(VENV_REQUIREMENTS)
+	$(TEST_COMMAND)
 
-# test supported python versions
-.PHONY: $(PYTHONS)
-$(PYTHONS):
-	$(SUBMAKE) coverage PYTHON=$@ VENV_REQUIREMENTS=test
-
-# build up list of all test targets
-# appended
-TEST_ENVS = nopygments nonose
-$(foreach python, $(PYTHONS), \
-	$(if $(shell which $(python) 2>/dev/null && echo x), \
-		$(eval TEST_ENVS := $(python) $(TEST_ENVS))))
-
-# run all the tests
-.PHONY: tests
-tests: $(TEST_ENVS)
+.PHONY: coverage-full
+coverage-full: $(VENV_REQUIREMENTS)
+	$(COVERAGE_COMMAND)
 
 # }}}
 
 ###############################################################################
-# Metrics
+# Metrics {{{
 ###
 
 .PHONY: coverage-report
-coverage-report: virtualenv
+coverage-report: $(VENV_REQUIREMENTS)
 	coverage combine
+	coverage report
+ifndef TRAVIS_PYTHON_VERSION
 	coverage html
+endif
 ifdef JENKINS_HOME
 	coverage xml -o$(BUILD_DIR)/coverage.xml
 endif
 
 .PHONY: metrics .metrics
-metrics: virtualenv
+metrics: coverage-report $(VENV_SITE)/metrics.pipreq $(BUILD_DIR)/clonedigger
 	-pylint --rcfile=.pylintrc -f parseable xtraceback > $(BUILD_DIR)/pylint
 	-pep8 --repeat xtraceback > $(BUILD_DIR)/pep8
-	mkdir -p $(BUILD_DIR)/clonedigger && clonedigger \
-		-o $(BUILD_DIR)/clonedigger/index.html xtraceback > /dev/null 2>&1
+	clonedigger -o $(BUILD_DIR)/clonedigger/index.html xtraceback > /dev/null 2>&1
 ifdef JENKINS_HOME
 	clonedigger --cpd-output -o $(BUILD_DIR)/clonedigger.xml xtraceback > /dev/null
 endif
-ifeq ($(shell which sloccount 2>/dev/null && echo x),x)
+ifeq ($(shell which sloccount && echo x),x)
 	sloccount --wide --details xtraceback > $(BUILD_DIR)/sloccount
 endif
 
 # }}}
 
 ###############################################################################
-# Developer Targets {{{
+# Docs {{{
 ###
 
-$(BUILD_DIR)/doc/index.html: virtualenv $(shell find doc -type f)
+DOCS := $(shell find doc -type f)
+
+$(BUILD_DIR)/doc/index.html: $(VENV_REQUIREMENTS) $(VENV_SITE)/docs.pipreq $(DOCS)
 	sphinx-build -W -b doctest doc $(BUILD_DIR)/doc
-	sphinx-build -W -b spelling doc $(BUILD_DIR)/doc
+	-sphinx-build -W -b spelling doc $(BUILD_DIR)/doc
 	sphinx-build -W -b coverage doc $(BUILD_DIR)/doc
 	sphinx-build -W -b linkcheck doc $(BUILD_DIR)/doc
 	sphinx-build -W -b html doc $(BUILD_DIR)/doc
@@ -194,25 +229,51 @@ $(BUILD_DIR)/doc/index.html: virtualenv $(shell find doc -type f)
 .PHONY: doc
 doc: $(BUILD_DIR)/doc/index.html
 
-.PHONY: everything
-everything: tests coverage-report metrics doc
+# }}}
 
-# TODO: this should all be handled by git
-CURRENT_VERSION = $(shell $(PYTHON) -c "import xtraceback; print xtraceback.__version__")
+###############################################################################
+# Recursive Virtualenv {{{
+###
 
-.PHONY: release
-release:
-	$(if $(VERSION),,$(error VERSION not set))
-	git flow release start $(VERSION)
-	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py xtraceback/__init__.py
-	git commit -m "version bump" setup.py xtraceback/__init__.py
-	git flow release finish $(VERSION)
-	git push --all
-	git push --tags
+vmake_args = VENV_NAME=$(1) $(if $(findstring ython,$(1)),PYTHON=$(1))
 
-.PHONY: publish
-publish: doc
-	./setup.py sdist register upload upload_sphinx
+# command for recursive make
+SUBMAKE = @$(MAKE) --no-print-directory SUBMAKING=1
+ifdef SUBMAKING
+$(info PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
+endif
+
+.PHONY: virtualenv-%
+virtualenv-%:
+	$(SUBMAKE) virtualenv $(call vmake_args,$*)
+
+.PHONY: test-%
+test-%:
+	$(SUBMAKE) test $(call vmake_args,$*)
+
+.PHONY: test-full-%
+test-full-%:
+	$(SUBMAKE) test-full $(call vmake_args,$*)
+
+.PHONY: coverage-%
+coverage-%:
+	$(SUBMAKE) coverage $(call vmake_args,$*)
+
+.PHONY: coverage-full-%
+coverage-full-%:
+	$(SUBMAKE) coverage-full $(call vmake_args,$*)
+
+.PHONY: tests
+tests: $(addprefix test-,$(TEST_ENVS))
+
+.PHONY: coverages
+coverages: $(addprefix coverage-,$(TEST_ENVS))
+
+# }}}
+
+###############################################################################
+# Developer {{{
+###
 
 # this is a safe operation and will only remove things ignored by git
 .PHONY: clean
@@ -226,3 +287,30 @@ printvars:
 			$(warning $V=$($V) ($(value $V)))))
 
 # }}}
+
+###############################################################################
+# Release Management {{{
+###
+
+# TODO: this should all be handled by git
+#CURRENT_VERSION = $(shell $(PYTHON) -c "import xtraceback; print xtraceback.__version__")
+
+.PHONY: release
+release:
+	$(if $(VERSION),,$(error VERSION not set))
+	git flow release start $(VERSION)
+	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py xtraceback/__init__.py
+	git commit -m "release $(VERSION)" setup.py xtraceback/__init__.py
+	git flow release finish $(VERSION)
+	git push --all
+	git push --tags
+
+.PHONY: publish
+publish: doc
+	./setup.py sdist register upload upload_sphinx
+
+# }}}
+
+# catchall for build directories
+$(BUILD_DIR) $(BUILD_DIR)/%:
+	mkdir $@

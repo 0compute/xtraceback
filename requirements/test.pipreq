@@ -1,8 +1,8 @@
 # requirements for xtraceback test
 # nose makes pip crawl the web or something hence the url
 http://pypi.python.org/packages/source/n/nose/nose-1.1.2.tar.gz
-coverage
-yanc
-Pygments
+coverage == 3.5.3
+yanc == 0.2.3
+Pygments == 1.5
 
 # vim: set ft=conf

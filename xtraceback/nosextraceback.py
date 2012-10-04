@@ -4,7 +4,7 @@ XTraceback plugin for nose
 
 try:
     from nose.plugins import Plugin
-except ImportError:  # pragma: no cover - in case nose is not installed
+except ImportError:
     pass
 else:
 

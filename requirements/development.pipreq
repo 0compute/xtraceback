@@ -1,24 +1,7 @@
-# pip requirements for xtraceback development environment
-
+# libs for development environment only
 flake8
 ipython
 ipdb
 ipdbplugin
-
-# metrics
-clonedigger
-pep8
-pylint
-
-# docs
-sphinx
-sphinxcontrib-ansi
-sphinxcontrib-cheeseshop
-sphinxcontrib-googleanalytics
-sphinxcontrib-spelling
-pyenchant
-
-# include test requirements
---requirement=test.pipreq
 
 # vim: set ft=conf

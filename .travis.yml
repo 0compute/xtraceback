@@ -1,11 +1,12 @@
 language: python
 env:
-    - TEST=python2.7
-    - TEST=python2.6
-    - TEST=python2.5
-    - TEST=nopygments
-    - TEST=nonose
-    - TEST=jython
+    - TEST=coverage-python2.7
+    - TEST=coverage-python2.6
+    - TEST=coverage-python2.5
+    - TEST=coverage-nopygments
+    - TEST=coverage-nonose
+    - TEST=coverage-jython
 before_install:
-  - if [[ $TEST == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
-script: make $TEST
+    - env
+    - if [[ $TEST == coverage-jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+script: make $TEST coverage-report

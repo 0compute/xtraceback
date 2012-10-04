@@ -1,0 +1,8 @@
+sphinx
+sphinxcontrib-ansi
+sphinxcontrib-cheeseshop
+sphinxcontrib-googleanalytics
+sphinxcontrib-spelling
+pyenchant
+
+# vim: set ft=conf

@@ -1,0 +1,4 @@
+# requirements for xtraceback test no nose
+coverage == 3.5.3
+
+# vim: set ft=conf

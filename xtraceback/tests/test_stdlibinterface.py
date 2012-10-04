@@ -13,8 +13,9 @@ try:
 except ImportError:  # pragma: no cover - just a hack for testing
     import glob
     version = "%s.%s" % sys.version_info[0:2]
-    paths = glob.glob(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-                                  "test_support", "%s.*" % version))
+    opd = os.path.dirname
+    paths = glob.glob(os.path.join(opd(opd(opd(__file__))),
+                                   "test_support", "%s.*" % version))
     assert len(paths) == 1
     sys.path.insert(0, paths[0])
     del sys.modules["test"]
@@ -54,28 +55,19 @@ class StdlibTestMixin(TestCaseMixin):
                             shorten_filenames=False)
 
 
-class SkipTestMeta(type):
-
-    @property
-    def __test__(mcs):
-        return "XTRACEBACK_TEST_SKIP_STDLIB" not in os.environ
-
-
 class InstalledStdlibTestMixin(StdlibTestMixin):
-
-    __metaclass__ = SkipTestMeta
 
     def run(self, result=None):
         with self.compat:
             super(InstalledStdlibTestMixin, self).run(result)
 
 
-class TestStdlibBase(InstalledStdlibTestMixin, TracebackCases):
+class TestStdlibCases(InstalledStdlibTestMixin, TracebackCases):
     pass
 
 
 if TracebackFormatTests is not None:
-    class TestStdlibFormat(InstalledStdlibTestMixin, TracebackFormatTests):
+    class TestStdlibFormatTests(InstalledStdlibTestMixin, TracebackFormatTests):
         pass
 
 # otherwise they get run as tests
