@@ -83,7 +83,7 @@ VENV_ACTIVATE = $(VENV_PATH)/bin/activate
 $(VENV_ACTIVATE): | $(VIRTUALENV_BUILD_DIR)
 	$(VIRTUALENV) $(abspath $(VENV_PATH))
 	echo >> $@
-	echo >> $@ '# traceback venv support used in Makefile'
+	echo >> $@ '# xtraceback venv support used in Makefile'
 	echo >> $@ export PYTHON=$(PYTHON)
 	echo >> $@ export VENV_NAME=$(VENV_NAME)
 	pip install --editable=.
