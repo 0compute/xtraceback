@@ -66,7 +66,7 @@ $(VIRTUALENV_BUILD_DIR): | $(VIRTUALENV_BUILD_ARCHIVE)
 	tar -C $(BUILD_DIR) -zxf $|
 
 # the virtualenv script
-VIRTUALENV = $(PYTHON) $(VIRTUALENV_BUILD_DIR)/virtualenv.py $(VIRTUALENV_ARGS)
+VIRTUALENV = $(PYTHON_DEFAULT) $(VIRTUALENV_BUILD_DIR)/virtualenv.py --python=$(PYTHON)
 
 # root path for virtualenvs
 VENV_ROOT ?= .venv
@@ -119,7 +119,7 @@ develop: $(VENV_REQUIREMENTS) $(VENV_SITE)/development.pipreq
 # Test Commands {{{
 ###
 
-# the nonose test has a different test
+# the nonose test doesn't use nose so the test is just the below module
 ifeq ($(VENV_NAME),nonose)
 
 TEST_COMMAND = xtraceback/tests/test_plugin_import.py
@@ -132,6 +132,11 @@ else
 # default test uses the nose test runner
 TEST_COMMAND = nosetests
 
+# specify tests to run using a make variable
+ifdef TESTS
+TEST_COMMAND += --tests=$(TESTS)
+endif
+
 # under jenkins write out a xunit report and supress nose failure since this is
 # (likely) about a failing test not a failing build
 ifdef JENKINS_HOME
@@ -143,14 +148,6 @@ ifdef TRAVIS_PYTHON_VERSION
 TEST_COMMAND += -v
 endif
 
-# specify tests to run using a make variable
-ifdef TESTS
-TEST_COMMAND += --tests=$(TESTS)
-endif
-
-# add in user-supplied arguments for nose
-TEST_COMMAND += $(NOSE_ARGS)
-
 # fast test excludes one test from stdlib tests because it has a 4 second sleep
 TEST_FAST_COMMAND = $(TEST_COMMAND) --exclude="test_bug737473"
 
@@ -158,6 +155,9 @@ COVERAGE_COMMAND = $(TEST_COMMAND) --with-coverage
 COVERAGE_FAST_COMMAND = $(TEST_FAST_COMMAND) --with-coverage
 
 endif
+
+# add in user-supplied arguments for test command
+TEST_COMMAND += $(ARGS)
 
 # }}}
 
@@ -168,19 +168,19 @@ endif
 .DEFAULT_GOAL = test
 .PHONY: test
 test: $(VENV_REQUIREMENTS)
+	$(TEST_COMMAND)
+
+.PHONY: test-fast
+test-fast: $(VENV_REQUIREMENTS)
 	$(TEST_FAST_COMMAND)
 
 .PHONY: coverage
 coverage: $(VENV_REQUIREMENTS)
-	$(COVERAGE_FAST_COMMAND)
-
-.PHONY: test-full
-test-full: $(VENV_REQUIREMENTS)
-	$(TEST_COMMAND)
-
-.PHONY: coverage-full
-coverage-full: $(VENV_REQUIREMENTS)
 	$(COVERAGE_COMMAND)
+
+.PHONY: coverage-fast
+coverage-fast: $(VENV_REQUIREMENTS)
+	$(COVERAGE_FAST_COMMAND)
 
 # }}}
 
@@ -237,36 +237,30 @@ doc: $(BUILD_DIR)/doc/index.html
 
 vmake_args = VENV_NAME=$(1) $(if $(findstring ython,$(1)),PYTHON=$(1))
 
-# command for recursive make
-SUBMAKE = @$(MAKE) --no-print-directory SUBMAKING=1
+# command for recursive make, if we are in a recursive make (SUBMAKING) then
+# print out the PYTHON and VENV_NAME for reference
+SUBMAKE = $(MAKE) --no-print-directory SUBMAKING=1
 ifdef SUBMAKING
-$(info PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
+$(info *** PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
 endif
 
-.PHONY: virtualenv-%
-virtualenv-%:
-	$(SUBMAKE) virtualenv $(call vmake_args,$*)
+.PHONY: test-fast-%
+test-fast-%:
+	$(SUBMAKE) test-fast $(call vmake_args,$*)
 
 .PHONY: test-%
 test-%:
 	$(SUBMAKE) test $(call vmake_args,$*)
 
-.PHONY: test-full-%
-test-full-%:
-	$(SUBMAKE) test-full $(call vmake_args,$*)
-
 .PHONY: coverage-%
 coverage-%:
 	$(SUBMAKE) coverage $(call vmake_args,$*)
 
-.PHONY: coverage-full-%
-coverage-full-%:
-	$(SUBMAKE) coverage-full $(call vmake_args,$*)
-
-.PHONY: tests
+# execute all tests/coverages - all TEST_ENVS are executed with errors ignored
+.PHONY: tests tests-fast coverages
+tests tests-fast coverages: SUBMAKE := -$(SUBMAKE)
 tests: $(addprefix test-,$(TEST_ENVS))
-
-.PHONY: coverages
+tests-fast: $(addprefix test-fast-,$(TEST_ENVS))
 coverages: $(addprefix coverage-,$(TEST_ENVS))
 
 # }}}
