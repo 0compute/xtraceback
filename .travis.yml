@@ -11,5 +11,5 @@ env:
     - TEST=nonose
     - TEST=jython
 before_install:
-    - if [[ $TEST == coverage-jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+    - if [[ $TEST == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
 script: make coverage-$TEST coverage-report
