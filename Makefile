@@ -146,6 +146,11 @@ endif
 # under travis the only thing we're doing is testing so a failing test is it
 ifdef TRAVIS_PYTHON_VERSION
 TEST_COMMAND += -v
+else
+# this controls a patch in xtraceback.tests.monkeypatch that disables the
+# printing of a report after a test run - the report is not wanted anywhere
+# except under travis
+export COVER_NO_REPORT = 1
 endif
 
 # fast test excludes one test from stdlib tests because it has a 4 second sleep
@@ -160,7 +165,7 @@ endif
 TEST_COMMAND += $(ARGS)
 
 # used to transform paths in .coverage files between relative and absolute
-COVERAGE_TRANSFORM = xtraceback/tests/coverage_transform.py
+COVERAGE_TRANSFORM = $(PYTHON) xtraceback/tests/coverage_transform.py
 
 # }}}
 
