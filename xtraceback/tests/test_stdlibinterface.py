@@ -84,12 +84,14 @@ del TracebackCases, TracebackFormatTests
 class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
 
     def test_format_tb(self):
+        self.assertTrue(hasattr(self.compat, "format_tb"))
         with self.compat:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
             lines = traceback.format_tb(tb)
         self.assertEqual(traceback.format_tb(tb), lines)
 
     def test_print_tb(self):
+        self.assertTrue(hasattr(self.compat, "print_tb"))
         with self.compat:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
             stream = self.StringIO()
@@ -118,18 +120,21 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
             sys.stderr = stderr
 
     def test_format_exception_only(self):
+        self.assertTrue(hasattr(self.compat, "format_exception_only"))
         with self.compat:
             etype, value = self._get_exc_info(EXTENDED_TEST)[:-1]
             lines = traceback.format_exception_only(etype, value)
         self.assertEqual(traceback.format_exception_only(etype, value), lines)
 
     def test_format_exception(self):
+        self.assertTrue(hasattr(self.compat, "format_exception"))
         with self.compat:
             exc_info = self._get_exc_info(EXTENDED_TEST)
             lines = traceback.format_exception(*exc_info)
         self.assertEqual(traceback.format_exception(*exc_info), lines)
 
     def test_print_exception(self):
+        self.assertTrue(hasattr(self.compat, "print_exception"))
         exc_info = self._get_exc_info(EXTENDED_TEST)
         with self.compat:
             stream = self.StringIO()
@@ -165,6 +170,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
             return stream.getvalue()
 
     def test_print_exc(self):
+        self.assertTrue(hasattr(self.compat, "print_exc"))
         stdlib_exc_str = self._get_print_exc_str()
         with self.compat:
             exc_str = self._get_print_exc_str()
