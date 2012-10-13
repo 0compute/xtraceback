@@ -1,5 +1,4 @@
 import logging
-from StringIO import StringIO
 import sys
 import traceback
 
@@ -48,12 +47,12 @@ class TestStdlibCompat(XTracebackTestCase):
 
     def test_print_tb(self):
         tb = self._get_exc_info(BASIC_TEST)[2]
-        stream = StringIO()
+        stream = self.StringIO()
         traceback.print_tb(tb, file=stream)
         self._assert_tb_str(stream.getvalue(), SIMPLE_TRACEBACK)
 
     def test_print_tb_no_file(self):
-        stream = StringIO()
+        stream = self.StringIO()
         stderr = sys.stderr
         sys.stderr = stream
         try:
@@ -74,20 +73,20 @@ class TestStdlibCompat(XTracebackTestCase):
         self._assert_tb_lines(lines, SIMPLE_EXCEPTION)
 
     def test_print_exception(self):
-        stream = StringIO()
+        stream = self.StringIO()
         exc_info = self._get_exc_info(BASIC_TEST)
         traceback.print_exception(*exc_info, **dict(file=stream))
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
 
     def test_print_exception_limited(self):
-        stream = StringIO()
+        stream = self.StringIO()
         traceback.print_exception(*self._get_exc_info(BASIC_TEST),
                                   **dict(limit=2, file=stream))
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION_ONEFRAME)
 
     def test_format_exc(self):
         try:
-            exec BASIC_TEST in {}
+            exec(BASIC_TEST, {})
         except:
             exc_str = traceback.format_exc()
         else:
@@ -95,9 +94,9 @@ class TestStdlibCompat(XTracebackTestCase):
         self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
 
     def test_print_exc(self):
-        stream = StringIO()
+        stream = self.StringIO()
         try:
-            exec BASIC_TEST in {}
+            exec(BASIC_TEST, {})
         except:
             traceback.print_exc(file=stream)
         else:
@@ -108,7 +107,7 @@ class TestStdlibCompat(XTracebackTestCase):
         self.compat.install_sys_excepthook()
         self.assertEqual(sys.excepthook, traceback.print_exception)
         try:
-            exec BASIC_TEST in {}
+            exec(BASIC_TEST, {})
         except:
             exc_info = self._get_exc_info(BASIC_TEST)
             lines = traceback.format_exception(*exc_info)
@@ -124,7 +123,7 @@ class TestStdlibCompat(XTracebackTestCase):
         try:
             self.compat.install_logging(handler)
             try:
-                exec BASIC_TEST in {}
+                exec(BASIC_TEST, {})
             except:
                 logging.exception("the exc")
                 exc_str = formatter.formatException(self._get_exc_info(BASIC_TEST))

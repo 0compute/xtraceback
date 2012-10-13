@@ -3,7 +3,7 @@
 ###
 
 # these are the pythons we support
-SUPPORTED_PYTHONS = python2.7 python2.6 python2.5 #jython
+SUPPORTED_PYTHONS = python2.7 python2.6 python2.5 python3.1 python3.2 python3.3 jython
 
 # reduce SUPPORTED_PYTHONS to PYTHONS by skipping unavailable interpreters
 $(foreach python, $(SUPPORTED_PYTHONS), \

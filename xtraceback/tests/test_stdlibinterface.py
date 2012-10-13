@@ -1,7 +1,6 @@
 from __future__ import with_statement
 
 import os
-from StringIO import StringIO
 import sys
 import traceback
 
@@ -9,6 +8,8 @@ import traceback
 # include a test package so the required test_traceback module is included
 # with xtraceback
 try:
+    # FIXME: mixing python 2 and 3 this is not right - for python 3 this will
+    # always raise an import error
     from test.test_traceback import TracebackCases, TracebackFormatTests
 except ImportError:  # pragma: no cover - just a hack for testing
     import glob
@@ -16,10 +17,19 @@ except ImportError:  # pragma: no cover - just a hack for testing
     opd = os.path.dirname
     paths = glob.glob(os.path.join(opd(opd(opd(__file__))),
                                    "test_support", "%s.*" % version))
-    assert len(paths) == 1
+    assert len(paths) == 1, "test_support for %s not available" % version
     sys.path.insert(0, paths[0])
-    del sys.modules["test"]
-    from test.test_traceback import TracebackCases
+    try:
+        del sys.modules["test"]
+    except KeyError:
+        pass
+    try:
+        from test.test_traceback import TracebackCases
+    except ImportError:
+        # not in python 3
+        # TODO: other tests are in python 3 and some should likely be used
+        # beyond TracebackFormatTests
+        TracebackCases = None
     try:
         from test.test_traceback import TracebackFormatTests
     except ImportError:
@@ -62,8 +72,9 @@ class InstalledStdlibTestMixin(StdlibTestMixin):
             super(InstalledStdlibTestMixin, self).run(result)
 
 
-class TestStdlibCases(InstalledStdlibTestMixin, TracebackCases):
-    pass
+if TracebackCases is not None:
+    class TestStdlibCases(InstalledStdlibTestMixin, TracebackCases):
+        pass
 
 
 if TracebackFormatTests is not None:
@@ -85,24 +96,24 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
     def test_print_tb(self):
         with self.compat:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
-            stream = StringIO()
+            stream = self.StringIO()
             traceback.print_tb(tb, file=stream)
             exc_str = stream.getvalue()
-        stream = StringIO()
+        stream = self.StringIO()
         traceback.print_tb(tb, file=stream)
         stdlib_exc_str = stream.getvalue()
         self.assertEqual(stdlib_exc_str, exc_str)
 
     def test_print_tb_no_file(self):
         stderr = sys.stderr
-        stream = StringIO()
+        stream = self.StringIO()
         sys.stderr = stream
         try:
             tb = self._get_exc_info(EXTENDED_TEST)[2]
             with self.compat:  # pragma: no cover - coverage does not see this
                 traceback.print_tb(tb)
             exc_str = stream.getvalue()
-            stream = StringIO()
+            stream = self.StringIO()
             sys.stderr = stream
             traceback.print_tb(tb)
             stdlib_exc_str = stream.getvalue()
@@ -125,35 +136,40 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
     def test_print_exception(self):
         exc_info = self._get_exc_info(EXTENDED_TEST)
         with self.compat:
-            stream = StringIO()
+            stream = self.StringIO()
             traceback.print_exception(*exc_info, **dict(file=stream))
             exc_str = stream.getvalue()
-        stream = StringIO()
+        stream = self.StringIO()
         traceback.print_exception(*exc_info, **dict(file=stream))
         stdlib_exc_str = stream.getvalue()
         self.assertEqual(stdlib_exc_str, exc_str)
 
+    def _get_format_exc_lines(self):
+        try:
+            exec(EXTENDED_TEST, {})
+        except:
+            return traceback.format_exc()
+        else:
+            self.fail("Should have raised exception")
+
     def test_format_exc(self):
+        stdlib_lines = self._get_format_exc_lines()
         with self.compat:
-            try:
-                exec EXTENDED_TEST in {}
-            except:
-                lines = traceback.format_exc()
-            else:
-                self.fail("Should have raised exception")
-        self.assertEqual(traceback.format_exc(), lines)
+            lines = self._get_format_exc_lines()
+        self.assertEqual(stdlib_lines, lines)
+
+    def _get_print_exc_str(self):
+        stream = self.StringIO()
+        try:
+            exec(EXTENDED_TEST, {})
+        except:
+            traceback.print_exc(file=stream)
+        else:
+            self.fail("Should have raised exception")
+            return stream.getvalue()
 
     def test_print_exc(self):
+        stdlib_exc_str = self._get_print_exc_str()
         with self.compat:
-            stream = StringIO()
-            try:
-                exec EXTENDED_TEST in {}
-            except:
-                traceback.print_exc(file=stream)
-            else:
-                self.fail("Should have raised exception")
-            exc_str = stream.getvalue()
-        stream = StringIO()
-        traceback.print_exc(file=stream)
-        stdlib_exc_str = stream.getvalue()
+            exc_str = self._get_print_exc_str()
         self.assertEqual(stdlib_exc_str, exc_str)

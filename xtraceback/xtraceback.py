@@ -5,6 +5,12 @@ import struct
 import warnings
 
 try:
+    basestring
+except NameError:
+    # python 3
+    basestring = str
+
+try:
     import fcntl
 except ImportError:
     fcntl = None

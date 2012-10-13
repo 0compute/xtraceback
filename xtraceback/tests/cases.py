@@ -4,6 +4,17 @@ import re
 import sys
 import unittest
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    # python 3
+    from io import StringIO
+
+try:
+    import pygments
+except ImportError:
+    pygments = None
+
 from xtraceback import XTraceback
 from xtraceback import shim
 
@@ -12,6 +23,9 @@ ID_PATTERN = re.compile("0[xX][a-fA-F0-9]+")
 TRAILING_WHITESPACE_PATTERN = re.compile(" \n")
 
 TB_DEFAULTS = dict(address="0x123456789")
+
+
+skipIfNoPygments = unittest.skipIf(pygments is None, "pygments not available")
 
 
 class TestCaseMixin(object):
@@ -27,6 +41,9 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
 
     XTB_DEFAULTS = dict(offset=1)
 
+    # keep a reference to this for subclasses
+    StringIO = StringIO
+
     def tearDown(self):
         super(XTracebackTestCase, self).tearDown()
         shim.Shim._instances = {}
@@ -38,7 +55,7 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
 
     def _get_exc_info(self, exec_str, **namespace):
         try:
-            exec exec_str in namespace
+            exec(exec_str, namespace)
         except:
             return sys.exc_info()
         else:
@@ -53,7 +70,7 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
             diff = difflib.unified_diff(expect_exc_str.splitlines(True),
                                         exc_str.splitlines(True),
                                         "expected", "actual")
-            print "".join(diff)
+            print("".join(diff))
             self.fail("different")
 
     def _assert_tb_lines(self, exc_lines, expect_lines):

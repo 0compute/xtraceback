@@ -11,7 +11,7 @@ from .shim import ModuleShim
 class XTracebackFrame(object):
 
     FILTER = ("__builtins__", "__all__", "__doc__", "__file__", "__name__",
-              "__package__", "__path__", "__loader__")
+              "__package__", "__path__", "__loader__", "__cached__")
 
     FUNCTION_EXCLUDE = ("GeneratorContextManager.__exit__",)
 
@@ -95,18 +95,20 @@ class XTracebackFrame(object):
             # user data types inheriting dict may not have implemented copy
             pass
         else:
+            to_remove = []
             for key, value in fdict.items():
                 try:
                     if key in self.FILTER:
-                        del fdict[key]
+                        to_remove.append(key)
                         continue
-                except Exception, exc:
+                except:
+                    exc_info = sys.exc_info()
                     # the comparison failed for an unknown reason likely a
                     # custom __cmp__ that makes bad assumptions - swallow
                     try:
-                        warnings.warn("Could not filter %r: %r" % (key, exc))
+                        warnings.warn("Could not filter %r: %r" % (key, exc_info[1]))
                     except:
-                        warnings.warn("Could not filter and can't say why: %s" % exc)
+                        warnings.warn("Could not filter and can't say why: %s" % exc_info[1])
                     continue
                 else:
                     # replace some values with shim types
@@ -124,6 +126,8 @@ class XTracebackFrame(object):
                     if isinstance(value, dict):
                         value = self._filter(value)
                     fdict[key] = value
+            for key in to_remove:
+                del fdict[key]
         return fdict
 
     def _format_variable(self, lines, key, value, indent=4, prefix=""):
