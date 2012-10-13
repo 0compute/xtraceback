@@ -167,7 +167,7 @@ class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
             traceback.print_exc(file=stream)
         else:
             self.fail("Should have raised exception")
-            return stream.getvalue()
+        return stream.getvalue()
 
     def test_print_exc(self):
         self.assertTrue(hasattr(self.compat, "print_exc"))
