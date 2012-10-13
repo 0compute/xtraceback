@@ -1,11 +1,12 @@
-import logging
+from __future__ import with_statement
+
 import sys
 import traceback
 
-from xtraceback import StdlibCompat
+import xtraceback
 
 from .cases import XTracebackTestCase
-from .test_xtraceback import BASIC_TEST, SIMPLE_EXCEPTION, \
+from .config import BASIC_TEST, SIMPLE_EXCEPTION, \
     SIMPLE_EXCEPTION_NO_TB, SIMPLE_TRACEBACK
 
 
@@ -16,28 +17,15 @@ Exception: exc
 """ % "\n".join(SIMPLE_TRACEBACK.splitlines()[0:2])
 
 
-class MockLogHandler(logging.Handler):
-    """
-    Mock logging.Handler for test
-    """
-
-    def __init__(self, level=logging.NOTSET):
-        logging.Handler.__init__(self, level)
-        self.log = dict()
-
-    def emit(self, record):
-        self.log.setdefault(record.levelname, []).append(self.format(record))
-
-
-class TestStdlibCompat(XTracebackTestCase):
+class TestTracebackCompat(XTracebackTestCase):
 
     def setUp(self):
-        super(TestStdlibCompat, self).setUp()
-        self.compat = StdlibCompat(**self.XTB_DEFAULTS)
+        super(TestTracebackCompat, self).setUp()
+        self.compat = xtraceback.TracebackCompat(**self.XTB_DEFAULTS)
         self.compat.__enter__()
 
     def tearDown(self):
-        super(TestStdlibCompat, self).tearDown()
+        super(TestTracebackCompat, self).tearDown()
         self.compat.__exit__(None, None, None)
 
     def test_format_tb(self):
@@ -102,43 +90,3 @@ class TestStdlibCompat(XTracebackTestCase):
         else:
             self.fail("Should have raised exception")
         self._assert_tb_str(stream.getvalue(), SIMPLE_EXCEPTION)
-
-    def test_install_sys_excepthook(self):
-        self.compat.install_sys_excepthook()
-        self.assertEqual(sys.excepthook, traceback.print_exception)
-        try:
-            exec(BASIC_TEST, {})
-        except:
-            exc_info = self._get_exc_info(BASIC_TEST)
-            lines = traceback.format_exception(*exc_info)
-            self._assert_tb_lines(lines, SIMPLE_EXCEPTION)
-        else:
-            self.fail("Should have raised exception")
-
-    def test_install_logging(self):
-        formatter = logging.Formatter()
-        handler = MockLogHandler()
-        handler.setFormatter(formatter)
-        logging.root.addHandler(handler)
-        try:
-            self.compat.install_logging(handler)
-            try:
-                exec(BASIC_TEST, {})
-            except:
-                logging.exception("the exc")
-                exc_str = formatter.formatException(self._get_exc_info(BASIC_TEST))
-                self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
-            else:
-                self.fail("Should have raised exception")
-                exc_str = "\n".join(handler.log["ERROR"][0].splitlines()[1:])
-            self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
-        finally:
-            logging.root.removeHandler(handler)
-
-
-    def test_double_entry(self):
-        compat = StdlibCompat(**self.XTB_DEFAULTS)
-        compat.__enter__()
-        self.assertRaises(RuntimeError, compat.__enter__)
-        compat.__exit__(None, None, None)
-        self.assertRaises(RuntimeError, compat.__exit__, None, None, None)

@@ -36,10 +36,10 @@ except ImportError:  # pragma: no cover - just a hack for testing
         # not present in python 2.5
         TracebackFormatTests = None
 
-from xtraceback import StdlibCompat
+from xtraceback import TracebackCompat
 
 from .cases import TestCaseMixin, XTracebackTestCase
-from .test_xtraceback import EXTENDED_TEST, SIMPLE_TRACEBACK
+from .config import EXTENDED_TEST, SIMPLE_TRACEBACK
 
 
 SIMPLE_EXCEPTION_ONEFRAME = \
@@ -51,18 +51,14 @@ Exception: exc
 
 class StdlibTestMixin(TestCaseMixin):
 
-    def setUp(self):
-        super(StdlibTestMixin, self).setUp()
-        # these options should produce tracebacks that the same as from stdlib
-
     @property
     def compat(self):
-        return StdlibCompat(context=1,
-                            show_args=False,
-                            show_locals=False,
-                            show_globals=False,
-                            qualify_methods=False,
-                            shorten_filenames=False)
+        return TracebackCompat(context=1,
+                               show_args=False,
+                               show_locals=False,
+                               show_globals=False,
+                               qualify_methods=False,
+                               shorten_filenames=False)
 
 
 class InstalledStdlibTestMixin(StdlibTestMixin):

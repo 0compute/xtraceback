@@ -8,7 +8,7 @@ except ImportError:
     pass
 else:
 
-    from .stdlibcompat import StdlibCompat
+    from .tracebackcompat import TracebackCompat
 
     class NoseXTraceback(Plugin):
         """Extended traceback for error output."""
@@ -56,8 +56,8 @@ else:
                            stream=self.conf.stream,
                            show_globals=self.xtraceback_globals,
                            globals_module_include=self.xtraceback_globals_include)
-            self.compat = StdlibCompat(**options)
-            self.compat.install()
+            self.compat = TracebackCompat(**options)
+            self.compat.__enter__()
 
         def finalize(self, result):
-            self.compat.uninstall()
+            self.compat.__exit__(None, None, None)
