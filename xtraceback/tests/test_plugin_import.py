@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
-# this module is used to test that we can import the below without nose being
-# present
-import xtraceback.nosextraceback
+# this module is used to test that we can import without nose being present
+
+if __name__ == "__main__":
+    import xtraceback.nosextraceback
+    print "OK"
