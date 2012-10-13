@@ -3,6 +3,9 @@ env:
     - TEST=coverage-python2.7
     - TEST=coverage-python2.6
     - TEST=coverage-python2.5
+    - TEST=coverage-python3.1
+    - TEST=coverage-python3.2
+    - TEST=coverage-python3.3
     - TEST=coverage-nopygments
     - TEST=coverage-nonose
     - TEST=coverage-jython
