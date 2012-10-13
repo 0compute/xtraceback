@@ -252,7 +252,7 @@ vmake_args = VENV_NAME=$(1) $(if $(findstring ython,$(1)),PYTHON=$(1))
 
 # command for recursive make, if we are in a recursive make (SUBMAKING) then
 # print out the PYTHON and VENV_NAME for reference
-SUBMAKE = $(MAKE) --no-print-directory SUBMAKING=1
+SUBMAKE = @+$(MAKE) --no-print-directory SUBMAKING=1
 ifdef SUBMAKING
 $(info *** PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
 endif
@@ -265,7 +265,8 @@ test-%:
 coverage-%:
 	$(SUBMAKE) coverage $(call vmake_args,$*)
 
-# execute all tests/coverages - all TEST_ENVS are executed with errors ignored
+# execute all tests/coverages; errors are ignored in order that all
+# environments are executed and this is suitable for parallel make
 .PHONY: tests coverages
 tests coverages: SUBMAKE := -$(SUBMAKE)
 tests: $(addprefix test-,$(TEST_ENVS))
