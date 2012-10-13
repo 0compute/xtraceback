@@ -152,7 +152,7 @@ class XTraceback(object):
             if self._stdlib_path is not None \
                 and filename.startswith(self._stdlib_path):
                 filename = filename.replace(self._stdlib_path, "<stdlib>")
-            elif hasattr(os.path, "relpath"):
+            else:
                 # os.path.relpath was introduced in python 2.5
                 relative = os.path.relpath(filename)
                 if len(relative) < len(filename):
