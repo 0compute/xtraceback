@@ -159,6 +159,9 @@ endif
 # add in user-supplied arguments for test command
 TEST_COMMAND += $(ARGS)
 
+# used to transform paths in .coverage files between relative and absolute
+COVERAGE_TRANSFORM = xtraceback/tests/coverage_transform.py
+
 # }}}
 
 ###############################################################################
@@ -168,19 +171,23 @@ TEST_COMMAND += $(ARGS)
 .DEFAULT_GOAL = test
 .PHONY: test
 test: $(VENV_REQUIREMENTS)
-	$(TEST_COMMAND)
-
-.PHONY: test-fast
-test-fast: $(VENV_REQUIREMENTS)
+ifdef FAST
 	$(TEST_FAST_COMMAND)
+else
+	$(TEST_COMMAND)
+endif
 
+# execute the coverage command then transform the latest .coverage file to
+# relative paths - this is so that tests can be executed in different places
+# with the coverage later combined
 .PHONY: coverage
 coverage: $(VENV_REQUIREMENTS)
-	$(COVERAGE_COMMAND)
-
-.PHONY: coverage-fast
-coverage-fast: $(VENV_REQUIREMENTS)
+ifdef FAST
 	$(COVERAGE_FAST_COMMAND)
+else
+	$(COVERAGE_COMMAND)
+endif
+	$(COVERAGE_TRANSFORM) rel $$(ls -t .coverage.* | head -1)
 
 # }}}
 
@@ -190,6 +197,7 @@ coverage-fast: $(VENV_REQUIREMENTS)
 
 .PHONY: coverage-report
 coverage-report: $(VENV_REQUIREMENTS)
+	$(COVERAGE_TRANSFORM) abs .coverage.*
 	coverage combine
 	coverage report
 ifndef TRAVIS_PYTHON_VERSION
@@ -244,10 +252,6 @@ ifdef SUBMAKING
 $(info *** PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
 endif
 
-.PHONY: test-fast-%
-test-fast-%:
-	$(SUBMAKE) test-fast $(call vmake_args,$*)
-
 .PHONY: test-%
 test-%:
 	$(SUBMAKE) test $(call vmake_args,$*)
@@ -257,10 +261,9 @@ coverage-%:
 	$(SUBMAKE) coverage $(call vmake_args,$*)
 
 # execute all tests/coverages - all TEST_ENVS are executed with errors ignored
-.PHONY: tests tests-fast coverages
-tests tests-fast coverages: SUBMAKE := -$(SUBMAKE)
+.PHONY: tests coverages
+tests coverages: SUBMAKE := -$(SUBMAKE)
 tests: $(addprefix test-,$(TEST_ENVS))
-tests-fast: $(addprefix test-fast-,$(TEST_ENVS))
 coverages: $(addprefix coverage-,$(TEST_ENVS))
 
 # }}}
