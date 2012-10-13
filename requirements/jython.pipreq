@@ -1,1 +1,8 @@
-test.pipreq
+# Pygments won't install under jython
+#   http://bugs.jython.org/issue1891
+#   https://bitbucket.org/birkenfeld/pygments-main/issue/786
+
+--requirement=nopygments.pipreq
+unittest2
+
+# vim: set ft=conf

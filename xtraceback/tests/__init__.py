@@ -1,1 +1,2 @@
-import xtraceback.tests.monkeypatch
+from xtraceback.tests import monkeypatch
+del monkeypatch

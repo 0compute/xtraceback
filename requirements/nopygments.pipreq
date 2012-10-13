@@ -1,3 +1,5 @@
 http://pypi.python.org/packages/source/n/nose/nose-1.1.2.tar.gz
 coverage
 yanc
+
+# vim: set ft=conf
