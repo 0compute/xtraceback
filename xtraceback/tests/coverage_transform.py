@@ -9,6 +9,10 @@ import sys
 
 from coverage import CoverageData
 
+# import this so we get our monkey patching done which is needed for
+# os.path.relpath on python2.5
+import xtraceback
+
 
 def transform_data(data, transform):
     result = dict()
