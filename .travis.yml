@@ -5,7 +5,8 @@ env:
     - TEST=python2.5
     - TEST=python3.1
     - TEST=python3.2
-    - TEST=python3.3
+    # travis doesn't have python 3.3 yet
+    #- TEST=python3.3
     - TEST=nopygments
     - TEST=nonose
     - TEST=jython
