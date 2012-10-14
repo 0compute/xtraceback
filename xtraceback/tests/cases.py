@@ -16,18 +16,15 @@ try:
     import pygments
 except ImportError:
     pygments = None
+skipIfNoPygments = unittest.skipIf(pygments is None, "pygments not available")
 
 from xtraceback import TracebackCompat, XTraceback
 from xtraceback import shim
 
+from xtraceback.tests.config import TB_DEFAULTS
 
 ID_PATTERN = re.compile("0[xX][a-fA-F0-9]+")
 TRAILING_WHITESPACE_PATTERN = re.compile(" \n")
-
-TB_DEFAULTS = dict(address="0x123456789")
-
-
-skipIfNoPygments = unittest.skipIf(pygments is None, "pygments not available")
 
 
 class TestCaseMixin(object):
