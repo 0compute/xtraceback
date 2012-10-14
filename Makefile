@@ -287,21 +287,19 @@ printvars:
 # Release Management {{{
 ###
 
-# TODO: this should all be handled by git
-#CURRENT_VERSION = $(shell $(PYTHON) -c "import xtraceback; print xtraceback.__version__")
-
 .PHONY: release
 release:
 	$(if $(VERSION),,$(error VERSION not set))
 	git flow release start $(VERSION)
-	sed -e "s/$(CURRENT_VERSION)/$(VERSION)/" -i setup.py xtraceback/__init__.py
+	sed -i -r 's/version="[^"]+"/version="$(VERSION)"/' setup.py
+	sed -i -r 's/__version__ = "[^"]+"/__version__ = "$(VERSION)"/' xtraceback/__init__.py
 	git commit -m "release $(VERSION)" setup.py xtraceback/__init__.py
 	git flow release finish $(VERSION)
-	git push --all
-	git push --tags
 
 .PHONY: publish
 publish: doc
+	git push --all
+	git push --tags
 	./setup.py sdist register upload upload_sphinx
 
 # }}}
