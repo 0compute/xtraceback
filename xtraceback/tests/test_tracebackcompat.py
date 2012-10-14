@@ -7,14 +7,7 @@ import xtraceback
 
 from .cases import XTracebackTestCase
 from .config import BASIC_TEST, SIMPLE_EXCEPTION, \
-    SIMPLE_EXCEPTION_NO_TB, SIMPLE_TRACEBACK
-
-
-SIMPLE_EXCEPTION_ONEFRAME = \
-"""Traceback (most recent call last):
-%s
-Exception: exc
-""" % "\n".join(SIMPLE_TRACEBACK.splitlines()[0:2])
+    SIMPLE_EXCEPTION_NO_TB, SIMPLE_TRACEBACK, SIMPLE_EXCEPTION_ONEFRAME
 
 
 class TestTracebackCompat(XTracebackTestCase):

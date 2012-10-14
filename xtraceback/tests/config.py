@@ -63,6 +63,12 @@ SIMPLE_EXCEPTION_NO_TB = \
 """Exception: exc
 """
 
+SIMPLE_EXCEPTION_ONEFRAME = \
+"""Traceback (most recent call last):
+%s
+Exception: exc
+""" % "\n".join(SIMPLE_TRACEBACK.splitlines()[0:2])
+
 WITH_GLOBALS_EXCEPTION = \
 """Traceback (most recent call last):
   File "<string>", line 8, in <module>
