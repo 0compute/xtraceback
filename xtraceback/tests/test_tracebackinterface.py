@@ -7,7 +7,7 @@ from .cases import XTracebackStdlibTestCase
 from .config import EXTENDED_TEST, SIMPLE_TRACEBACK
 
 
-class TestStdlibInterface(XTracebackStdlibTestCase):
+class TestTracebackInterface(XTracebackStdlibTestCase):
 
     def test_format_tb(self):
         self.assertTrue(hasattr(self.compat, "format_tb"))
