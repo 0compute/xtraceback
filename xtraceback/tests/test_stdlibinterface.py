@@ -1,87 +1,13 @@
 from __future__ import with_statement
 
-import os
 import sys
 import traceback
 
-# on debian (and maybe others) the standard python distribution does not
-# include a test package so the required test_traceback module is included
-# with xtraceback
-try:
-    # FIXME: mixing python 2 and 3 this is not right - for python 3 this will
-    # always raise an import error
-    from test.test_traceback import TracebackCases, TracebackFormatTests
-except ImportError:  # pragma: no cover - just a hack for testing
-    import glob
-    version = "%s.%s" % sys.version_info[0:2]
-    opd = os.path.dirname
-    paths = glob.glob(os.path.join(opd(opd(opd(__file__))),
-                                   "test_support", "%s.*" % version))
-    assert len(paths) == 1, "test_support for %s not available" % version
-    sys.path.insert(0, paths[0])
-    try:
-        del sys.modules["test"]
-    except KeyError:
-        pass
-    try:
-        from test.test_traceback import TracebackCases
-    except ImportError:
-        # not in python 3
-        # TODO: other tests are in python 3 and some should likely be used
-        # beyond TracebackFormatTests
-        TracebackCases = None
-    try:
-        from test.test_traceback import TracebackFormatTests
-    except ImportError:
-        # not present in python 2.5
-        TracebackFormatTests = None
-
-from xtraceback import TracebackCompat
-
-from .cases import TestCaseMixin, XTracebackTestCase
+from .cases import XTracebackStdlibTestCase
 from .config import EXTENDED_TEST, SIMPLE_TRACEBACK
 
 
-SIMPLE_EXCEPTION_ONEFRAME = \
-"""Traceback (most recent call last):
-%s
-Exception: exc
-""" % "\n".join(SIMPLE_TRACEBACK.splitlines()[0:2])
-
-
-class StdlibTestMixin(TestCaseMixin):
-
-    @property
-    def compat(self):
-        return TracebackCompat(context=1,
-                               show_args=False,
-                               show_locals=False,
-                               show_globals=False,
-                               qualify_methods=False,
-                               shorten_filenames=False)
-
-
-class InstalledStdlibTestMixin(StdlibTestMixin):
-
-    def run(self, result=None):
-        with self.compat:
-            super(InstalledStdlibTestMixin, self).run(result)
-
-
-if TracebackCases is not None:
-    class TestStdlibCases(InstalledStdlibTestMixin, TracebackCases):
-        pass
-
-
-if TracebackFormatTests is not None:
-    class TestStdlibFormatTests(InstalledStdlibTestMixin, TracebackFormatTests):
-        pass
-
-# otherwise they get run as tests
-del TracebackCases, TracebackFormatTests
-
-
-class TestStdlibInterface(StdlibTestMixin, XTracebackTestCase):
+class TestStdlibInterface(XTracebackStdlibTestCase):
 
     def test_format_tb(self):
         self.assertTrue(hasattr(self.compat, "format_tb"))

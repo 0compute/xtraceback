@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import copy
 import difflib
 import re
@@ -15,7 +17,7 @@ try:
 except ImportError:
     pygments = None
 
-from xtraceback import XTraceback
+from xtraceback import TracebackCompat, XTraceback
 from xtraceback import shim
 
 
@@ -35,6 +37,35 @@ class TestCaseMixin(object):
         return "%s:%s.%s" % (self.__class__.__module__,
                              self.__class__.__name__,
                              self._testMethodName)
+
+
+class StdlibTestMixin(TestCaseMixin):
+    """
+    Mixin for stdlib tests
+
+    Provides a TracebackCompat with options set to mimick stdlib behaviour
+    """
+
+    @property
+    def compat(self):
+        return TracebackCompat(context=1,
+                               show_args=False,
+                               show_locals=False,
+                               show_globals=False,
+                               qualify_methods=False,
+                               shorten_filenames=False)
+
+
+class WrappedStdlibTestMixin(StdlibTestMixin):
+    """
+    Mixin for wrapping stdlib tests
+
+    Tests are executed in the context of self.compat
+    """
+
+    def run(self, result=None):
+        with self.compat:
+            super(WrappedStdlibTestMixin, self).run(result)
 
 
 class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
@@ -80,3 +111,7 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
         exc_info = self._get_exc_info(exec_str, **namespace)
         xtb = self._factory(*exc_info)
         self._assert_tb_str(str(xtb), expect_exc_str)
+
+
+class XTracebackStdlibTestCase(StdlibTestMixin, XTracebackTestCase):
+    pass
