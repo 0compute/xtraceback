@@ -1,9 +1,8 @@
 XTraceback
 ==========
 
-XTraceback is a verbose Python traceback formatter with support for variable
-expansion and syntax highlighting. It is intended both as a development tool
-and as an aide to post-mortem debugging.
+.. include:: ../README.md
+    :end-line: 3
 
 .. warning::
 
