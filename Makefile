@@ -3,18 +3,22 @@
 ###
 
 # these are the pythons we support
-SUPPORTED_PYTHONS = python2.7 python2.6 python2.5 python3.1 python3.2 python3.3 jython
+SUPPORTED_PYTHONS = python2.7 python2.6 python2.5 python3.1 python3.2 python3.3
+ifndef FAST
+# jython startup is not quick
+SUPPORTED_PYTHONS += jython
+endif
 
 # reduce SUPPORTED_PYTHONS to PYTHONS by skipping unavailable interpreters
 $(foreach python, $(SUPPORTED_PYTHONS), \
 	$(if $(shell which $(python) 2>/dev/null && echo x), \
-		$(eval PYTHONS := $(PYTHONS) $(python))))
+		$(eval PYTHONS += $(python))))
 ifeq ($(PYTHONS),)
 $(error No python interpreters available - supported are $(SUPPORTED_PYTHONS))
 endif
 
-# take the first supported python as the default
-PYTHON_DEFAULT := $(shell echo $(PYTHONS) | awk '{print $$1}')
+# default for development
+PYTHON_DEFAULT = python2.7
 
 # this is the python interpreter used in this make invocation - it is overriden
 # using recursive make when testing multiple python versions
@@ -123,14 +127,17 @@ develop: $(VENV_REQUIREMENTS) $(VENV_SITE)/development.pipreq
 ifeq ($(VENV_NAME),nonose)
 
 TEST_COMMAND = xtraceback/tests/test_plugin_import.py
-TEST_FAST_COMMAND = $(TEST_COMMAND)
 COVERAGE_COMMAND = coverage run $(TEST_COMMAND)
-COVERAGE_FAST_COMMAND = $(COVERAGE_COMMAND)
 
 else
 
 # default test uses the nose test runner
-TEST_COMMAND = nosetests
+TEST_COMMAND = $(PYTHON) $(VENV_PATH)/bin/nosetests
+
+# fast excludes the below stdlib test because it has a 4 second sleep
+ifdef FAST
+TEST_COMMAND += --exclude=test_bug737473
+endif
 
 # specify tests to run using a make variable
 ifdef TESTS
@@ -140,7 +147,8 @@ endif
 # under jenkins write out a xunit report and supress nose failure since this is
 # (likely) about a failing test not a failing build
 ifdef JENKINS_HOME
-TEST_COMMAND := -$(TEST_COMMAND) -v --with-xunit --xunit-file=$(BUILD_DIR)/nosetests-$(VENV_NAME).xml
+TEST_COMMAND := -$(TEST_COMMAND) -v --with-xunit \
+	--xunit-file=$(BUILD_DIR)/nosetests-$(VENV_NAME).xml
 endif
 
 # under travis the only thing we're doing is testing so a failing test is it
@@ -153,16 +161,14 @@ else
 export COVER_NO_REPORT = 1
 endif
 
-# fast test excludes one test from stdlib tests because it has a 4 second sleep
-TEST_FAST_COMMAND = $(TEST_COMMAND) --exclude="test_bug737473"
-
 COVERAGE_COMMAND = $(TEST_COMMAND) --with-coverage
-COVERAGE_FAST_COMMAND = $(TEST_FAST_COMMAND) --with-coverage
 
 endif
 
 # add in user-supplied arguments for test command
+ifdef ARGS
 TEST_COMMAND += $(ARGS)
+endif
 
 # used to transform paths in .coverage files between relative and absolute
 COVERAGE_TRANSFORM = $(PYTHON) xtraceback/tests/coverage_transform.py
@@ -176,22 +182,15 @@ COVERAGE_TRANSFORM = $(PYTHON) xtraceback/tests/coverage_transform.py
 .DEFAULT_GOAL = test
 .PHONY: test
 test: $(VENV_REQUIREMENTS)
-ifdef FAST
-	$(TEST_FAST_COMMAND)
-else
 	$(TEST_COMMAND)
-endif
 
 # execute the coverage command then transform the latest .coverage file to
 # relative paths - this is so that tests can be executed in different places
 # with the coverage later combined
 .PHONY: coverage
 coverage: $(VENV_REQUIREMENTS)
-ifdef FAST
-	$(COVERAGE_FAST_COMMAND)
-else
 	$(COVERAGE_COMMAND)
-endif
+# FIXME: This is ugly and doesn't work in parallel
 	$(COVERAGE_TRANSFORM) rel $$(ls -t .coverage.* | head -1)
 
 # }}}
@@ -204,10 +203,7 @@ endif
 coverage-report: $(VENV_REQUIREMENTS)
 	$(COVERAGE_TRANSFORM) abs .coverage.*
 	coverage combine
-	coverage report
-ifndef TRAVIS_PYTHON_VERSION
 	coverage html
-endif
 ifdef JENKINS_HOME
 	coverage xml -o$(BUILD_DIR)/coverage.xml
 endif
@@ -250,12 +246,8 @@ doc: $(BUILD_DIR)/doc/index.html
 
 vmake_args = VENV_NAME=$(1) $(if $(findstring ython,$(1)),PYTHON=$(1))
 
-# command for recursive make, if we are in a recursive make (SUBMAKING) then
-# print out the PYTHON and VENV_NAME for reference
-SUBMAKE = @+$(MAKE) --no-print-directory SUBMAKING=1
-ifdef SUBMAKING
-$(info *** PYTHON=$(PYTHON) VENV_NAME=$(VENV_NAME))
-endif
+# command for recursive make
+SUBMAKE = @+$(MAKE) --no-print-directory
 
 .PHONY: test-%
 test-%:
