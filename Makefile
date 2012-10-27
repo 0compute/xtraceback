@@ -1,11 +1,12 @@
 PROJECT_NAME = xtraceback
 
-MAKENV_ROOT ?= ../makeenv
-include $(addprefix $(MAKENV_ROOT)/, \
-	makeenv makeenv.multienv makeenv.nosetests makeenv.metrics makeenv.sphinx \
-	makeenv.relman)
+# makeenv is a git submodule
+MAKEENV_BOOTSTRAP = .makeenv/makeenv.bootstrap
+include $(MAKEENV_BOOTSTRAP)
+$(MAKEENV_BOOTSTRAP):
+	git submodule update --init
 
-TEST_ENVS += nopygments nonose
+ENVIRONMENTS += nopygments nonose
 
 ifdef FAST
 # jython startup is not quick
