@@ -20,8 +20,10 @@ endif
 # coverage commands
 ifeq ($(VIRTUAL_ENV_NAME),nonose)
 TEST_COMMAND = xtraceback/tests/test_plugin_import.py
-COVERAGE_COMMAND = coverage run $(TEST_COMMAND)
+COVERAGE_COMMAND = $(COVERAGE_CLI) run $(TEST_COMMAND)
 else
+# xtraceback is added by makeeenv to the test command options but we don't
+# want to use it for self
 TEST_COMMAND := $(subst --with-xtraceback,,$(TEST_COMMAND))
 endif
 
