@@ -11,6 +11,11 @@ SUPPORTED_PYTHONS := $(subst jython,,$(SUPPORTED_PYTHONS))
 TEST_COMMAND += --exclude=test_bug737473
 endif
 
+# jython may be a shell script wrapper that uses unset variables
+ifeq ($(PYTHON),jython)
+	SHELLOPTS := $(subst,:nounset,,$(SHELLOPTS))
+endif
+
 # the nonose test doesn't use nose (obviously?) so we override the test and
 # coverage commands
 ifeq ($(VIRTUAL_ENV_NAME),nonose)
