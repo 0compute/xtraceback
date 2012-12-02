@@ -1,15 +1,17 @@
 language: python
 env:
-    - TEST=python2.7
-    - TEST=python2.6
-    - TEST=python2.5
-    - TEST=python3.1
-    - TEST=python3.2
+    - PYTHON=python2.7
+    - PYTHON=python2.6
+    - PYTHON=python2.5
+    - PYTHON=python3.1
+    - PYTHON=python3.2
     # travis doesn't have python 3.3 yet
-    #- TEST=python3.3
-    - TEST=nopygments
-    - TEST=nonose
-    - TEST=jython
+    #- PYTHON=python3.3
+    - VIRTUAL_ENV_NAME=nopygments
+    - VIRTUAL_ENV_NAME=nonose
+    - PYTHON=jython
 before_install:
-    - if [[ $TEST == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
-script: make coverage-$TEST
+    - export PIP_DOWNLOAD_CACHE=$(mktemp -d)
+    - if [[ $PYTHON == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+install: make env
+script: make coverage
