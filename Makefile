@@ -1,10 +1,5 @@
-PROJECT_NAME = xtraceback
-
-# makeenv is a git submodule
-MAKEENV_BOOTSTRAP = .makeenv/makeenv.bootstrap
-include $(MAKEENV_BOOTSTRAP)
-$(MAKEENV_BOOTSTRAP):
-	git submodule update --init
+MAKEENV_MODULES = *
+include .makeenv/makeenv-core.mak
 
 ENVIRONMENTS += nopygments nonose
 
@@ -18,9 +13,11 @@ endif
 
 # the nonose test doesn't use nose (obviously?) so we override the test and
 # coverage commands
-ifeq ($(VENV_NAME),nonose)
+ifeq ($(VIRTUAL_ENV_NAME),nonose)
 TEST_COMMAND = xtraceback/tests/test_plugin_import.py
 COVERAGE_COMMAND = coverage run $(TEST_COMMAND)
+else
+TEST_COMMAND := $(subst --with-xtraceback,,$(TEST_COMMAND))
 endif
 
 # this is used in setup.py to indicate that the nose entry point should not be

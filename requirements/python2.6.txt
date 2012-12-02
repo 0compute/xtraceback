@@ -1,4 +1,0 @@
---requirement=test.pipreq
-unittest2
-
-# vim: set ft=conf

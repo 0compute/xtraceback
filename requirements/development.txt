@@ -1,7 +1,0 @@
-# libs for development environment only
-flake8
-ipython
-ipdb
-ipdbplugin
-
-# vim: set ft=conf

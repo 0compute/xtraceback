@@ -1,5 +1,0 @@
-clonedigger
-pep8
-pylint
-
-# vim: set ft=conf

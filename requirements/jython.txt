@@ -5,4 +5,4 @@
 --requirement=nopygments.pipreq
 unittest2
 
-# vim: set ft=conf
+# vim: set ft=conf:

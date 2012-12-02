@@ -1,5 +1,5 @@
-http://pypi.python.org/packages/source/n/nose/nose-1.1.2.tar.gz
-coverage
-yanc
+nose == 1.1.2
+coverage == 3.5.3
+yanc == 0.2.3
 
-# vim: set ft=conf
+# vim: set ft=conf:
