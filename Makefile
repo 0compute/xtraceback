@@ -1,5 +1,6 @@
 MAKEENV_MODULES = *
-include .makeenv/makeenv.mak
+MAKEENV_ROOT ?= .makeenv
+include $(MAKEENV_ROOT)/makeenv.mak
 
 ENVIRONMENTS += nopygments nonose
 
