@@ -29,4 +29,8 @@ setup(name="xtraceback",
       tests_require=("nose", "pygments", "yanc"),
       test_suite="nose.collector",
       entry_points=entry_points,
+      classifiers=[
+          "Programming Language :: Python",
+          "Programming Language :: Python :: 2",
+          "Programming Language :: Python :: 3"],
       )
