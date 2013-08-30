@@ -3,10 +3,8 @@ env:
     - PYTHON=python2.7
     - PYTHON=python2.6
     - PYTHON=python2.5
-    - PYTHON=python3.1
     - PYTHON=python3.2
-    # travis doesn't have python 3.3 yet
-    #- PYTHON=python3.3
+    - PYTHON=python3.3
     - VIRTUAL_ENV_NAME=nopygments
     - VIRTUAL_ENV_NAME=nonose
     - PYTHON=jython
