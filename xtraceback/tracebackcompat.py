@@ -32,10 +32,10 @@ class TracebackCompat(Stacked):
             if hasattr(self, key):
                 self._register_patch(traceback, key, getattr(self, key))
 
-    #def __exit__(self, etype, evalue, tb):
-        #if etype not in self.NOPRINT:
-            #self.print_exception(etype, evalue, tb)
-        #super(TracebackCompat, self).__exit__(etype, evalue, tb)
+    def __exit__(self, etype, evalue, tb):
+        if etype not in self.NOPRINT:
+            self.print_exception(etype, evalue, tb)
+        super(TracebackCompat, self).__exit__(etype, evalue, tb)
 
     def _factory(self, etype, value, tb, limit=None, **options):
         options["limit"] = \
