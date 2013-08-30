@@ -64,7 +64,7 @@ class XTracebackFrame(object):
             except KeyError:  # pragma: no cover - defensive
                 # we're assuming that the first argument is in f_locals but
                 # it may not be in some cases so this is a defence, see
-                # https://github.com/ischium/xtraceback/issues/3 with further
+                # https://github.com/0compute/xtraceback/issues/3 with further
                 # detail at http://www.sqlalchemy.org/trac/ticket/2317 and
                 # https://dev.entrouvert.org/issues/765
                 pass

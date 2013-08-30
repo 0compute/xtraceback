@@ -45,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'XTraceback'
-copyright = u'2011, Ischium'
+copyright = u'2011-2013, Arthur Noel'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,7 +183,7 @@ htmlhelp_basename = 'XTracebackdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'XTraceback.tex', u'XTraceback Documentation',
-   u'Ischium', 'manual'),
+   u'Arthur Noel', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -216,7 +216,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'xtraceback', u'XTraceback Documentation',
-     [u'Ischium'], 1)
+     [u'Arthur Noel'], 1)
 ]
 
 # Options for extensions
