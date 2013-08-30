@@ -11,7 +11,8 @@ from .shim import ModuleShim
 class XTracebackFrame(object):
 
     FILTER = ("__builtins__", "__all__", "__doc__", "__file__", "__name__",
-              "__package__", "__path__", "__loader__", "__cached__")
+              "__package__", "__path__", "__loader__", "__cached__",
+              "__initializing__")
 
     FUNCTION_EXCLUDE = ("GeneratorContextManager.__exit__",)
 
