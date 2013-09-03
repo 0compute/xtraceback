@@ -14,7 +14,7 @@ endif
 
 # jython may be a shell script wrapper that uses unset variables
 ifeq ($(PYTHON),jython)
-	SHELLOPTS := $(subst,:nounset,,$(SHELLOPTS))
+	SHELLOPTS := $(subst :nounset,,$(SHELLOPTS))
 endif
 
 # the nonose test doesn't use nose (obviously?) so we override the test and
