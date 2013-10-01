@@ -70,8 +70,8 @@ class XTracebackFrame(object):
                 # https://dev.entrouvert.org/issues/765
                 pass
             except TypeError:  # pragma: no cover - defensive
-                # if self.args[0] is a list it is not hashable - inspect.getargs
-                # may return nested lists for args
+                # if self.args[0] is a list it is not hashable -
+                # inspect.getargs may return nested lists for args
                 pass
             else:
                 if not isinstance(cls, type):
@@ -107,9 +107,11 @@ class XTracebackFrame(object):
                     # the comparison failed for an unknown reason likely a
                     # custom __cmp__ that makes bad assumptions - swallow
                     try:
-                        warnings.warn("Could not filter %r: %r" % (key, exc_info[1]))
+                        warnings.warn("Could not filter %r: %r"
+                                      % (key, exc_info[1]))
                     except:
-                        warnings.warn("Could not filter and can't say why: %s" % exc_info[1])
+                        warnings.warn("Could not filter and can't say why: %s"
+                                      % exc_info[1])
                     continue
                 else:
                     # replace some values with shim types
@@ -123,7 +125,8 @@ class XTracebackFrame(object):
                         if marker.tb_offset != 0:
                             value = marker
                     else:
-                        self.xtb.seen[oid] = Reference(self.tb_index, key, value)
+                        self.xtb.seen[oid] = Reference(self.tb_index, key,
+                                                       value)
                     if isinstance(value, dict):
                         value = self._filter(value)
                     fdict[key] = value
@@ -146,15 +149,15 @@ class XTracebackFrame(object):
 
     def _format_frame(self):
 
-        lines = ['  File "%s", line %d, in %s' % (self.filename, self.lineno,
-                                                  self.function)]
+        lines = ['  File "%s", line %d, in %s'
+                 % (self.filename, self.lineno, self.function)]
 
         # push frame args
         if self.xtb.options.show_args:
             for arg in self.args:
                 if isinstance(arg, list):
-                    # TODO: inspect.getargs arg list may contain nested lists;
-                    # skip it for now
+                    # TODO: inspect.getargs arg list may contain nested
+                    # lists; skip it for now
                     continue
                 self._format_variable(lines, arg, self.locals.get(arg))
             if self.varargs:
@@ -176,9 +179,8 @@ class XTracebackFrame(object):
             dedented = textwrap.dedent("".join(self.code_context))
             for line in dedented.splitlines():
 
-                numbered_line = "    %s" % "%*s %s" % (self.xtb.number_padding,
-                                                       lineno,
-                                                       line)
+                numbered_line = "    %s" % "%*s %s" \
+                    % (self.xtb.number_padding, lineno, line)
 
                 if lineno == self.lineno:
 
@@ -186,7 +188,7 @@ class XTracebackFrame(object):
                         # push the numbered line with a marker
                         dedented_line = numbered_line.lstrip()
                         marker_padding = len(numbered_line) \
-                                             - len(dedented_line) - 2
+                            - len(dedented_line) - 2
                         lines.append("%s> %s" % ("-" * marker_padding,
                                                  dedented_line))
                     else:
@@ -196,7 +198,7 @@ class XTracebackFrame(object):
                     # push locals below lined up with the start of code
                     if self.xtb.options.show_locals:
                         indent = self.xtb.number_padding + len(line) \
-                                     - len(line.lstrip()) + 5
+                            - len(line.lstrip()) + 5
                         lines.extend(self._format_dict(self.locals, indent))
 
                 else:

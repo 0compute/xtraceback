@@ -4,7 +4,7 @@ import sys
 import traceback
 
 from .cases import XTracebackStdlibTestCase
-from .config import EXTENDED_TEST, SIMPLE_TRACEBACK
+from .config import EXTENDED_TEST
 
 
 class TestTracebackInterface(XTracebackStdlibTestCase):

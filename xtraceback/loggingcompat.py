@@ -25,7 +25,8 @@ class LoggingCompat(Stacked):
 
         self._register_patch(formatter, "format", format)
 
-        self._register_patch(formatter, "formatException", self.formatException)
+        self._register_patch(formatter, "formatException",
+                             self.formatException)
 
     def formatException(self, ei):
         return str(self.tbcompat._factory(*ei, **self.options))

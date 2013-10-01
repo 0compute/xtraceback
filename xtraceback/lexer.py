@@ -14,16 +14,16 @@ else:
         tokens = PythonLexer.tokens.copy()
 
         tokens["classname"] = [
-                ("'?[a-zA-Z_][a-zA-Z0-9_.]*'?", Name.Class, "#pop")
-            ]
+            ("'?[a-zA-Z_][a-zA-Z0-9_.]*'?", Name.Class, "#pop")
+        ]
 
         # Marker __repr__
-        ref = "(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" % BASE_NAME
+        ref = "(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" \
+            % BASE_NAME
         tokens["root"].insert(0, (ref, bygroups(Name.Builtin, Name.Operator,
                                                 Number, Text, Name.Builtin,
                                                 Name.Operator, Name.Variable,
                                                 Name.Builtin)))
-
 
     class PythonXTracebackLexer(PythonTracebackLexer):
 
@@ -35,37 +35,40 @@ else:
             ],
             "entry": [
                 (r"^Traceback \(most recent call last\):\n",
-                Generic.Error,
-                "frame"),
+                 Generic.Error,
+                 "frame"),
                 # file - path is colored differently if under working directory
-                (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)' \
-                '(, line )(\d+)((?:, in )?)(.*)(\n)',
-                bygroups(Generic.Error, Name.Builtin, Operator.Word,
-                        Generic.Error, Number, Generic.Error, Name.Function,
-                        Text),
-                "frame"),
+                (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)'
+                 '(, line )(\d+)((?:, in )?)(.*)(\n)',
+                 bygroups(Generic.Error, Name.Builtin, Operator.Word,
+                          Generic.Error, Number, Generic.Error, Name.Function,
+                          Text),
+                 "frame"),
             ],
             "exception": [
                 (r"^(AssertionError: )(.+\n)", bygroups(Generic.Error,
                                                         using(XPythonLexer))),
-                (r"^(%s:?)(.+\n)" % BASE_NAME, bygroups(Generic.Error, String)),
-                ],
+                (r"^(%s:?)(.+\n)" % BASE_NAME, bygroups(Generic.Error,
+                                                        String)),
+            ],
             "frame": [
                 include("entry"),
                 include("exception"),
                 # line of python code
                 (r"^((?:-+>)?)( +)(\d+)(.+\n)",
-                bygroups(Generic.Error, Text, Number, using(XPythonLexer))),
+                 bygroups(Generic.Error, Text, Number, using(XPythonLexer))),
                 # variable continuation
                 (r"^([ ]+)('[^']+')(: )(.*)([,}]?\n)",
-                bygroups(Text, String, Name.Operator, using(XPythonLexer), Text)),
+                 bygroups(
+                     Text, String, Name.Operator, using(XPythonLexer), Text
+                 )),
                 # variable
                 (r"^([ ]+)((?:g:)?)(\**%s)( = )(.+\n)" % BASE_NAME,
-                bygroups(Text, Name.Builtin, Name.Variable, Name.Operator,
-                        using(XPythonLexer))),
+                 bygroups(Text, Name.Builtin, Name.Variable, Name.Operator,
+                          using(XPythonLexer))),
                 # plain python
                 (r"^(    )(.+)(\n)",
-                bygroups(Text, using(XPythonLexer), Text)),
+                 bygroups(Text, using(XPythonLexer), Text)),
             ],
 
         }

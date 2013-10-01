@@ -48,7 +48,9 @@ class TestLoggingCompat(XTracebackTestCase):
                 exec(BASIC_TEST, {})
             except:
                 logger.exception("the exc")
-                exc_str = handler.formatter.formatException(self._get_exc_info(BASIC_TEST))
+                exc_str = handler.formatter.formatException(
+                    self._get_exc_info(BASIC_TEST)
+                )
                 self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
             else:
                 self.fail("Should have raised exception")
@@ -60,13 +62,16 @@ class TestLoggingCompat(XTracebackTestCase):
     @skipIfNoPygments
     def test_simple_color(self):
         logger, handler = self._make_logger(MockLogHandler)
-        logging_compat = LoggingCompat(handler, self.traceback_compat, color=True)
+        logging_compat = LoggingCompat(handler, self.traceback_compat,
+                                       color=True)
         with logging_compat:
             try:
                 exec(BASIC_TEST, {})
             except:
                 logger.exception("the exc")
-                exc_str = handler.formatter.formatException(self._get_exc_info(BASIC_TEST))
+                exc_str = handler.formatter.formatException(
+                    self._get_exc_info(BASIC_TEST)
+                )
                 self._assert_tb_str(exc_str, SIMPLE_EXCEPTION_COLOR)
             else:
                 self.fail("Should have raised exception")
@@ -85,7 +90,9 @@ class TestLoggingCompat(XTracebackTestCase):
                 #exec(BASIC_TEST, {})
             #except:
                 #logger.exception("the exc")
-                #exc_str = handler.formatter.formatException(self._get_exc_info(BASIC_TEST))
+                #exc_str = handler.formatter.formatException(
+                #    self._get_exc_info(BASIC_TEST)
+                #)
                 #self._assert_tb_str(exc_str, SIMPLE_EXCEPTION_COLOR)
             #else:
                 #self.fail("Should have raised exception")

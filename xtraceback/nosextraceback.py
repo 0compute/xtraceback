@@ -20,25 +20,25 @@ else:
 
         _options = (
             ("globals",
-            "Include globals in tracebacks [%s]",
-            "store_true"),
+             "Include globals in tracebacks [%s]",
+             "store_true"),
             ("globals_include",
-            "Include only globals in this namespace [%s]",
-            "store"),
+             "Include only globals in this namespace [%s]",
+             "store"),
             ("color",
-            "Show color tracebacks - one of on,off,auto (default=auto) [%s]",
-            "store"),
-            )
+             "Show color tracebacks - one of on,off,auto (default=auto) [%s]",
+             "store"),
+        )
 
         def options(self, parser, env):
             super(NoseXTraceback, self).options(parser, env)
             for name, doc, action in self._options:
                 env_opt = "NOSE_XTRACEBACK_%s" % name.upper()
                 parser.add_option("--xtraceback-%s" % name.replace("_", "-"),
-                                action=action,
-                                dest="xtraceback_%s" % name,
-                                default=env.get(env_opt),
-                                help=doc % env_opt)
+                                  action=action,
+                                  dest="xtraceback_%s" % name,
+                                  default=env.get(env_opt),
+                                  help=doc % env_opt)
 
         def configure(self, options, conf):
             super(NoseXTraceback, self).configure(options, conf)
@@ -52,10 +52,12 @@ else:
                     self.xtraceback_color = False
 
         def begin(self):
-            options = dict(color=self.xtraceback_color,
-                           stream=self.conf.stream,
-                           show_globals=self.xtraceback_globals,
-                           globals_module_include=self.xtraceback_globals_include)
+            options = dict(
+                color=self.xtraceback_color,
+                stream=self.conf.stream,
+                show_globals=self.xtraceback_globals,
+                globals_module_include=self.xtraceback_globals_include
+            )
             self.compat = TracebackCompat(**options)
             self.compat.__enter__()
 

@@ -47,7 +47,7 @@ class XTraceback(object):
         tuple: ("(", ")"),
         set: ("set([", "])"),
         frozenset: ("frozenset([", "])"),
-        }
+    }
 
     #: Filesystem path to the Python standard library
     _os_source = inspect.getsourcefile(os)
@@ -150,7 +150,7 @@ class XTraceback(object):
         if self.options.shorten_filenames:
             filename = os.path.realpath(filename)
             if self._stdlib_path is not None \
-                and filename.startswith(self._stdlib_path):
+                    and filename.startswith(self._stdlib_path):
                 filename = filename.replace(self._stdlib_path, "<stdlib>")
             else:
                 # os.path.relpath was introduced in python 2.5
@@ -161,9 +161,11 @@ class XTraceback(object):
         # consistent with CPython
         return str(filename)
 
-    def _format_variable(self, key, value, indent=4, prefix="", separator=" = "):
+    def _format_variable(self, key, value, indent=4, prefix="",
+                         separator=" = "):
         base_size = indent + len(prefix) + len(key) + len(separator)
-        if isinstance(value, basestring) and len(value) > self.print_width * 2:
+        if isinstance(value, basestring) \
+                and len(value) > self.print_width * 2:
             # truncate long strings - minus 2 for the quotes and 3 for
             # the ellipsis
             value = value[:self.print_width - base_size - 2 - 3] + "..."
@@ -193,10 +195,11 @@ class XTraceback(object):
                 self._lexer = PythonXTracebackLexer()
             if self._formatter is None:
                 # passing style=default here is the same as passing no
-                # arguments - the reason for doing it is that if we don't
-                # the style gets imported at runtime which under some restricted
-                # environments (appengine) causes a problem - all of the imports
-                # must be done before appengine installs its import hook
+                # arguments - the reason for doing it is that if we don't the
+                # style gets imported at runtime which under some restricted
+                # environments (appengine) causes a problem - all of the
+                # imports must be done before appengine installs its import
+                # hook
                 self._formatter = TerminalFormatter(style=default)
             try:
                 return pygments.highlight(string, self._lexer, self._formatter)

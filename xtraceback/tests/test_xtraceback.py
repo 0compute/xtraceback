@@ -26,7 +26,8 @@ class TestXTraceback(XTracebackTestCase):
         self._assert_tb_str(str(xtb), config.SIMPLE_EXCEPTION_NO_TB)
 
     def test_with_globals(self):
-        self._check_tb_str(config.BASIC_TEST, config.WITH_GLOBALS_EXCEPTION, one=1)
+        self._check_tb_str(config.BASIC_TEST, config.WITH_GLOBALS_EXCEPTION,
+                           one=1)
 
     def test_with_show_globals(self):
         exc_info = self._get_exc_info(config.BASIC_TEST, one=1)
