@@ -42,3 +42,8 @@ class TestXTraceback(XTracebackTestCase):
 
     def test_syntax(self):
         self._check_tb_str(config.SYNTAX_TEST, config.SYNTAX_EXCEPTION)
+
+    def test_print_width_fixed(self):
+        print_width = 100
+        xtb = self._factory(None, None, None, print_width=print_width)
+        self.assertEqual(xtb.print_width, print_width)

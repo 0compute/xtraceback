@@ -91,10 +91,9 @@ class XTraceback(object):
         self._formatter = None
 
         # work out print width
-        self.print_width = self.options.print_width
-        if self.print_width is None \
-                and fcntl is not None \
-                and self.tty_stream:
+        if self.options.print_width is not None:
+            self.print_width = self.options.print_width
+        elif fcntl is not None and self.tty_stream:
             self.print_width = struct.unpack(
                 'HHHH',
                 fcntl.ioctl(self.options.stream,
