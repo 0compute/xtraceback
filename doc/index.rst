@@ -1,18 +1,38 @@
-Welcome to XTraceback's documentation!
-======================================
+XTraceback
+==========
 
-.. include:: ../README.rst
+.. include:: ../README.md
+    :end-line: 3
 
-API
----
+.. warning::
 
-.. autoclass:: xtraceback.XTraceback
-    :members:
-    :undoc-members:
+    XTraceback is not tested on Windows systems (patches very welcome).
 
-.. autoclass:: xtraceback.StdlibCompat
-    :members:
-    :undoc-members:
+Installation
+------------
+
+.. pypi-release:: xtraceback
+      :prefix: The package is on PyPI
+
+To install using :pypi:`pip`::
+
+    pip install xtraceback
+
+To install with syntax highlighting provided by :pypi:`Pygments`::
+
+    pip install "xtraceback[syntax]"
+
+Documentation
+-------------
+
+.. toctree::
+    :maxdepth: 2
+
+    stdlibcompat
+    configuration
+    examples
+    api
+    nose
 
 Indices and tables
 ==================

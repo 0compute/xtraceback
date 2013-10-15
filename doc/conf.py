@@ -26,8 +26,10 @@ import xtraceback
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo',
-              'sphinx.ext.coverage', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.coverage',
+              'sphinx.ext.doctest', 'sphinx.ext.todo',
+              'sphinx.ext.coverage', 'sphinx.ext.viewcode',
+              'sphinx.ext.intersphinx', 'sphinxcontrib.cheeseshop']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -43,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'XTraceback'
-copyright = u'2011, Ischium'
+copyright = u'2011-2013, Arthur Noel'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -122,7 +124,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['.static']
+#html_static_path = ['.static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -181,7 +183,7 @@ htmlhelp_basename = 'XTracebackdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'XTraceback.tex', u'XTraceback Documentation',
-   u'Ischium', 'manual'),
+   u'Arthur Noel', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -214,8 +216,17 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'xtraceback', u'XTraceback Documentation',
-     [u'Ischium'], 1)
+     [u'Arthur Noel'], 1)
 ]
 
 # Options for extensions
 autoclass_content = "both"
+autodoc_default_flags = ['members', 'undoc-members', 'private-members']
+autodoc_member_order = 'bysource'
+
+intersphinx_mapping = {"python": ("http://docs.python.org/", None)}
+
+googleanalytics_id = "UA-1135899-3"
+
+spelling_lang = 'en'
+#spelling_ignore_pypi_package_names = True

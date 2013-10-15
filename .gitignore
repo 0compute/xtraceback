@@ -1,7 +1,8 @@
 *.pyc
-*.egg-info/
-dist/
-.coverage
-reports/
-*.swp
-doc/.build/
+*$py.class
+/*.egg-info/
+/.build/
+/.coverage
+/.dist/
+/.lib/
+/.venv/

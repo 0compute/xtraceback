@@ -1,8 +1,12 @@
-from .stdlibcompat import StdlibCompat
+__version__ = "0.4.0-rc1"
+
+from .loggingcompat import LoggingCompat
+from .tracebackcompat import TracebackCompat
 from .xtraceback import XTraceback
+from .xtracebackoptions import XTracebackOptions
 
-__version__ = "0.3.3"
+from .pycompat import monkeypatch
+monkeypatch()
+del monkeypatch
 
-compat = StdlibCompat()
-__enter__ = compat.__enter__
-__exit__ = compat.__exit__
+compat = TracebackCompat()

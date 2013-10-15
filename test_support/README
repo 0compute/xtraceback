@@ -1,0 +1,5 @@
+The xtraceback test suite requires the test_traceback module from the standard
+library test package which is not included in the Python package for some
+distributions (Debian).
+
+This directory contains the neccesary files from supported Python versions.

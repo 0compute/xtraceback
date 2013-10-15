@@ -1,0 +1,15 @@
+include Makefile
+
+# execute the coverage command then transform the latest .coverage file to
+# relative paths - this is so that tests can be executed in different places
+# with the coverage later combined
+#
+# FIXME: This is ugly and doesn't work in parallel
+
+COVERAGE_TRANSFORM = $(PYTHON) xtraceback/tests/coverage_transform.py
+
+$(COVERAGE)::
+	$(COVERAGE_TRANSFORM) rel $$(ls -t .coverage.* | head -1)
+
+coverage-prereport::
+	$(COVERAGE_TRANSFORM) abs .coverage.*

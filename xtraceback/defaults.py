@@ -1,0 +1,2 @@
+
+DEFAULT_WIDTH = 80

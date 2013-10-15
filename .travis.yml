@@ -1,0 +1,15 @@
+language: python
+env:
+    - PYTHON=python2.7
+    - PYTHON=python2.6
+    - PYTHON=python2.5
+    - PYTHON=python3.2
+    - PYTHON=python3.3
+    - VIRTUAL_ENV_NAME=nopygments
+    - VIRTUAL_ENV_NAME=nonose
+    - PYTHON=jython
+before_install:
+    - export PIP_DOWNLOAD_CACHE=$(mktemp -d)
+    - if [[ $PYTHON == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+install: make env
+script: make coverage
