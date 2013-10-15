@@ -5,4 +5,6 @@ API
 
 .. autoclass:: xtraceback.XTracebackOptions
 
-.. autoclass:: xtraceback.StdlibCompat
+.. autoclass:: xtraceback.TracebackCompat
+
+.. autoclass:: xtraceback.LoggingCompat
