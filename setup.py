@@ -16,7 +16,7 @@ else:
 README = open(os.path.join(os.path.dirname(__file__), "README.md"))
 
 setup(name="xtraceback",
-      version="0.4.0-dev",
+      version="0.4.0-rc1",
       description="A verbose traceback formatter",
       long_description="\n".join(README.read().splitlines()[0:3]),
       license="MIT",
