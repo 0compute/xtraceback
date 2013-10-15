@@ -1,7 +1,7 @@
 import sys
 import traceback
 
-import xtraceback
+from .. import TracebackCompat
 
 from .cases import XTracebackTestCase
 from .config import BASIC_TEST, SIMPLE_EXCEPTION, \
@@ -12,7 +12,7 @@ class TestTracebackCompat(XTracebackTestCase):
 
     def setUp(self):
         super(TestTracebackCompat, self).setUp()
-        self.compat = xtraceback.TracebackCompat(**self.XTB_DEFAULTS)
+        self.compat = TracebackCompat(**self.XTB_DEFAULTS)
         self.compat.__enter__()
 
     def tearDown(self):

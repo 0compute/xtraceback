@@ -2,7 +2,7 @@ from __future__ import with_statement
 
 import logging
 
-from xtraceback import LoggingCompat, TracebackCompat
+from .. import LoggingCompat, TracebackCompat
 
 from .cases import XTracebackTestCase, skipIfNoPygments
 from .config import BASIC_TEST, SIMPLE_EXCEPTION, SIMPLE_EXCEPTION_COLOR

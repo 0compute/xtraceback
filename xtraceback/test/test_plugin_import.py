@@ -3,5 +3,5 @@
 # this module is used to test that we can import without nose being present
 
 if __name__ == "__main__":
-    import xtraceback.nosextraceback
+    import ..nosextraceback
     print "OK"

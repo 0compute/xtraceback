@@ -1,4 +1,4 @@
-from xtraceback import XTracebackOptions
+from ..xtracebackoptions import XTracebackOptions
 
 from .cases import XTracebackTestCase
 

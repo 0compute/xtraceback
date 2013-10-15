@@ -18,9 +18,9 @@ except ImportError:
     pygments = None
 skipIfNoPygments = unittest.skipIf(pygments is None, "pygments not available")
 
-from xtraceback import TracebackCompat, XTraceback
+from .. import TracebackCompat, XTraceback
 
-from xtraceback.test.config import TB_DEFAULTS
+from .config import TB_DEFAULTS
 
 ID_PATTERN = re.compile("(0[xX][a-fA-F0-9]+)")
 TRAILING_WHITESPACE_PATTERN = re.compile(" \n")

@@ -1,2 +1,2 @@
-from xtraceback.test import monkeypatch
+from . import monkeypatch
 del monkeypatch

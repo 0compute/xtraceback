@@ -3,7 +3,7 @@ import unittest
 
 from nose.plugins import PluginTester
 
-from xtraceback.nosextraceback import NoseXTraceback
+from ..nosextraceback import NoseXTraceback
 
 from .cases import XTracebackTestCase
 
