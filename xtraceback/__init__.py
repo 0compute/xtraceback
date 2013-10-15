@@ -1,4 +1,4 @@
-__version__ = "0.4.0-dev"
+__version__ = "0.4.0-rc1"
 
 from .loggingcompat import LoggingCompat
 from .tracebackcompat import TracebackCompat
