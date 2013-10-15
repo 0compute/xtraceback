@@ -26,6 +26,8 @@ class XTracebackOptions(object):
         limit=None,
         context=5,
         globals_module_include=None,
+        # python 3
+        chain=True,
         )
 
     # default flags

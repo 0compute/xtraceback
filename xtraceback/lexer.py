@@ -18,7 +18,7 @@ else:
         ]
 
         # Marker __repr__
-        ref = "(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" \
+        ref = r"(<ref offset)(=)(\-\d+)( ?)((?:name)?)(=?)((?:%s)?)(>?)" \
             % BASE_NAME
         tokens["root"].insert(0, (ref, bygroups(Name.Builtin, Name.Operator,
                                                 Number, Text, Name.Builtin,
@@ -39,7 +39,7 @@ else:
                  "frame"),
                 # file - path is colored differently if under working directory
                 (r'^(  File )((?:"[./<][^"]+")?)((?:"[^"]+")?)'
-                 '(, line )(\d+)((?:, in )?)(.*)(\n)',
+                 r'(, line )(\d+)((?:, in )?)(.*)(\n)',
                  bygroups(Generic.Error, Name.Builtin, Operator.Word,
                           Generic.Error, Number, Generic.Error, Name.Function,
                           Text),

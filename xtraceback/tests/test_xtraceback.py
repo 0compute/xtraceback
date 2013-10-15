@@ -1,5 +1,5 @@
 from . import config
-from . import something
+from . import thing
 from .cases import XTracebackTestCase, skipIfNoPygments
 
 
@@ -36,34 +36,9 @@ class TestXTraceback(XTracebackTestCase):
 
     def test_extended(self):
         exc_info = self._get_exc_info(config.EXTENDED_TEST,
-                                      Something=something.Something)
+                                      Thing=thing.Thing)
         xtb = self._factory(show_globals=True, *exc_info)
         self._assert_tb_str(str(xtb), config.EXTENDED_EXCEPTION)
 
     def test_syntax(self):
         self._check_tb_str(config.SYNTAX_TEST, config.SYNTAX_EXCEPTION)
-
-    def test_format_variable_bad_repr(self):
-        class AClass(object):
-            def __repr__(self):
-                raise Exception("repr fail")
-        instance = AClass()
-        xtb = self._factory(None, None, None)
-        result = xtb._format_variable("a", instance)
-        self.assertEqual(result, "    a = <unprintable AClass object>")
-
-    def test_format_long_variable(self):
-        xtb = self._factory(None, None, None)
-        long_str = "a" * (2 * xtb.print_width + 1)
-        formatted_str = xtb._format_variable("a", long_str)
-        assert formatted_str.endswith("...'")
-        assert len(formatted_str) == xtb.print_width
-
-    def test_reformat_variable(self):
-        xtb = self._factory(None, None, None)
-        value = dict()
-        for i in range(0, 10):
-            value["a%s" % i] = i
-        formatted_str = xtb._format_variable("a", value)
-        assert formatted_str.startswith("    a = {")
-        assert formatted_str.endswith("}")

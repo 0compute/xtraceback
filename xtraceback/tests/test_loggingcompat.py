@@ -48,10 +48,6 @@ class TestLoggingCompat(XTracebackTestCase):
                 exec(BASIC_TEST, {})
             except:
                 logger.exception("the exc")
-                exc_str = handler.formatter.formatException(
-                    self._get_exc_info(BASIC_TEST)
-                )
-                self._assert_tb_str(exc_str, SIMPLE_EXCEPTION)
             else:
                 self.fail("Should have raised exception")
         self.assertTrue(len(handler.log), 1)
@@ -69,10 +65,6 @@ class TestLoggingCompat(XTracebackTestCase):
                 exec(BASIC_TEST, {})
             except:
                 logger.exception("the exc")
-                exc_str = handler.formatter.formatException(
-                    self._get_exc_info(BASIC_TEST)
-                )
-                self._assert_tb_str(exc_str, SIMPLE_EXCEPTION_COLOR)
             else:
                 self.fail("Should have raised exception")
         self.assertTrue(len(handler.log), 1)

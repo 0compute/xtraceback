@@ -1,6 +1,6 @@
 
 
-class SomethingElse(object):
+class Other(object):
 
     def one(self, long):
         number = 1

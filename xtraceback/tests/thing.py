@@ -1,11 +1,12 @@
+# imported so that they are in the global scope which we check in the tests
 import logging
 import os
 import sys
 
-from .somethingelse import SomethingElse
+from .other import Other
 
 
-class Something(object):
+class Thing(object):
 
     def one(self):
         sugar = max(1, 2)
@@ -13,5 +14,5 @@ class Something(object):
 
     def two(self, sugar):
         long = "y" * 67
-        obj = SomethingElse()
+        obj = Other()
         obj.one(long)

@@ -19,11 +19,10 @@ except ImportError:
 skipIfNoPygments = unittest.skipIf(pygments is None, "pygments not available")
 
 from xtraceback import TracebackCompat, XTraceback
-from xtraceback import shim
 
 from xtraceback.tests.config import TB_DEFAULTS
 
-ID_PATTERN = re.compile("0[xX][a-fA-F0-9]+")
+ID_PATTERN = re.compile("(0[xX][a-fA-F0-9]+)")
 TRAILING_WHITESPACE_PATTERN = re.compile(" \n")
 
 
@@ -72,10 +71,6 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
     # keep a reference to this for subclasses
     StringIO = StringIO
 
-    def tearDown(self):
-        super(XTracebackTestCase, self).tearDown()
-        shim.Shim._instances = {}
-
     def _factory(self, *exc_info, **options):
         _options = copy.deepcopy(self.XTB_DEFAULTS)
         _options.update(options)
@@ -90,7 +85,9 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
             self.fail("Should have raised exception")
 
     def _assert_tb_str(self, exc_str, expect_exc_str):
-        exc_str = ID_PATTERN.sub(TB_DEFAULTS["address"], exc_str)
+        exc_str = ID_PATTERN.sub(
+            lambda m: TB_DEFAULTS["address"][0:len(m.group(0))],
+            exc_str)
         # stripping trailing whitespace that gets added when we have an empty
         # line
         exc_str = TRAILING_WHITESPACE_PATTERN.sub("\n", exc_str)
@@ -99,7 +96,7 @@ class XTracebackTestCase(TestCaseMixin, unittest.TestCase):
                                         exc_str.splitlines(True),
                                         "expected", "actual")
             print("".join(diff))
-            self.fail("different")
+            self.fail("traceback is not as expected")
 
     def _assert_tb_lines(self, exc_lines, expect_lines):
         self._assert_tb_str("".join(exc_lines), "".join(expect_lines))
