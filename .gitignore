@@ -1,8 +1,8 @@
 *.pyc
 *$py.class
 /*.egg-info/
-/.coverage
-/.coverage.*
 /.build/
+/.coverage
+/.dist/
 /.lib/
 /.venv/
