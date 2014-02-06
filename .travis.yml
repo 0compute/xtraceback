@@ -11,5 +11,8 @@ env:
 before_install:
     - export PIP_DOWNLOAD_CACHE=$(mktemp -d)
     - if [[ $PYTHON == jython ]]; then JAR=http://downloads.sourceforge.net/project/jython/jython/2.5.2/jython_installer-2.5.2.jar; wget $JAR && java -jar $(basename $JAR) -sd ~/jython && export PATH=~/jython:$PATH; fi
+    - pip install coveralls
 install: make env
 script: make coverage
+after_success:
+    - coveralls
