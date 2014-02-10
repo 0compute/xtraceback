@@ -4,4 +4,4 @@ and as an aide to post-mortem debugging.
 
 Documentation is published at http://xtraceback.readthedocs.org/.
 
-[![Build Status](https://secure.travis-ci.org/0compute/xtraceback.png?branch=develop)](http://travis-ci.org/0compute/xtraceback)
+[![Build Status](https://secure.travis-ci.org/0compute/xtraceback.png?branch=master)](http://travis-ci.org/0compute/xtraceback)
