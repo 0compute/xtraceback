@@ -2,11 +2,12 @@ XTraceback is a verbose Python traceback formatter with support for variable
 expansion and syntax highlighting. It is intended both as a development tool
 and as an aide to post-mortem debugging.
 
-.. image:: https://secure.travis-ci.org/0compute/xtraceback.png?branch=develop
+
+.. image:: http://img.shields.io/travis/0compute/xtraceback/develop.svg
     :target: http://travis-ci.org/0compute/xtraceback
     :alt: Build
 
-.. image:: https://coveralls.io/repos/0compute/xtraceback/badge.png?branch=develop
+.. image:: http://img.shields.io/coveralls/0compute/xtraceback/develop.svg
     :target: https://coveralls.io/r/0compute/xtraceback
     :alt: Coverage
 
@@ -14,11 +15,11 @@ and as an aide to post-mortem debugging.
    :target: https://landscape.io/github/0compute/xtraceback/develop
    :alt: Code Health
 
-.. image:: https://pypip.in/v/xtraceback/badge.png
+.. image:: http://img.shields.io/pypi/v/xtraceback.svg
     :target: https://pypi.python.org/pypi/xtraceback/
     :alt: Latest Version
 
-.. image:: https://pypip.in/d/xtraceback/badge.png?period=month
+.. image:: http://img.shields.io/pypi/dm/xtraceback.svg
     :target: https://pypi.python.org/pypi/xtraceback/
     :alt: Downloads
 
