@@ -5,6 +5,9 @@ and as an aide to post-mortem debugging.
 .. image:: https://secure.travis-ci.org/0compute/xtraceback.png?branch=master
     :target: http://travis-ci.org/0compute/xtraceback
 
+.. image:: https://coveralls.io/repos/0compute/xtraceback/badge.png?branch=master
+    :target: https://coveralls.io/r/0compute/xtraceback
+
 Documentation is published at `read the docs`_.
 
 .. _read the docs: https://xtraceback.readthedocs.org/en/latest/
