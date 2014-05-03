@@ -13,12 +13,12 @@ else:
         "nose.plugins": ("xtraceback=xtraceback.nosextraceback:NoseXTraceback",),
     }
 
-README = open(os.path.join(os.path.dirname(__file__), "README.md"))
+README = open(os.path.join(os.path.dirname(__file__), "README.rst"))
 
 setup(name="xtraceback",
       version="0.4.0-rc1",
       description="A verbose traceback formatter",
-      long_description="\n".join(README.read().splitlines()[0:3]),
+      long_description=README.read(),
       license="MIT",
       keywords="traceback exception nose",
       author="Arthur Noel",
