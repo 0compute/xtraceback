@@ -23,6 +23,6 @@ Documentation is published at http://xtraceback.rtfd.org/.
     :target: https://pypi.python.org/pypi/xtraceback/
     :alt: Latest Version
 
-.. image:: https://pypip.in/license/xtraceback/badge.png
+.. image:: https://img.shields.io/pypi/l/xtraceback.svg
     :target: https://github.com/0compute/makeenv/blob/master/LICENSE
     :alt: License
